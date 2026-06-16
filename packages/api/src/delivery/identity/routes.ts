@@ -23,12 +23,8 @@ export interface IdentityRoutesOptions {
 export const identityRoutes: FastifyPluginAsync<IdentityRoutesOptions> = (app, opts) => {
   const { identity, env } = opts;
 
-  app.decorateRequest('currentUser', null);
-  app.addHook('onRequest', async (request) => {
-    const token = request.cookies[env.COOKIE_NAME];
-    request.currentUser = token ? await identity.authenticate(token) : null;
-  });
-
+  // O contexto de autenticação (decorateRequest + onRequest) é montado no root
+  // do servidor (server.ts), compartilhado entre os módulos de rotas.
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.post(
