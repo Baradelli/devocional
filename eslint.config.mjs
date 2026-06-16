@@ -14,7 +14,16 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/dist/', '**/build/', '**/coverage/', '**/node_modules/', '**/*.d.ts'] },
+  {
+    ignores: [
+      '**/dist/',
+      '**/build/',
+      '**/coverage/',
+      '**/node_modules/',
+      '**/*.d.ts',
+      'packages/api/src/generated/',
+    ],
+  },
 
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,

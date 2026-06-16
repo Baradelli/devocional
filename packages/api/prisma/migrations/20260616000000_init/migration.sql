@@ -1,0 +1,2 @@
+-- Initial empty migration (M0 foundation).
+-- Establishes the migration pipeline; domain tables are introduced from M1 onward.
