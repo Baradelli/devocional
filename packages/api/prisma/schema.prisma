@@ -1,6 +1,5 @@
 // Schema do banco — único banco para todo o monólito modular.
 // Identificadores e schema sempre em inglês (ver CLAUDE.md).
-// M0: datasource + generator apenas; os modelos chegam a partir do M1.
 
 generator client {
   provider = "prisma-client-js"
@@ -9,4 +8,58 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  ADMIN
+}
+
+enum InviteStatus {
+  PENDING
+  USED
+  REVOKED
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  name                  String
+  email                 String    @unique
+  passwordHash          String
+  role                  Role      @default(MEMBER)
+  timezone              String
+  onboardingCompletedAt DateTime?
+  createdAt             DateTime  @default(now())
+
+  sessions       Session[]
+  invitesCreated Invite[]  @relation("InviteCreatedBy")
+  inviteUsed     Invite?   @relation("InviteUsedBy")
+}
+
+model Invite {
+  id          String       @id @default(cuid())
+  code        String       @unique
+  email       String?
+  status      InviteStatus @default(PENDING)
+  expiresAt   DateTime
+  createdById String
+  createdBy   User         @relation("InviteCreatedBy", fields: [createdById], references: [id])
+  usedById    String?      @unique
+  usedBy      User?        @relation("InviteUsedBy", fields: [usedById], references: [id])
+  usedAt      DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([createdById])
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }

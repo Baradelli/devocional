@@ -16,11 +16,11 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] CI bloqueia PR em falha de typecheck, lint, `prettier --check` e testes.
 
 ## M1 — Identidade & convites
-- [ ] Schema: `User` (com `timezone`, `role`, `onboardingCompletedAt`), `Invite`.
-- [ ] Auth por sessão com cookie httpOnly (login, logout, revogação).
-- [ ] Middleware de papel; rotas `/admin` protegidas (só `admin`).
-- [ ] Fluxo de convite: admin gera convite; cadastro só com convite válido.
-- [ ] Testes: unit das regras de convite/expiração; integração do fluxo de auth.
+- [x] Schema: `User` (com `timezone`, `role`, `onboardingCompletedAt`), `Invite`.
+- [x] Auth por sessão com cookie httpOnly (login, logout, revogação).
+- [x] Middleware de papel; rotas `/admin` protegidas (só `admin`).
+- [x] Fluxo de convite: admin gera convite; cadastro só com convite válido.
+- [x] Testes: unit das regras de convite/expiração; integração do fluxo de auth.
 
 ## M2 — Espinha de maior risco: dia lógico + streak + sync offline
 > **Aqui mora o risco do produto. TDD rigoroso.**
