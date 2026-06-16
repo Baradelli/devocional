@@ -44,12 +44,12 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Testes: integração das queries do seletor e da montagem de texto.
 
 ## M4 — Conteúdo + admin de autoria
-- [ ] Schema: `Devotional` (por `date`), `DevotionalBlock` (tipos: quote/passage/devotional/prayer/reflection), `Media`, `PassageReference`.
-- [ ] Bloco `reflection` carrega 3 perguntas + 3 ações.
-- [ ] Upload de mídia (áudio por bloco; gif + som da oração) → storage em disco atrás de interface.
-- [ ] Admin: formulário de montagem do devocional (RHF + Zod).
-- [ ] Job de publicação 00h (in-process, ex. node-cron) torna o conteúdo da data disponível; log + alerta em falha.
-- [ ] Testes: integração da criação de devocional e da publicação agendada.
+- [x] Schema: `Devotional` (por `date`), `DevotionalBlock` (tipos: quote/passage/devotional/prayer/reflection), `Media`, `PassageReference`.
+- [x] Bloco `reflection` carrega 3 perguntas + 3 ações.
+- [x] Upload de mídia (áudio por bloco; gif + som da oração) → storage em disco atrás de interface.
+- [x] Admin: formulário de montagem do devocional (RHF + Zod).
+- [x] Job de publicação 00h (in-process, ex. node-cron) torna o conteúdo da data disponível; log + alerta em falha.
+- [x] Testes: integração da criação de devocional e da publicação agendada.
 
 ## M5 — Tela "Hoje" (PWA do fiel)
 - [ ] Service worker (Workbox): cacheia app shell + devocional do dia (texto da passagem já montado) + mídias.

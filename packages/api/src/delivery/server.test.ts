@@ -10,6 +10,8 @@ const env: Env = {
   DATABASE_URL: 'postgresql://localhost:5432/devocional_test',
   PORT: 3000,
   COOKIE_NAME: 'devocional_session',
+  MEDIA_DIR: 'media-storage-test',
+  SERVER_TIMEZONE: 'America/Sao_Paulo',
 };
 
 describe('GET /health', () => {

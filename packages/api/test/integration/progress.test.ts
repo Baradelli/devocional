@@ -46,6 +46,8 @@ beforeAll(async () => {
     DATABASE_URL: databaseUrl,
     PORT: 3000,
     COOKIE_NAME: 'devocional_session',
+    MEDIA_DIR: 'media-storage-test',
+    SERVER_TIMEZONE: 'America/Sao_Paulo',
   };
   app = buildServer({ prisma, env, logger: false });
   await app.ready();

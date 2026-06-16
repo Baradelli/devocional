@@ -139,3 +139,77 @@ button.link {
   font-weight: 700;
   margin-right: 0.15rem;
 }
+
+.app main {
+  display: block;
+}
+
+.devotional-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.devotional-form .row {
+  display: flex;
+  gap: 1rem;
+  flex-direction: row;
+}
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--surface);
+}
+
+legend {
+  font-weight: 700;
+  color: var(--bark);
+  padding: 0 0.4rem;
+}
+
+textarea {
+  font: inherit;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  resize: vertical;
+  background: #fff;
+  color: var(--ink);
+}
+
+.passage-picker .selector {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.passage-picker .preview {
+  background: var(--bg);
+  border-radius: 9px;
+  padding: 0.6rem 0.8rem;
+  line-height: 1.6;
+}
+
+.upload {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+
+.upload .ok {
+  color: var(--leaf);
+}
+
+.form-ok {
+  color: var(--leaf);
+  font-weight: 600;
+}

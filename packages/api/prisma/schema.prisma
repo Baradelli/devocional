@@ -36,6 +36,20 @@ enum AchievementType {
   MONTHLY_PRIZE
 }
 
+enum BlockType {
+  QUOTE
+  PASSAGE
+  DEVOTIONAL
+  PRAYER
+  REFLECTION
+}
+
+enum MediaType {
+  AUDIO
+  GIF
+  SOUND
+}
+
 model User {
   id                    String    @id @default(cuid())
   name                  String
@@ -159,4 +173,64 @@ model Verse {
 
   @@unique([bookId, chapter, verse])
   @@index([bookId, chapter])
+}
+
+// Conteúdo diário. Histórico completo persistido; a UI do v1 só mostra "hoje"
+// (ADR-004). Disponível às 00h da `date` — `publishedAt` registra a publicação.
+model Devotional {
+  id          String    @id @default(cuid())
+  date        String    @unique // YYYY-MM-DD da publicação
+  theme       String?
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  blocks DevotionalBlock[]
+}
+
+model DevotionalBlock {
+  id           String    @id @default(cuid())
+  devotionalId String
+  type         BlockType
+  order        Int
+  text         String? // quote/devotional/prayer; passagem é referência (texto derivado)
+
+  // Mídias do bloco (referências soft a Media; sem FK para simplificar o v1).
+  audioMediaId String?
+  gifMediaId   String? // oração
+  soundMediaId String? // oração
+
+  // Reflexão: 3 perguntas + 3 ações (validação 3+3 na borda via Zod).
+  reflectionQuestions String[]
+  reflectionActions   String[]
+
+  devotional Devotional        @relation(fields: [devotionalId], references: [id], onDelete: Cascade)
+  passage    PassageReference?
+
+  @@unique([devotionalId, order])
+  @@index([devotionalId])
+}
+
+// Referência canônica da passagem de um bloco (ADR-006). O texto é montado da
+// tabela `Verse` na exibição; aqui guardamos só a referência.
+model PassageReference {
+  id              String @id @default(cuid())
+  blockId         String @unique
+  translationId   String
+  bookReferenceId Int
+  chapter         Int
+  verseStart      Int
+  verseEnd        Int
+
+  block DevotionalBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+}
+
+model Media {
+  id           String    @id @default(cuid())
+  type         MediaType
+  storageKey   String // chave no storage (disco no v1, atrás de interface)
+  mimetype     String
+  size         Int
+  originalName String?
+  createdAt    DateTime  @default(now())
 }

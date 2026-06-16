@@ -2,8 +2,8 @@ import type { UserPublic } from '@devocional/shared';
 import { useEffect, useState } from 'react';
 
 import { fetchCurrentUser, logout } from './api/auth.js';
+import { DevotionalForm } from './features/DevotionalForm.js';
 import { Login } from './features/Login.js';
-import { PassageSelector } from './features/PassageSelector.js';
 
 export function App() {
   const [user, setUser] = useState<UserPublic | null>(null);
@@ -41,7 +41,7 @@ export function App() {
         </span>
       </header>
       <main>
-        <PassageSelector />
+        <DevotionalForm />
       </main>
     </div>
   );
