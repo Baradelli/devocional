@@ -36,12 +36,12 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Endpoint de sync: recebe fila de conclusões offline com `idempotencyKey`; reconcilia.
 
 ## M3 — Base bíblica + seletor
-- [ ] Schema: `Translation`, `Book` (com `bookReferenceId`, `testamentReferenceId`), `Verse`.
-- [ ] Importador dos SQLs (multi-tradução) — script idempotente.
-- [ ] API do seletor: listar livros (por testamento), capítulos de um livro, versículos de um range.
-- [ ] Montagem de texto a partir de uma `PassageReference`.
-- [ ] Admin: seletor encadeado tradução → livro → capítulo → range, com preview.
-- [ ] Testes: integração das queries do seletor e da montagem de texto.
+- [x] Schema: `Translation`, `Book` (com `bookReferenceId`, `testamentReferenceId`), `Verse`.
+- [x] Importador dos SQLs (multi-tradução) — script idempotente.
+- [x] API do seletor: listar livros (por testamento), capítulos de um livro, versículos de um range.
+- [x] Montagem de texto a partir de uma `PassageReference`.
+- [x] Admin: seletor encadeado tradução → livro → capítulo → range, com preview.
+- [x] Testes: integração das queries do seletor e da montagem de texto.
 
 ## M4 — Conteúdo + admin de autoria
 - [ ] Schema: `Devotional` (por `date`), `DevotionalBlock` (tipos: quote/passage/devotional/prayer/reflection), `Media`, `PassageReference`.

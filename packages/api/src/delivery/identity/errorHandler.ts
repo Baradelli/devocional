@@ -4,8 +4,10 @@ import {
   isResponseSerializationError,
 } from 'fastify-type-provider-zod';
 
+import { BibleError } from '../../application/bible/errors.js';
 import { IdentityError } from '../../application/identity/errors.js';
 import { ProgressError } from '../../application/progress/errors.js';
+import { bibleErrorResponse } from '../bible/errorMessages.js';
 import { progressErrorResponse } from '../progress/errorMessages.js';
 import { identityErrorResponse } from './errorMessages.js';
 
@@ -26,6 +28,12 @@ export function identityErrorHandler(
 
   if (error instanceof ProgressError) {
     const mapped = progressErrorResponse(error.code);
+    void reply.status(mapped.status).send({ error: error.code, message: mapped.message });
+    return;
+  }
+
+  if (error instanceof BibleError) {
+    const mapped = bibleErrorResponse(error.code);
     void reply.status(mapped.status).send({ error: error.code, message: mapped.message });
     return;
   }

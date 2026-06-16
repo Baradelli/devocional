@@ -121,3 +121,42 @@ model Achievement {
   @@unique([userId, type, milestone])
   @@index([userId])
 }
+
+// Base bíblica multi-tradução, importada via SQL. Leitura pesada e imutável
+// após a importação → fortemente cacheável. A passagem do devocional referencia
+// `bookReferenceId` (chave canônica), permitindo cruzar entre traduções.
+model Translation {
+  id        String   @id @default(cuid())
+  code      String   @unique // ex.: ARA, NVI
+  name      String
+  createdAt DateTime @default(now())
+
+  books Book[]
+}
+
+model Book {
+  id                   String @id @default(cuid())
+  translationId        String
+  bookReferenceId      Int // ordem canônica (1..66)
+  testamentReferenceId Int // 1 = Antigo Testamento, 2 = Novo Testamento
+  name                 String
+
+  translation Translation @relation(fields: [translationId], references: [id], onDelete: Cascade)
+  verses      Verse[]
+
+  @@unique([translationId, bookReferenceId])
+  @@index([translationId])
+}
+
+model Verse {
+  id      String @id @default(cuid())
+  bookId  String
+  chapter Int
+  verse   Int
+  text    String
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, chapter, verse])
+  @@index([bookId, chapter])
+}
