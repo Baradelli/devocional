@@ -3,9 +3,11 @@ import type { PrismaClient } from '@prisma/client';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 
+import { createBibleModule } from '../infrastructure/bible/bibleModule.js';
 import type { Env } from '../infrastructure/config/env.js';
 import { createIdentityModule } from '../infrastructure/identity/identityModule.js';
 import { createProgressModule } from '../infrastructure/progress/progressModule.js';
+import { bibleRoutes } from './bible/routes.js';
 import { identityErrorHandler } from './identity/errorHandler.js';
 import { identityRoutes } from './identity/routes.js';
 import { progressRoutes } from './progress/routes.js';
@@ -28,6 +30,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
 
   const identity = createIdentityModule(prisma);
   const progress = createProgressModule(prisma);
+  const bible = createBibleModule(prisma);
 
   // Contexto de autenticação compartilhado por todas as rotas: resolve o
   // usuário atual a partir do cookie de sessão (autoridade do servidor).
@@ -40,6 +43,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
   app.register(healthRoutes);
   app.register(identityRoutes, { identity, env });
   app.register(progressRoutes, { progress });
+  app.register(bibleRoutes, { bible });
 
   return app;
 }
