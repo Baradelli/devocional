@@ -4,13 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file=.env src/index.ts",
     "typecheck": "tsc --noEmit",
     "pretest": "prisma generate",
     "test": "vitest run",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "seed": "tsx --env-file=.env src/scripts/seed.ts"
   },
   "dependencies": {
     "@devocional/shared": "workspace:*",

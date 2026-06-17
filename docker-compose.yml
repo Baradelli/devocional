@@ -1,0 +1,24 @@
+# Postgres de desenvolvimento local da API.
+# Os testes de integração NÃO usam este serviço — sobem um Postgres efêmero via
+# Testcontainers. Porta 5433 no host para não colidir com outros Postgres locais.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: devocional_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: devocional
+      POSTGRES_PASSWORD: devocional
+      POSTGRES_DB: devocional
+    ports:
+      - '5433:5432'
+    volumes:
+      - devocional_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U devocional -d devocional']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  devocional_pgdata:
