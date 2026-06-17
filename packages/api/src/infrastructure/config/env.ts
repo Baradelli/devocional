@@ -7,6 +7,12 @@ const envSchema = z.object({
   COOKIE_NAME: z.string().min(1).default('devocional_session'),
   MEDIA_DIR: z.string().min(1).default('media-storage'),
   SERVER_TIMEZONE: z.string().min(1).default('America/Sao_Paulo'),
+  // Web Push (VAPID). Sem as chaves, o canal de push vira no-op logado.
+  VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_PRIVATE_KEY: z.string().optional(),
+  VAPID_SUBJECT: z.string().default('mailto:contato@devocional.app'),
+  // URL do app do fiel, usada no clique da notificação.
+  APP_URL: z.string().url().default('http://localhost:5173'),
   // Origens permitidas (CORS) — frontends em dev. CSV.
   CORS_ORIGINS: z
     .string()

@@ -24,6 +24,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg}'],
+        // Handlers de Web Push (push + notificationclick) anexados ao SW gerado.
+        importScripts: ['push-handler.js'],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname === '/devotionals/today',

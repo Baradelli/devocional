@@ -50,6 +50,11 @@ enum MediaType {
   SOUND
 }
 
+enum WhatsappStatus {
+  PENDING
+  VERIFIED
+}
+
 model User {
   id                    String    @id @default(cuid())
   name                  String
@@ -63,10 +68,13 @@ model User {
   sessions         Session[]
   invitesCreated   Invite[]          @relation("InviteCreatedBy")
   inviteUsed       Invite?           @relation("InviteUsedBy")
-  dailyCompletions DailyCompletion[]
-  streakState      StreakState?
-  achievements     Achievement[]
-  notes            Note[]
+  dailyCompletions   DailyCompletion[]
+  streakState        StreakState?
+  achievements       Achievement[]
+  notes              Note[]
+  pushSubscriptions  PushSubscription[]
+  whatsappContact    WhatsappContact?
+  reminderPreference ReminderPreference?
 }
 
 model Invite {
@@ -257,4 +265,44 @@ model Note {
   @@unique([userId, devotionalId])
   @@index([userId])
   @@index([devotionalId])
+}
+
+// Inscrição de Web Push (VAPID). 1 user : N devices. `endpoint` é a chave
+// natural devolvida pelo browser.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  label     String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Número de WhatsApp do usuário (E.164). Só recebe mensagem se VERIFIED. O
+// código de verificação é efêmero (expira) e some após confirmar.
+model WhatsappContact {
+  userId           String         @id
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone            String
+  status           WhatsappStatus @default(PENDING)
+  verificationCode String?
+  codeExpiresAt    DateTime?
+  verifiedAt       DateTime?
+  updatedAt        DateTime       @updatedAt
+}
+
+// Preferência de lembrete: horário local (HH:MM) + canais ativos. O disparo é
+// calculado no fuso do usuário; `lastSentLogicalDate` deduplica por dia.
+model ReminderPreference {
+  userId              String   @id
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  localTime           String
+  pushEnabled         Boolean  @default(true)
+  whatsappEnabled     Boolean  @default(false)
+  lastSentLogicalDate String?
+  updatedAt           DateTime @updatedAt
 }

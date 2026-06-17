@@ -5,20 +5,23 @@ import { fetchCurrentUser, logout } from './api/auth.js';
 import { Garden } from './features/Garden.js';
 import { Library } from './features/Library.js';
 import { Login } from './features/Login.js';
+import { Settings } from './features/Settings.js';
 import { Today } from './features/Today.js';
 
-type View = 'today' | 'garden' | 'library';
+type View = 'today' | 'garden' | 'library' | 'settings';
 
 const TABS: { view: View; label: string }[] = [
   { view: 'today', label: 'Hoje' },
   { view: 'garden', label: 'Jardim' },
   { view: 'library', label: 'Anotações' },
+  { view: 'settings', label: 'Lembretes' },
 ];
 
 const VIEWS: Record<View, () => ReactElement> = {
   today: Today,
   garden: Garden,
   library: Library,
+  settings: Settings,
 };
 
 export function App() {

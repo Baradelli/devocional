@@ -71,11 +71,11 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Coleção permanente de insígnias e prêmios.
 
 ## M8 — Notificações multi-canal
-- [ ] Schema: `PushSubscription`, `WhatsappContact` (com verificação), `ReminderPreference` (horário + canais ativos).
-- [ ] Web Push (VAPID): registro de subscription, disparo pelo servidor.
-- [ ] WhatsApp atrás de `NotificationChannel`: lib não-oficial, chip dedicado, disparos espaçados, best-effort.
-- [ ] Fluxo de verificação de número (código → confirma → ativa).
-- [ ] Job periódico de disparo por horário no fuso de cada usuário; log + alerta.
+- [x] Schema: `PushSubscription`, `WhatsappContact` (com verificação), `ReminderPreference` (horário + canais ativos).
+- [x] Web Push (VAPID): registro de subscription, disparo pelo servidor.
+- [x] WhatsApp atrás de `NotificationChannel`: adapter stub best-effort (lib não-oficial/chip dedicado depois, sem tocar no núcleo).
+- [x] Fluxo de verificação de número (código → confirma → ativa).
+- [x] Job periódico de disparo por horário no fuso de cada usuário; log + alerta.
 
 ## M9 — Onboarding
 - [ ] Tour inicial (conteúdo PT-BR versionado): blocos, ler/escutar, oração, anotações, árvore/streak, ativar lembretes, instalar PWA no iPhone, validar WhatsApp.

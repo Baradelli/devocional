@@ -75,6 +75,8 @@ beforeAll(async () => {
     COOKIE_NAME: 'devocional_session',
     MEDIA_DIR: path.join(tmpdir(), `devocional-media-${randomUUID()}`),
     SERVER_TIMEZONE: 'America/Sao_Paulo',
+    VAPID_SUBJECT: 'mailto:test@devocional.app',
+    APP_URL: 'http://localhost:5173',
     CORS_ORIGINS: [],
   };
   app = buildServer({ prisma, env, logger: false });
