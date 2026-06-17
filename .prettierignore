@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+coverage/
+pnpm-lock.yaml
+packages/api/src/generated/
+packages/api/prisma/migrations/
+
+# Documentação e material de bootstrap (prosa — não formatar como código).
+docs/
+config-templates/
+CLAUDE.md
+README-bootstrap.md

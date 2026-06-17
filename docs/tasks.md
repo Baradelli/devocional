@@ -5,15 +5,15 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 > Convenção: código/identificadores/schema em **inglês**; conteúdo de usuário em **português**. Ver `CLAUDE.md`.
 
 ## M0 — Fundação
-- [ ] Monorepo pnpm com workspaces: `packages/{shared,api,pwa,admin}`.
-- [ ] TypeScript strict em todos os pacotes; configs base compartilhadas.
-- [ ] `shared`: setup do pacote (exporta schemas Zod + tipos).
-- [ ] `api`: Fastify rodando, healthcheck, estrutura DDD-lite (domain/application/infrastructure/delivery).
-- [ ] Prisma + Postgres conectados; primeira migration vazia.
-- [ ] Vitest configurado nos pacotes; Testcontainers para integração.
-- [ ] CI rodando `pnpm test` desde já (Docker disponível no runner).
-- [ ] `.editorconfig`, ESLint 9 flat config + Prettier (papéis separados; `eslint-config-prettier`), import sort (`simple-import-sort`), `.vscode/settings.json` com fix-on-save, hooks de pre-commit (lint-staged) rodando lint+format+typecheck.
-- [ ] CI bloqueia PR em falha de typecheck, lint, `prettier --check` e testes.
+- [x] Monorepo pnpm com workspaces: `packages/{shared,api,pwa,admin}`.
+- [x] TypeScript strict em todos os pacotes; configs base compartilhadas.
+- [x] `shared`: setup do pacote (exporta schemas Zod + tipos).
+- [x] `api`: Fastify rodando, healthcheck, estrutura DDD-lite (domain/application/infrastructure/delivery).
+- [x] Prisma + Postgres conectados; primeira migration vazia.
+- [x] Vitest configurado nos pacotes; Testcontainers para integração.
+- [x] CI rodando `pnpm test` desde já (Docker disponível no runner).
+- [x] `.editorconfig`, ESLint 9 flat config + Prettier (papéis separados; `eslint-config-prettier`), import sort (`simple-import-sort`), `.vscode/settings.json` com fix-on-save, hooks de pre-commit (lint-staged) rodando lint+format+typecheck.
+- [x] CI bloqueia PR em falha de typecheck, lint, `prettier --check` e testes.
 
 ## M1 — Identidade & convites
 - [ ] Schema: `User` (com `timezone`, `role`, `onboardingCompletedAt`), `Invite`.
