@@ -1,0 +1,10 @@
+/* ============================================================
+   Anotações — página base (a biblioteca). O editor (.screen--note)
+   reaproveita os estilos de today.css e abre como overlay.
+   ============================================================ */
+
+.screen--notespage {
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 100dvh;
+}

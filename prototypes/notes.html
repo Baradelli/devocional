@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Anotações — Devocional</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Mulish:ital,wght@0,400..800;1,400..600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/themes.css" />
+    <link rel="stylesheet" href="styles/today.css" />
+    <link rel="stylesheet" href="styles/notes.css" />
+    <script src="theme.js"></script>
+  </head>
+  <body>
+    <!-- BIBLIOTECA (página base) -->
+    <section class="screen screen--notespage">
+      <header class="topbar">
+        <a class="topbar__icon" href="today.html" aria-label="Voltar para hoje">←</a>
+        <span class="eyebrow">Minhas anotações</span>
+        <button class="topbar__icon" data-open="note" aria-label="Nova anotação">+</button>
+      </header>
+
+      <div class="library">
+        <label class="lib__search">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8" />
+            <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          <input type="search" placeholder="Buscar nas anotações…" aria-label="Buscar nas anotações" />
+        </label>
+
+        <!-- adicionar: ligada ao devocional de hoje -->
+        <button class="lib__today" data-open="note">
+          <span class="lib__today__icon" aria-hidden="true">✎</span>
+          <span class="lib__today__txt">
+            <b>Anotar sobre hoje</b>
+            <span>Quarta, 17 jun · Efésios 2:8</span>
+          </span>
+          <span class="lib__today__plus" aria-hidden="true">+</span>
+        </button>
+
+        <div class="lib__group">
+          <p class="lib__month label">Junho 2026</p>
+          <ul class="lib__list">
+            <li>
+              <button
+                class="note-item"
+                data-open="note"
+                data-note-title="Descansar é confiar"
+                data-note-body="<h3>O bom pastor</h3><p>Levei o dia inteiro pensando que <strong>descansar</strong> também é um ato de fé.</p><blockquote>Nada me faltará.</blockquote>"
+              >
+                <span class="note-item__date"><b>16</b><span>ter</span></span>
+                <span class="note-item__body">
+                  <span class="note-item__ref">Salmo 23 · O bom pastor</span>
+                  <span class="note-item__title">Descansar é confiar</span>
+                  <span class="note-item__preview">Levei o dia inteiro pensando que descansar também é um ato de fé…</span>
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                class="note-item"
+                data-open="note"
+                data-note-title="Entreguei a ansiedade"
+                data-note-body="<p>Hoje consegui, pela primeira vez em semanas, <strong>soltar</strong> o que não está nas minhas mãos.</p><ul><li>respirar</li><li>agradecer</li><li>confiar</li></ul>"
+              >
+                <span class="note-item__date"><b>14</b><span>dom</span></span>
+                <span class="note-item__body">
+                  <span class="note-item__ref">Filipenses 4 · Não andeis ansiosos</span>
+                  <span class="note-item__title">Entreguei a ansiedade</span>
+                  <span class="note-item__preview">Consegui soltar o que não está nas minhas mãos e só agradecer…</span>
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                class="note-item"
+                data-open="note"
+                data-note-title="A videira"
+                data-note-body="<p>Permanecer não é fazer mais — é <em>ficar perto</em>. Quero medir menos o meu fruto e cuidar mais da raiz.</p>"
+              >
+                <span class="note-item__date"><b>11</b><span>qui</span></span>
+                <span class="note-item__body">
+                  <span class="note-item__ref">João 15 · Permanecei em mim</span>
+                  <span class="note-item__title">A videira</span>
+                  <span class="note-item__preview">Permanecer não é fazer mais — é ficar perto. Cuidar da raiz…</span>
+                </span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="lib__group">
+          <p class="lib__month label">Maio 2026</p>
+          <ul class="lib__list">
+            <li>
+              <button
+                class="note-item"
+                data-open="note"
+                data-note-title="Que alívio"
+                data-note-body="<p>Se <strong>nada</strong> me separa desse amor, então posso parar de viver com medo de perdê-lo.</p>"
+              >
+                <span class="note-item__date"><b>31</b><span>sáb</span></span>
+                <span class="note-item__body">
+                  <span class="note-item__ref">Romanos 8 · Nada nos separa</span>
+                  <span class="note-item__title">Que alívio</span>
+                  <span class="note-item__preview">Se nada me separa desse amor, posso parar de viver com medo…</span>
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                class="note-item"
+                data-open="note"
+                data-note-title="Os lírios do campo"
+                data-note-body="<h3>O Pai cuida</h3><p>Os lírios não fiam nem tecem, e ainda assim são vestidos. Hoje escolho confiar nisso.</p>"
+              >
+                <span class="note-item__date"><b>28</b><span>qua</span></span>
+                <span class="note-item__body">
+                  <span class="note-item__ref">Mateus 6 · O Pai cuida</span>
+                  <span class="note-item__title">Os lírios do campo</span>
+                  <span class="note-item__preview">Os lírios não fiam nem tecem, e ainda assim são vestidos…</span>
+                </span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- EDITOR (abre por cima) -->
+    <section class="screen screen--note" data-screen="note" hidden aria-label="Anotação">
+      <header class="screen__bar screen__bar--note">
+        <button class="iconbtn" data-close aria-label="Fechar sem salvar">×</button>
+        <span class="eyebrow">Anotação · 17 jun</span>
+        <button class="note__save" data-close>Salvar</button>
+      </header>
+      <div class="note">
+        <input class="note__title" id="noteTitle" placeholder="Título" aria-label="Título da anotação" />
+        <div class="note__toolbar" role="toolbar" aria-label="Formatação">
+          <button type="button" data-cmd="h2" title="Título">H1</button>
+          <button type="button" data-cmd="h3" title="Subtítulo">H2</button>
+          <span class="note__sep"></span>
+          <button type="button" data-cmd="bold" title="Negrito"><strong>B</strong></button>
+          <button type="button" data-cmd="italic" title="Itálico"><em>i</em></button>
+          <button type="button" data-cmd="highlight" title="Destaque" class="note__hl">A</button>
+          <span class="note__sep"></span>
+          <button type="button" data-cmd="quote" title="Citação">&ldquo;</button>
+          <button type="button" data-cmd="list" title="Lista">•</button>
+        </div>
+        <div
+          class="note__body"
+          id="noteBody"
+          contenteditable="true"
+          data-placeholder="Escreva o que tocou seu coração hoje…"
+        ></div>
+      </div>
+    </section>
+
+    <script src="notes.js"></script>
+  </body>
+</html>

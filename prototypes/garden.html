@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Jardim — Devocional</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Mulish:ital,wght@0,400..800;1,400..600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/themes.css" />
+    <link rel="stylesheet" href="styles/garden.css" />
+    <script src="theme.js"></script>
+  </head>
+  <body>
+    <section class="screen screen--garden">
+      <header class="topbar">
+        <a class="topbar__icon" href="today.html" aria-label="Voltar para hoje">←</a>
+        <span class="eyebrow">Seu jardim</span>
+        <a class="topbar__icon" href="index.html" aria-label="Vitrine">≡</a>
+      </header>
+
+      <main class="garden">
+        <!-- A ÁRVORE -->
+        <section class="tree-stage">
+          <div class="tree-art" id="treeArt"></div>
+          <div class="tree-meta">
+            <p class="tree-streak"><b id="streakNum">8</b><span>dias seguidos</span></p>
+            <p class="tree-name display" id="stageName">Tronco firme</p>
+            <p class="tree-hint" id="stageHint">As raízes já aparecem. Você ganhou a insígnia da semana.</p>
+          </div>
+        </section>
+
+        <!-- SCRUBBER (auxílio para validar os 7 estágios) -->
+        <section class="scrubber">
+          <span class="label">Veja a árvore crescer</span>
+          <div class="scrubber__chips" id="chips"></div>
+        </section>
+
+        <!-- HERBÁRIO -->
+        <section class="herbarium">
+          <h2 class="display">Seu herbário</h2>
+          <p class="herbarium__intro">
+            Cada conquista fica prensada aqui para sempre — mesmo que a árvore recomece.
+          </p>
+
+          <div class="herb-group">
+            <div class="herb-group__title">
+              <span class="label">Insígnias da semana</span>
+              <span class="herb-group__count" id="weeklyCount">1 de 6</span>
+            </div>
+            <div class="herb-grid" id="weeklyGrid"></div>
+          </div>
+
+          <div class="herb-group">
+            <div class="herb-group__title">
+              <span class="label">Prêmios do mês</span>
+              <span class="herb-group__count" id="monthlyCount">0 de 3</span>
+            </div>
+            <div class="herb-grid herb-grid--prizes" id="monthlyGrid"></div>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <script src="garden.js"></script>
+  </body>
+</html>
