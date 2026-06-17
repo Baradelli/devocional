@@ -16,6 +16,8 @@ function createUserRepository(db: PrismaLike): UserRepository {
     findById: (id) => db.user.findUnique({ where: { id } }),
     findByEmail: (email) => db.user.findUnique({ where: { email } }),
     create: (input) => db.user.create({ data: input }),
+    markOnboardingCompleted: (id, at) =>
+      db.user.update({ where: { id }, data: { onboardingCompletedAt: at } }),
   };
 }
 

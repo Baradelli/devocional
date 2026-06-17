@@ -59,6 +59,7 @@ export interface UserRepository {
   findById(id: string): Promise<UserRecord | null>;
   findByEmail(email: string): Promise<UserRecord | null>;
   create(input: CreateUserInput): Promise<UserRecord>;
+  markOnboardingCompleted(id: string, at: Date): Promise<UserRecord>;
 }
 
 export interface InviteRepository {

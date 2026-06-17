@@ -63,6 +63,12 @@ export const identityRoutes: FastifyPluginAsync<IdentityRoutesOptions> = (app, o
   );
 
   r.post(
+    '/auth/onboarding/complete',
+    { preHandler: requireAuth, schema: { response: { 200: userPublicSchema } } },
+    async (request) => toUserPublic(await identity.completeOnboarding(request.currentUser!)),
+  );
+
+  r.post(
     '/admin/invites',
     {
       preHandler: requireAdmin,

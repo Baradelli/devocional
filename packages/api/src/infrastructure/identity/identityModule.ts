@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import { authenticate } from '../../application/identity/authenticate.js';
 import type { AuthResult } from '../../application/identity/authResult.js';
+import { completeOnboarding } from '../../application/identity/completeOnboarding.js';
 import {
   createAdminUser,
   type CreateAdminUserInput,
@@ -31,6 +32,7 @@ export interface IdentityModule {
   createInvite(input: CreateInviteInput): Promise<InviteRecord>;
   listInvites(createdById: string): Promise<InviteRecord[]>;
   createAdminUser(input: CreateAdminUserInput): Promise<UserRecord>;
+  completeOnboarding(user: UserRecord): Promise<UserRecord>;
 }
 
 export function createIdentityModule(prisma: PrismaClient): IdentityModule {
@@ -51,5 +53,6 @@ export function createIdentityModule(prisma: PrismaClient): IdentityModule {
     createInvite: (input) => createInvite({ invites: repos.invites, codes, clock }, input),
     listInvites: (createdById) => repos.invites.listByCreator(createdById),
     createAdminUser: (input) => createAdminUser({ users: repos.users, hasher }, input),
+    completeOnboarding: (user) => completeOnboarding({ users: repos.users, clock }, user),
   };
 }

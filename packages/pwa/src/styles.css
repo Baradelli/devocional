@@ -427,3 +427,64 @@ button.listen {
   align-items: center;
   gap: 1rem;
 }
+
+/* Onboarding tour */
+.tour {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 20;
+}
+.tour-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 2rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.tour-skip {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+}
+.tour-body {
+  min-height: 8rem;
+}
+.tour-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--leaf);
+  margin-bottom: 0.75rem;
+}
+.tour-dots {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+}
+.tour-dots .dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--border);
+}
+.tour-dots .dot.active {
+  background: var(--leaf);
+}
+.tour-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.tour-nav button:last-child {
+  margin-left: auto;
+}

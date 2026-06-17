@@ -78,8 +78,8 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Job periódico de disparo por horário no fuso de cada usuário; log + alerta.
 
 ## M9 — Onboarding
-- [ ] Tour inicial (conteúdo PT-BR versionado): blocos, ler/escutar, oração, anotações, árvore/streak, ativar lembretes, instalar PWA no iPhone, validar WhatsApp.
-- [ ] Flag `onboardingCompletedAt`; permitir rever.
+- [x] Tour inicial (conteúdo PT-BR versionado): blocos, ler/escutar, oração, anotações, árvore/streak, ativar lembretes, instalar PWA no iPhone, validar WhatsApp.
+- [x] Flag `onboardingCompletedAt`; permitir rever.
 
 ## M10 — Observabilidade & LGPD
 - [ ] Logs estruturados; alertas nos jobs críticos (publicação 00h, notificações) e na sessão do WhatsApp.

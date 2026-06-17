@@ -22,7 +22,7 @@ import { disablePush, enablePush, isPushSupported } from '../push/subscribe.js';
 
 type Status = 'loading' | 'ready' | 'error';
 
-export function Settings() {
+export function Settings({ onReviewOnboarding }: { onReviewOnboarding?: () => void }) {
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [status, setStatus] = useState<Status>('loading');
 
@@ -52,6 +52,11 @@ export function Settings() {
       <ReminderForm settings={settings} onSaved={reload} />
       <PushSection settings={settings} onChanged={reload} />
       <WhatsappSection settings={settings} onChanged={reload} />
+      {onReviewOnboarding && (
+        <button type="button" className="link" onClick={onReviewOnboarding}>
+          Rever a introdução
+        </button>
+      )}
     </section>
   );
 }

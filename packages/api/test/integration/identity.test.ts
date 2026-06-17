@@ -234,4 +234,51 @@ describe('auth + invite flow', () => {
     const after = await app.inject({ method: 'GET', url: '/auth/me', headers: { cookie } });
     expect(after.statusCode).toBe(401);
   });
+
+  it('marks onboarding as completed (idempotent)', async () => {
+    const adminCookie = await loginAs(ADMIN.email, ADMIN.password);
+    const invite = await app.inject({
+      method: 'POST',
+      url: '/admin/invites',
+      headers: { cookie: adminCookie },
+      payload: { expiresInDays: 14 },
+    });
+    const register = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: {
+        inviteCode: invite.json<{ code: string }>().code,
+        name: 'Joana',
+        email: 'joana@devocional.test',
+        password: 'member-supersecret',
+        timezone: 'America/Sao_Paulo',
+      },
+    });
+    const cookie = sessionCookie(register);
+    expect(
+      register.json<{ onboardingCompletedAt: string | null }>().onboardingCompletedAt,
+    ).toBeNull();
+
+    const complete = await app.inject({
+      method: 'POST',
+      url: '/auth/onboarding/complete',
+      headers: { cookie },
+    });
+    expect(complete.statusCode).toBe(200);
+    const firstAt = complete.json<{ onboardingCompletedAt: string | null }>().onboardingCompletedAt;
+    expect(firstAt).not.toBeNull();
+
+    // Rever depois não reescreve o timestamp original.
+    const again = await app.inject({
+      method: 'POST',
+      url: '/auth/onboarding/complete',
+      headers: { cookie },
+    });
+    expect(again.json<{ onboardingCompletedAt: string | null }>().onboardingCompletedAt).toBe(
+      firstAt,
+    );
+
+    const me = await app.inject({ method: 'GET', url: '/auth/me', headers: { cookie } });
+    expect(me.json<{ onboardingCompletedAt: string | null }>().onboardingCompletedAt).toBe(firstAt);
+  });
 });
