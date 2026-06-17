@@ -16,6 +16,10 @@ const IDENTITY_ERROR_RESPONSES: Record<IdentityErrorCode, MappedError> = {
   INVITE_REVOKED: { status: 410, message: 'Este convite foi revogado.' },
   EMAIL_TAKEN: { status: 409, message: 'Já existe uma conta com este e-mail.' },
   INVALID_CREDENTIALS: { status: 401, message: 'E-mail ou senha incorretos.' },
+  CANNOT_DELETE_ADMIN: {
+    status: 403,
+    message: 'A conta de administrador não pode ser excluída por aqui.',
+  },
 };
 
 export function identityErrorResponse(code: IdentityErrorCode): MappedError {

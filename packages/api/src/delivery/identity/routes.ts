@@ -68,6 +68,13 @@ export const identityRoutes: FastifyPluginAsync<IdentityRoutesOptions> = (app, o
     async (request) => toUserPublic(await identity.completeOnboarding(request.currentUser!)),
   );
 
+  // Exclusão de conta + dados (LGPD). Apaga tudo por cascata e limpa a sessão.
+  r.delete('/auth/me', { preHandler: requireAuth }, async (request, reply) => {
+    await identity.deleteAccount(request.currentUser!);
+    clearSessionCookie(reply, env);
+    return reply.status(204).send();
+  });
+
   r.post(
     '/admin/invites',
     {

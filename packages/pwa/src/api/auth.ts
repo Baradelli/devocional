@@ -16,3 +16,14 @@ export function fetchCurrentUser(): Promise<UserPublic> {
 export async function logout(): Promise<void> {
   await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' });
 }
+
+/** Exclusão de conta + dados (LGPD). O servidor apaga tudo e limpa a sessão. */
+export async function deleteAccount(): Promise<void> {
+  const response = await fetch(`${API_BASE}/auth/me`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('delete-account-failed');
+  }
+}

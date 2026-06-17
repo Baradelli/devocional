@@ -8,6 +8,7 @@ import {
   type CreateAdminUserInput,
 } from '../../application/identity/createAdminUser.js';
 import { createInvite, type CreateInviteInput } from '../../application/identity/createInvite.js';
+import { deleteAccount } from '../../application/identity/deleteAccount.js';
 import { login, type LoginInput } from '../../application/identity/login.js';
 import { logout } from '../../application/identity/logout.js';
 import type { InviteRecord, UserRecord } from '../../application/identity/ports.js';
@@ -33,6 +34,7 @@ export interface IdentityModule {
   listInvites(createdById: string): Promise<InviteRecord[]>;
   createAdminUser(input: CreateAdminUserInput): Promise<UserRecord>;
   completeOnboarding(user: UserRecord): Promise<UserRecord>;
+  deleteAccount(user: UserRecord): Promise<void>;
 }
 
 export function createIdentityModule(prisma: PrismaClient): IdentityModule {
@@ -54,5 +56,6 @@ export function createIdentityModule(prisma: PrismaClient): IdentityModule {
     listInvites: (createdById) => repos.invites.listByCreator(createdById),
     createAdminUser: (input) => createAdminUser({ users: repos.users, hasher }, input),
     completeOnboarding: (user) => completeOnboarding({ users: repos.users, clock }, user),
+    deleteAccount: (user) => deleteAccount({ users: repos.users }, user),
   };
 }

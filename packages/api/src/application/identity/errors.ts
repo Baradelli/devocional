@@ -4,7 +4,8 @@ export type IdentityErrorCode =
   | 'INVITE_ALREADY_USED'
   | 'INVITE_REVOKED'
   | 'EMAIL_TAKEN'
-  | 'INVALID_CREDENTIALS';
+  | 'INVALID_CREDENTIALS'
+  | 'CANNOT_DELETE_ADMIN';
 
 /**
  * Erro de domínio da identidade. Carrega um `code` estável (inglês); a

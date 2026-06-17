@@ -82,8 +82,8 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Flag `onboardingCompletedAt`; permitir rever.
 
 ## M10 — Observabilidade & LGPD
-- [ ] Logs estruturados; alertas nos jobs críticos (publicação 00h, notificações) e na sessão do WhatsApp.
-- [ ] Exclusão de conta + dados (LGPD).
+- [x] Logs estruturados; alertas nos jobs críticos (publicação 00h, notificações) e na sessão do WhatsApp.
+- [x] Exclusão de conta + dados (LGPD).
 
 ## v2 (depois)
 - Dashboard analítico do admin (cobertura da Bíblia, passagens mais repetidas, rankings, uso) sobre os dados já coletados.

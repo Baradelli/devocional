@@ -60,6 +60,8 @@ export interface UserRepository {
   findByEmail(email: string): Promise<UserRecord | null>;
   create(input: CreateUserInput): Promise<UserRecord>;
   markOnboardingCompleted(id: string, at: Date): Promise<UserRecord>;
+  /** Apaga o usuário e, por cascata, todos os dados de sua propriedade (LGPD). */
+  delete(id: string): Promise<void>;
 }
 
 export interface InviteRepository {

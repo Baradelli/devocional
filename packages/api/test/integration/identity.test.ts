@@ -281,4 +281,89 @@ describe('auth + invite flow', () => {
     const me = await app.inject({ method: 'GET', url: '/auth/me', headers: { cookie } });
     expect(me.json<{ onboardingCompletedAt: string | null }>().onboardingCompletedAt).toBe(firstAt);
   });
+
+  it('deletes the account and all owned data, keeping the consumed invite (LGPD)', async () => {
+    const adminCookie = await loginAs(ADMIN.email, ADMIN.password);
+    const invite = await app.inject({
+      method: 'POST',
+      url: '/admin/invites',
+      headers: { cookie: adminCookie },
+      payload: { expiresInDays: 14 },
+    });
+    const inviteCode = invite.json<{ code: string }>().code;
+    const register = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: {
+        inviteCode,
+        name: 'Pedro',
+        email: 'pedro@devocional.test',
+        password: 'member-supersecret',
+        timezone: 'America/Sao_Paulo',
+      },
+    });
+    const cookie = sessionCookie(register);
+    const userId = register.json<{ id: string }>().id;
+
+    // Semeia dados de propriedade do usuário em todas as tabelas relacionadas.
+    const devotional = await prisma.devotional.create({ data: { date: '2026-06-16' } });
+    await prisma.dailyCompletion.create({
+      data: {
+        userId,
+        logicalDate: '2026-06-16',
+        idempotencyKey: 'lgpd-key-1',
+        completedAt: new Date('2026-06-16T12:00:00Z'),
+      },
+    });
+    await prisma.streakState.create({ data: { userId, currentStreak: 1 } });
+    await prisma.achievement.create({
+      data: { userId, type: 'WEEKLY_BADGE', milestone: 7 },
+    });
+    await prisma.note.create({
+      data: {
+        userId,
+        devotionalId: devotional.id,
+        text: 'anotação privada',
+        idempotencyKey: 'lgpd-note-1',
+        editedAt: new Date('2026-06-16T12:00:00Z'),
+      },
+    });
+    await prisma.pushSubscription.create({
+      data: { userId, endpoint: 'https://push.example/lgpd', p256dh: 'k', auth: 'a' },
+    });
+    await prisma.whatsappContact.create({ data: { userId, phone: '+5511999990000' } });
+    await prisma.reminderPreference.create({ data: { userId, localTime: '08:00' } });
+
+    const remove = await app.inject({ method: 'DELETE', url: '/auth/me', headers: { cookie } });
+    expect(remove.statusCode).toBe(204);
+
+    // Sessão limpa: o mesmo cookie não autentica mais.
+    const after = await app.inject({ method: 'GET', url: '/auth/me', headers: { cookie } });
+    expect(after.statusCode).toBe(401);
+
+    // Usuário e todos os dados de sua propriedade foram apagados (cascata).
+    expect(await prisma.user.findUnique({ where: { id: userId } })).toBeNull();
+    expect(await prisma.dailyCompletion.count({ where: { userId } })).toBe(0);
+    expect(await prisma.streakState.count({ where: { userId } })).toBe(0);
+    expect(await prisma.achievement.count({ where: { userId } })).toBe(0);
+    expect(await prisma.note.count({ where: { userId } })).toBe(0);
+    expect(await prisma.pushSubscription.count({ where: { userId } })).toBe(0);
+    expect(await prisma.whatsappContact.count({ where: { userId } })).toBe(0);
+    expect(await prisma.reminderPreference.count({ where: { userId } })).toBe(0);
+
+    // O convite consumido permanece (auditoria), sem reabrir para reuso.
+    const consumed = await prisma.invite.findUnique({ where: { code: inviteCode } });
+    expect(consumed?.status).toBe('USED');
+  });
+
+  it('refuses to delete the admin account (403)', async () => {
+    const cookie = await loginAs(ADMIN.email, ADMIN.password);
+    const response = await app.inject({ method: 'DELETE', url: '/auth/me', headers: { cookie } });
+    expect(response.statusCode).toBe(403);
+    expect(response.json()).toMatchObject({ error: 'CANNOT_DELETE_ADMIN' });
+
+    // O admin continua válido após a recusa.
+    const me = await app.inject({ method: 'GET', url: '/auth/me', headers: { cookie } });
+    expect(me.statusCode).toBe(200);
+  });
 });

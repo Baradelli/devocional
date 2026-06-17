@@ -5,11 +5,13 @@ import { createBibleModule } from './infrastructure/bible/bibleModule.js';
 import { loadEnv } from './infrastructure/config/env.js';
 import { createContentModule } from './infrastructure/content/contentModule.js';
 import { createNotificationsModule } from './infrastructure/notifications/notificationsModule.js';
+import { createLogAlerter } from './infrastructure/observability/alerter.js';
 import { createPrismaClient } from './infrastructure/prisma/client.js';
 
 const env = loadEnv();
 const prisma = createPrismaClient(env.DATABASE_URL);
 const app = buildServer({ prisma, env });
+const alerter = createLogAlerter(app.log);
 
 const content = createContentModule(prisma, createBibleModule(prisma), {
   mediaDir: env.MEDIA_DIR,
@@ -30,6 +32,7 @@ const notifications = createNotificationsModule(
     appUrl: env.APP_URL,
   },
   app.log,
+  alerter,
 );
 
 async function publishDue(): Promise<void> {
@@ -40,7 +43,12 @@ async function publishDue(): Promise<void> {
     }
   } catch (error) {
     // Job crítico: falha não pode passar silenciosa (ver design §4).
-    app.log.error(error, 'devotional publication job failed');
+    alerter.alert({
+      event: 'PUBLISH_JOB_FAILED',
+      severity: 'critical',
+      message: 'devotional publication job failed',
+      cause: error,
+    });
   }
 }
 
@@ -57,7 +65,12 @@ async function dispatchReminders(): Promise<void> {
     }
   } catch (error) {
     // Job crítico: falha não pode passar silenciosa (ver design §observabilidade).
-    app.log.error(error, 'reminder dispatch job failed');
+    alerter.alert({
+      event: 'REMINDER_JOB_FAILED',
+      severity: 'critical',
+      message: 'reminder dispatch job failed',
+      cause: error,
+    });
   }
 }
 

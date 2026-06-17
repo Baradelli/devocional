@@ -18,6 +18,9 @@ function createUserRepository(db: PrismaLike): UserRepository {
     create: (input) => db.user.create({ data: input }),
     markOnboardingCompleted: (id, at) =>
       db.user.update({ where: { id }, data: { onboardingCompletedAt: at } }),
+    async delete(id) {
+      await db.user.delete({ where: { id } });
+    },
   };
 }
 

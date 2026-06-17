@@ -427,6 +427,15 @@ button.listen {
   align-items: center;
   gap: 1rem;
 }
+.card.danger {
+  border-color: #d9b3a3;
+}
+.card.danger .card-title {
+  color: #a3431f;
+}
+.danger-btn {
+  background: #a3431f;
+}
 
 /* Onboarding tour */
 .tour {

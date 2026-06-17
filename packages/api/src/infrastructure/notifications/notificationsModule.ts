@@ -20,13 +20,18 @@ import {
 } from '../../application/notifications/reminderSettings.js';
 import { registerWhatsapp, verifyWhatsapp } from '../../application/notifications/whatsapp.js';
 import { createSystemClock } from '../clock.js';
+import { type Alerter, createLogAlerter } from '../observability/alerter.js';
 import {
   createNotificationRepositories,
   createNotificationTargetReader,
 } from './prismaNotificationRepositories.js';
 import { createNumericCodeGenerator, createReminderContentProvider } from './reminderContent.js';
 import { createWebPushChannel, type Logger, type VapidConfig } from './webPushChannel.js';
-import { createWhatsappChannel, createWhatsappVerificationSender } from './whatsappChannel.js';
+import {
+  createStubWhatsappTransport,
+  createWhatsappChannel,
+  createWhatsappVerificationSender,
+} from './whatsappChannel.js';
 
 export interface NotificationsConfig {
   vapid: VapidConfig | null;
@@ -48,13 +53,18 @@ export function createNotificationsModule(
   prisma: PrismaClient,
   config: NotificationsConfig,
   log: Logger,
+  alerter: Alerter = createLogAlerter(log),
 ): NotificationsModule {
   const repos = createNotificationRepositories(prisma);
   const targets = createNotificationTargetReader(prisma);
   const clock = createSystemClock();
   const codes = createNumericCodeGenerator();
   const content = createReminderContentProvider(config.appUrl);
-  const verificationSender = createWhatsappVerificationSender(log);
+  const whatsappTransport = createStubWhatsappTransport(log);
+  const verificationSender = createWhatsappVerificationSender({
+    transport: whatsappTransport,
+    alerter,
+  });
 
   const channels: NotificationChannel[] = [
     createWebPushChannel({
@@ -64,7 +74,7 @@ export function createNotificationsModule(
         await prisma.pushSubscription.deleteMany({ where: { endpoint } });
       },
     }),
-    createWhatsappChannel(log),
+    createWhatsappChannel({ transport: whatsappTransport, alerter }),
   ];
 
   return {

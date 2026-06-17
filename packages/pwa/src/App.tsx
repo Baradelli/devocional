@@ -97,7 +97,12 @@ export function App() {
         {view === 'today' && <Today />}
         {view === 'garden' && <Garden />}
         {view === 'library' && <Library />}
-        {view === 'settings' && <Settings onReviewOnboarding={() => setShowTour(true)} />}
+        {view === 'settings' && (
+          <Settings
+            onReviewOnboarding={() => setShowTour(true)}
+            onAccountDeleted={() => setUser(null)}
+          />
+        )}
       </main>
     </div>
   );

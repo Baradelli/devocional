@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { deleteAccount } from '../api/auth.js';
 import { ApiError } from '../api/client.js';
 import {
   fetchNotificationSettings,
@@ -22,7 +23,12 @@ import { disablePush, enablePush, isPushSupported } from '../push/subscribe.js';
 
 type Status = 'loading' | 'ready' | 'error';
 
-export function Settings({ onReviewOnboarding }: { onReviewOnboarding?: () => void }) {
+interface SettingsProps {
+  onReviewOnboarding?: () => void;
+  onAccountDeleted?: () => void;
+}
+
+export function Settings({ onReviewOnboarding, onAccountDeleted }: SettingsProps) {
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [status, setStatus] = useState<Status>('loading');
 
@@ -57,7 +63,61 @@ export function Settings({ onReviewOnboarding }: { onReviewOnboarding?: () => vo
           Rever a introdução
         </button>
       )}
+      <DangerZone onAccountDeleted={onAccountDeleted} />
     </section>
+  );
+}
+
+function DangerZone({ onAccountDeleted }: { onAccountDeleted?: () => void }) {
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const remove = async () => {
+    setError(null);
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      onAccountDeleted?.();
+    } catch {
+      setError('Não foi possível excluir agora. Tente novamente.');
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div className="card danger">
+      <h3 className="card-title">Excluir minha conta</h3>
+      <p className="muted">
+        Apaga permanentemente sua conta e todos os seus dados (anotações, streak, conquistas e
+        lembretes). Esta ação não pode ser desfeita.
+      </p>
+      {confirming ? (
+        <div className="settings-actions">
+          <button
+            type="button"
+            className="danger-btn"
+            disabled={deleting}
+            onClick={() => void remove()}
+          >
+            {deleting ? 'Excluindo…' : 'Excluir definitivamente'}
+          </button>
+          <button
+            type="button"
+            className="link"
+            disabled={deleting}
+            onClick={() => setConfirming(false)}
+          >
+            Cancelar
+          </button>
+        </div>
+      ) : (
+        <button type="button" className="danger-btn" onClick={() => setConfirming(true)}>
+          Excluir minha conta
+        </button>
+      )}
+      {error && <p className="form-error">{error}</p>}
+    </div>
   );
 }
 
