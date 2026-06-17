@@ -24,16 +24,16 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 
 ## M2 — Espinha de maior risco: dia lógico + streak + sync offline
 > **Aqui mora o risco do produto. TDD rigoroso.**
-- [ ] **Teste primeiro**: `logicalDate(timestamp, timezone)` — limites 23:59/00:01, fusos diferentes.
-- [ ] Implementar `logicalDate` como função pura.
-- [ ] **Teste primeiro**: `evaluateStreak(state, completion)` — incremento, quebra ao pular dia, reset no limite, dois envios idempotentes não duplicam.
-- [ ] Implementar a máquina de estado do streak (pura).
-- [ ] **Teste primeiro**: regras de `treeStage` por streak (estágios e murcha ao zerar).
-- [ ] **Teste primeiro**: concessão de insígnia semanal (cada 7) e prêmio mensal (cada 30); permanência ao quebrar streak.
-- [ ] Implementar gamificação (domínio puro).
-- [ ] Schema: `DailyCompletion` (com `logicalDate` + `idempotencyKey` único por user+dia), `StreakState`, `Achievement`.
-- [ ] Use-case `completeDevotional`: valida no servidor, atualiza streak/árvore/conquistas. Integração contra Postgres.
-- [ ] Endpoint de sync: recebe fila de conclusões offline com `idempotencyKey`; reconcilia.
+- [x] **Teste primeiro**: `logicalDate(timestamp, timezone)` — limites 23:59/00:01, fusos diferentes.
+- [x] Implementar `logicalDate` como função pura.
+- [x] **Teste primeiro**: `evaluateStreak(state, completion)` — incremento, quebra ao pular dia, reset no limite, dois envios idempotentes não duplicam.
+- [x] Implementar a máquina de estado do streak (pura).
+- [x] **Teste primeiro**: regras de `treeStage` por streak (estágios e murcha ao zerar).
+- [x] **Teste primeiro**: concessão de insígnia semanal (cada 7) e prêmio mensal (cada 30); permanência ao quebrar streak.
+- [x] Implementar gamificação (domínio puro).
+- [x] Schema: `DailyCompletion` (com `logicalDate` + `idempotencyKey` único por user+dia), `StreakState`, `Achievement`.
+- [x] Use-case `completeDevotional`: valida no servidor, atualiza streak/árvore/conquistas. Integração contra Postgres.
+- [x] Endpoint de sync: recebe fila de conclusões offline com `idempotencyKey`; reconcilia.
 
 ## M3 — Base bíblica + seletor
 - [ ] Schema: `Translation`, `Book` (com `bookReferenceId`, `testamentReferenceId`), `Verse`.

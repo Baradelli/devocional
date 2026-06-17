@@ -5,6 +5,8 @@ import {
 } from 'fastify-type-provider-zod';
 
 import { IdentityError } from '../../application/identity/errors.js';
+import { ProgressError } from '../../application/progress/errors.js';
+import { progressErrorResponse } from '../progress/errorMessages.js';
 import { identityErrorResponse } from './errorMessages.js';
 
 /**
@@ -18,6 +20,12 @@ export function identityErrorHandler(
 ): void {
   if (error instanceof IdentityError) {
     const mapped = identityErrorResponse(error.code);
+    void reply.status(mapped.status).send({ error: error.code, message: mapped.message });
+    return;
+  }
+
+  if (error instanceof ProgressError) {
+    const mapped = progressErrorResponse(error.code);
     void reply.status(mapped.status).send({ error: error.code, message: mapped.message });
     return;
   }

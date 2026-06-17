@@ -21,6 +21,21 @@ enum InviteStatus {
   REVOKED
 }
 
+enum TreeStage {
+  SEED
+  SPROUT
+  SEEDLING
+  BRANCHES
+  TRUNK
+  YOUNG_TREE
+  FRUITING
+}
+
+enum AchievementType {
+  WEEKLY_BADGE
+  MONTHLY_PRIZE
+}
+
 model User {
   id                    String    @id @default(cuid())
   name                  String
@@ -31,9 +46,12 @@ model User {
   onboardingCompletedAt DateTime?
   createdAt             DateTime  @default(now())
 
-  sessions       Session[]
-  invitesCreated Invite[]  @relation("InviteCreatedBy")
-  inviteUsed     Invite?   @relation("InviteUsedBy")
+  sessions         Session[]
+  invitesCreated   Invite[]          @relation("InviteCreatedBy")
+  inviteUsed       Invite?           @relation("InviteUsedBy")
+  dailyCompletions DailyCompletion[]
+  streakState      StreakState?
+  achievements     Achievement[]
 }
 
 model Invite {
@@ -61,5 +79,45 @@ model Session {
   revokedAt DateTime?
   createdAt DateTime  @default(now())
 
+  @@index([userId])
+}
+
+// Registro autoritativo da conclusão diária. Alimenta a gamificação e impede
+// dupla contagem: único por (user, dia lógico) e por (user, idempotencyKey).
+model DailyCompletion {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logicalDate    String // YYYY-MM-DD no fuso do usuário
+  devotionalId   String? // FK real para Devotional chega no M4
+  idempotencyKey String
+  completedAt    DateTime
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, logicalDate])
+  @@unique([userId, idempotencyKey])
+  @@index([userId])
+}
+
+model StreakState {
+  userId                   String    @id
+  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentStreak            Int       @default(0)
+  longestStreak            Int       @default(0)
+  lastCompletedLogicalDate String?
+  treeStage                TreeStage @default(SEED)
+  updatedAt                DateTime  @updatedAt
+}
+
+// Coleção permanente — nunca apagada ao quebrar o streak. Única por marco.
+model Achievement {
+  id        String          @id @default(cuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      AchievementType
+  milestone Int
+  grantedAt DateTime        @default(now())
+
+  @@unique([userId, type, milestone])
   @@index([userId])
 }
