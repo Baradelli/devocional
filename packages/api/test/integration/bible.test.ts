@@ -48,6 +48,7 @@ beforeAll(async () => {
     COOKIE_NAME: 'devocional_session',
     MEDIA_DIR: 'media-storage-test',
     SERVER_TIMEZONE: 'America/Sao_Paulo',
+    CORS_ORIGINS: [],
   };
   app = buildServer({ prisma, env, logger: false });
   await app.ready();

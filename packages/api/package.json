@@ -15,6 +15,7 @@
   "dependencies": {
     "@devocional/shared": "workspace:*",
     "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^10.0.2",
     "@fastify/multipart": "^9.0.3",
     "@prisma/client": "^6.2.1",
     "fastify": "^5.2.1",

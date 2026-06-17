@@ -15,6 +15,7 @@ import { buildServer } from '../../src/delivery/server.js';
 import { createBibleModule } from '../../src/infrastructure/bible/bibleModule.js';
 import type { Env } from '../../src/infrastructure/config/env.js';
 import { createIdentityModule } from '../../src/infrastructure/identity/identityModule.js';
+import { createScryptPasswordHasher } from '../../src/infrastructure/identity/passwordHasher.js';
 import { createPrismaClient } from '../../src/infrastructure/prisma/client.js';
 
 const apiRoot = fileURLToPath(new URL('../../', import.meta.url));
@@ -74,6 +75,7 @@ beforeAll(async () => {
     COOKIE_NAME: 'devocional_session',
     MEDIA_DIR: path.join(tmpdir(), `devocional-media-${randomUUID()}`),
     SERVER_TIMEZONE: 'America/Sao_Paulo',
+    CORS_ORIGINS: [],
   };
   app = buildServer({ prisma, env, logger: false });
   await app.ready();
@@ -213,5 +215,62 @@ describe('content authoring', () => {
     const future = await prisma.devotional.findUnique({ where: { date: '2999-12-31' } });
     expect(past?.publishedAt).not.toBeNull();
     expect(future?.publishedAt).toBeNull();
+  });
+});
+
+describe('today (fiel)', () => {
+  const TZ = 'America/Sao_Paulo';
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+
+  async function memberCookie(email: string): Promise<string> {
+    const passwordHash = await createScryptPasswordHasher().hash('member-supersecret');
+    await prisma.user.create({
+      data: { name: 'Fiel', email, passwordHash, role: 'MEMBER', timezone: TZ },
+    });
+    const login = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email, password: 'member-supersecret' },
+    });
+    const c = login.cookies.find((x) => x.name === env.COOKIE_NAME);
+    return `${c!.name}=${c!.value}`;
+  }
+
+  it('returns the published devotional for the member logical day', async () => {
+    await app.inject({
+      method: 'POST',
+      url: '/admin/devotionals',
+      headers: { cookie },
+      payload: devotionalBody(today),
+    });
+    await app.inject({ method: 'POST', url: '/admin/devotionals/publish', headers: { cookie } });
+
+    const member = await memberCookie('fiel-today@content.test');
+    const response = await app.inject({
+      method: 'GET',
+      url: '/devotionals/today',
+      headers: { cookie: member },
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json<{ date: string; blocks: { type: string }[] }>();
+    expect(body.date).toBe(today);
+    expect(body.blocks).toHaveLength(5);
+  });
+
+  it('404s when the day has no published devotional', async () => {
+    // Apaga o devocional de hoje para simular ausência de conteúdo publicado.
+    await prisma.devotional.deleteMany({ where: { date: today } });
+    const member = await memberCookie('fiel-empty@content.test');
+    const response = await app.inject({
+      method: 'GET',
+      url: '/devotionals/today',
+      headers: { cookie: member },
+    });
+    expect(response.statusCode).toBe(404);
   });
 });

@@ -52,12 +52,12 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Testes: integração da criação de devocional e da publicação agendada.
 
 ## M5 — Tela "Hoje" (PWA do fiel)
-- [ ] Service worker (Workbox): cacheia app shell + devocional do dia (texto da passagem já montado) + mídias.
-- [ ] Blocos em sequência; passagem em cards navegáveis (estilo stories).
-- [ ] Ler/escutar por bloco: ao escutar, texto do bloco visível acompanha o áudio (sem sync palavra-a-palavra — confirmar).
-- [ ] Oração: gif/animação de fundo + som tranquilo em loop (decidir mix vs. abaixar quando há narração).
-- [ ] Conclusão do dia → enfileira localmente → sync (M2).
-- [ ] Fila offline de ações com `idempotencyKey`; reconcilia ao reconectar.
+- [x] Service worker (Workbox): cacheia app shell + devocional do dia (texto da passagem já montado) + mídias.
+- [x] Blocos em sequência; passagem em card (cards navegáveis estilo stories: simplificado p/ um card no v1).
+- [x] Ler/escutar por bloco: ao escutar, texto do bloco visível acompanha o áudio (sem sync palavra-a-palavra — confirmado).
+- [x] Oração: gif/animação de fundo + som tranquilo em loop (decidido: ducking — abaixa o fundo na narração).
+- [x] Conclusão do dia → enfileira localmente → sync (M2).
+- [x] Fila offline de ações com `idempotencyKey`; reconcilia ao reconectar.
 
 ## M6 — Anotações + biblioteca pessoal
 - [ ] Schema: `Note` (por user+devotional, soft delete, `idempotencyKey`).

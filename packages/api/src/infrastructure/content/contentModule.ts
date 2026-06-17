@@ -6,6 +6,7 @@ import type {
 import type { PrismaClient } from '@prisma/client';
 
 import { createDevotional } from '../../application/content/createDevotional.js';
+import { ContentError } from '../../application/content/errors.js';
 import { getDevotionalForDate } from '../../application/content/getDevotional.js';
 import {
   type ResolvedMedia,
@@ -15,6 +16,7 @@ import {
 } from '../../application/content/media.js';
 import type { MediaRecord, PassageResolver } from '../../application/content/ports.js';
 import { publishDueDevotionals } from '../../application/content/publishDueDevotionals.js';
+import { logicalDate } from '../../domain/gamification/logicalDate.js';
 import type { BibleModule } from '../bible/bibleModule.js';
 import { createSystemClock } from '../clock.js';
 import { createDiskMediaStorage } from './diskMediaStorage.js';
@@ -29,6 +31,8 @@ export interface ContentModuleConfig {
 export interface ContentModule {
   createDevotional(input: CreateDevotionalRequest): Promise<void>;
   getDevotionalForDate(date: string): Promise<DevotionalView>;
+  /** Devocional publicado do dia lógico do usuário (tela "Hoje" do fiel). */
+  getTodayDevotional(timezone: string): Promise<DevotionalView>;
   listDevotionals(): Promise<DevotionalSummary[]>;
   publishDue(): Promise<number>;
   uploadMedia(input: UploadMediaInput): Promise<MediaRecord>;
@@ -60,6 +64,14 @@ export function createContentModule(
   return {
     createDevotional: (input) => createDevotional(repo, input),
     getDevotionalForDate: (date) => getDevotionalForDate({ repo, resolvePassage }, date),
+    getTodayDevotional: async (timezone) => {
+      const date = logicalDate(clock.now(), timezone);
+      const record = await repo.findByDate(date);
+      if (!record || !record.publishedAt) {
+        throw new ContentError('DEVOTIONAL_NOT_FOUND');
+      }
+      return getDevotionalForDate({ repo, resolvePassage }, date);
+    },
     listDevotionals: async () => {
       const summaries = await repo.listSummaries();
       return summaries.map((s) => ({

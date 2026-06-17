@@ -24,6 +24,13 @@ export const contentRoutes: FastifyPluginAsync<ContentRoutesOptions> = (app, opt
   const { content } = opts;
   const r = app.withTypeProvider<ZodTypeProvider>();
 
+  // Tela "Hoje" do fiel: devocional publicado do dia lógico do usuário.
+  r.get(
+    '/devotionals/today',
+    { preHandler: requireAuth, schema: { response: { 200: devotionalViewSchema } } },
+    (request) => content.getTodayDevotional(request.currentUser!.timezone),
+  );
+
   r.post(
     '/admin/devotionals',
     {

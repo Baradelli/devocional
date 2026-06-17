@@ -1,4 +1,5 @@
 import cookie from '@fastify/cookie';
+import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import type { PrismaClient } from '@prisma/client';
 import Fastify, { type FastifyInstance } from 'fastify';
@@ -31,6 +32,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
   app.setSerializerCompiler(serializerCompiler);
   app.setErrorHandler(identityErrorHandler);
 
+  app.register(cors, { origin: env.CORS_ORIGINS, credentials: true });
   app.register(cookie);
   app.register(multipart, { limits: { fileSize: MAX_MEDIA_BYTES, files: 1 } });
 
