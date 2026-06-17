@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Devocional">
+  <rect width="512" height="512" rx="96" fill="#f7f4ec" />
+  <path d="M256 132c-46 36-72 78-72 124a72 72 0 0 0 144 0c0-46-26-88-72-124z" fill="#4f7a4a" />
+  <rect x="244" y="300" width="24" height="92" rx="12" fill="#8a6b4f" />
+</svg>

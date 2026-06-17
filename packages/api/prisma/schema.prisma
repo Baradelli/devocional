@@ -1,6 +1,5 @@
 // Schema do banco — único banco para todo o monólito modular.
 // Identificadores e schema sempre em inglês (ver CLAUDE.md).
-// M0: datasource + generator apenas; os modelos chegam a partir do M1.
 
 generator client {
   provider = "prisma-client-js"
@@ -9,4 +8,301 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  ADMIN
+}
+
+enum InviteStatus {
+  PENDING
+  USED
+  REVOKED
+}
+
+enum TreeStage {
+  SEED
+  SPROUT
+  SEEDLING
+  BRANCHES
+  TRUNK
+  YOUNG_TREE
+  FRUITING
+}
+
+enum AchievementType {
+  WEEKLY_BADGE
+  MONTHLY_PRIZE
+}
+
+enum BlockType {
+  QUOTE
+  PASSAGE
+  DEVOTIONAL
+  PRAYER
+  REFLECTION
+}
+
+enum MediaType {
+  AUDIO
+  GIF
+  SOUND
+}
+
+enum WhatsappStatus {
+  PENDING
+  VERIFIED
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  name                  String
+  email                 String    @unique
+  passwordHash          String
+  role                  Role      @default(MEMBER)
+  timezone              String
+  onboardingCompletedAt DateTime?
+  createdAt             DateTime  @default(now())
+
+  sessions         Session[]
+  invitesCreated   Invite[]          @relation("InviteCreatedBy")
+  inviteUsed       Invite?           @relation("InviteUsedBy")
+  dailyCompletions   DailyCompletion[]
+  streakState        StreakState?
+  achievements       Achievement[]
+  notes              Note[]
+  pushSubscriptions  PushSubscription[]
+  whatsappContact    WhatsappContact?
+  reminderPreference ReminderPreference?
+}
+
+model Invite {
+  id          String       @id @default(cuid())
+  code        String       @unique
+  email       String?
+  status      InviteStatus @default(PENDING)
+  expiresAt   DateTime
+  createdById String
+  createdBy   User         @relation("InviteCreatedBy", fields: [createdById], references: [id])
+  usedById    String?      @unique
+  usedBy      User?        @relation("InviteUsedBy", fields: [usedById], references: [id])
+  usedAt      DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([createdById])
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Registro autoritativo da conclusão diária. Alimenta a gamificação e impede
+// dupla contagem: único por (user, dia lógico) e por (user, idempotencyKey).
+model DailyCompletion {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logicalDate    String // YYYY-MM-DD no fuso do usuário
+  devotionalId   String? // FK real para Devotional chega no M4
+  idempotencyKey String
+  completedAt    DateTime
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, logicalDate])
+  @@unique([userId, idempotencyKey])
+  @@index([userId])
+}
+
+model StreakState {
+  userId                   String    @id
+  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentStreak            Int       @default(0)
+  longestStreak            Int       @default(0)
+  lastCompletedLogicalDate String?
+  treeStage                TreeStage @default(SEED)
+  updatedAt                DateTime  @updatedAt
+}
+
+// Coleção permanente — nunca apagada ao quebrar o streak. Única por marco.
+model Achievement {
+  id        String          @id @default(cuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      AchievementType
+  milestone Int
+  grantedAt DateTime        @default(now())
+
+  @@unique([userId, type, milestone])
+  @@index([userId])
+}
+
+// Base bíblica multi-tradução, importada via SQL. Leitura pesada e imutável
+// após a importação → fortemente cacheável. A passagem do devocional referencia
+// `bookReferenceId` (chave canônica), permitindo cruzar entre traduções.
+model Translation {
+  id        String   @id @default(cuid())
+  code      String   @unique // ex.: ARA, NVI
+  name      String
+  createdAt DateTime @default(now())
+
+  books Book[]
+}
+
+model Book {
+  id                   String @id @default(cuid())
+  translationId        String
+  bookReferenceId      Int // ordem canônica (1..66)
+  testamentReferenceId Int // 1 = Antigo Testamento, 2 = Novo Testamento
+  name                 String
+
+  translation Translation @relation(fields: [translationId], references: [id], onDelete: Cascade)
+  verses      Verse[]
+
+  @@unique([translationId, bookReferenceId])
+  @@index([translationId])
+}
+
+model Verse {
+  id      String @id @default(cuid())
+  bookId  String
+  chapter Int
+  verse   Int
+  text    String
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, chapter, verse])
+  @@index([bookId, chapter])
+}
+
+// Conteúdo diário. Histórico completo persistido; a UI do v1 só mostra "hoje"
+// (ADR-004). Disponível às 00h da `date` — `publishedAt` registra a publicação.
+model Devotional {
+  id          String    @id @default(cuid())
+  date        String    @unique // YYYY-MM-DD da publicação
+  theme       String?
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  blocks DevotionalBlock[]
+  notes  Note[]
+}
+
+model DevotionalBlock {
+  id           String    @id @default(cuid())
+  devotionalId String
+  type         BlockType
+  order        Int
+  text         String? // quote/devotional/prayer; passagem é referência (texto derivado)
+
+  // Mídias do bloco (referências soft a Media; sem FK para simplificar o v1).
+  audioMediaId String?
+  gifMediaId   String? // oração
+  soundMediaId String? // oração
+
+  // Reflexão: 3 perguntas + 3 ações (validação 3+3 na borda via Zod).
+  reflectionQuestions String[]
+  reflectionActions   String[]
+
+  devotional Devotional        @relation(fields: [devotionalId], references: [id], onDelete: Cascade)
+  passage    PassageReference?
+
+  @@unique([devotionalId, order])
+  @@index([devotionalId])
+}
+
+// Referência canônica da passagem de um bloco (ADR-006). O texto é montado da
+// tabela `Verse` na exibição; aqui guardamos só a referência.
+model PassageReference {
+  id              String @id @default(cuid())
+  blockId         String @unique
+  translationId   String
+  bookReferenceId Int
+  chapter         Int
+  verseStart      Int
+  verseEnd        Int
+
+  block DevotionalBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+}
+
+model Media {
+  id           String    @id @default(cuid())
+  type         MediaType
+  storageKey   String // chave no storage (disco no v1, atrás de interface)
+  mimetype     String
+  size         Int
+  originalName String?
+  createdAt    DateTime  @default(now())
+}
+
+// Anotação pessoal do fiel sobre um devocional (no máximo uma por dia).
+// Privada ao dono. Escrita offline + sync idempotente: `editedAt` é o instante
+// da edição no device (autoridade do last-write-wins na reconciliação) e
+// `idempotencyKey` deduplica reenvios. Soft delete via `deletedAt`.
+model Note {
+  id             String     @id @default(cuid())
+  userId         String
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  devotionalId   String
+  devotional     Devotional @relation(fields: [devotionalId], references: [id], onDelete: Cascade)
+  text           String
+  idempotencyKey String
+  editedAt       DateTime
+  deletedAt      DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([userId, devotionalId])
+  @@index([userId])
+  @@index([devotionalId])
+}
+
+// Inscrição de Web Push (VAPID). 1 user : N devices. `endpoint` é a chave
+// natural devolvida pelo browser.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  label     String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Número de WhatsApp do usuário (E.164). Só recebe mensagem se VERIFIED. O
+// código de verificação é efêmero (expira) e some após confirmar.
+model WhatsappContact {
+  userId           String         @id
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone            String
+  status           WhatsappStatus @default(PENDING)
+  verificationCode String?
+  codeExpiresAt    DateTime?
+  verifiedAt       DateTime?
+  updatedAt        DateTime       @updatedAt
+}
+
+// Preferência de lembrete: horário local (HH:MM) + canais ativos. O disparo é
+// calculado no fuso do usuário; `lastSentLogicalDate` deduplica por dia.
+model ReminderPreference {
+  userId              String   @id
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  localTime           String
+  pushEnabled         Boolean  @default(true)
+  whatsappEnabled     Boolean  @default(false)
+  lastSentLogicalDate String?
+  updatedAt           DateTime @updatedAt
 }
