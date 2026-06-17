@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ApiError } from '../api/client.js';
 import { fetchToday } from '../api/devotional.js';
 import { Block } from '../components/Blocks.js';
+import { NoteEditor } from '../components/NoteEditor.js';
 import { localStorageQueue } from '../offline/queue.js';
 import { flushQueue } from '../offline/sync.js';
 
@@ -87,6 +88,8 @@ export function Today() {
       {blocks.map((block) => (
         <Block key={block.order} block={block} />
       ))}
+
+      <NoteEditor devotionalId={devotional.id} />
 
       <footer className="finish">
         {completed ? (

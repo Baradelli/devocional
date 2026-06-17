@@ -2,12 +2,16 @@ import type { UserPublic } from '@devocional/shared';
 import { useEffect, useState } from 'react';
 
 import { fetchCurrentUser, logout } from './api/auth.js';
+import { Library } from './features/Library.js';
 import { Login } from './features/Login.js';
 import { Today } from './features/Today.js';
+
+type View = 'today' | 'library';
 
 export function App() {
   const [user, setUser] = useState<UserPublic | null>(null);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<View>('today');
 
   useEffect(() => {
     void fetchCurrentUser()
@@ -26,7 +30,22 @@ export function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <span className="brand">Hoje</span>
+        <nav className="tabs">
+          <button
+            type="button"
+            className={view === 'today' ? 'tab active' : 'tab'}
+            onClick={() => setView('today')}
+          >
+            Hoje
+          </button>
+          <button
+            type="button"
+            className={view === 'library' ? 'tab active' : 'tab'}
+            onClick={() => setView('library')}
+          >
+            Anotações
+          </button>
+        </nav>
         <button
           type="button"
           className="link"
@@ -37,9 +56,7 @@ export function App() {
           Sair
         </button>
       </header>
-      <main>
-        <Today />
-      </main>
+      <main>{view === 'today' ? <Today /> : <Library />}</main>
     </div>
   );
 }

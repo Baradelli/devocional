@@ -60,10 +60,10 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Fila offline de ações com `idempotencyKey`; reconcilia ao reconectar.
 
 ## M6 — Anotações + biblioteca pessoal
-- [ ] Schema: `Note` (por user+devotional, soft delete, `idempotencyKey`).
-- [ ] CRUD de anotação, offline-capable.
-- [ ] Biblioteca pessoal: lista das próprias anotações por data.
-- [ ] Testes: integração do CRUD e do sync de anotações.
+- [x] Schema: `Note` (por user+devotional, soft delete, `idempotencyKey`).
+- [x] CRUD de anotação, offline-capable.
+- [x] Biblioteca pessoal: lista das próprias anotações por data.
+- [x] Testes: integração do CRUD e do sync de anotações.
 
 ## M7 — Gamificação visual
 - [ ] Árvore por estágios (semente → ... → frutos), reflete `StreakState`.

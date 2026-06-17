@@ -9,11 +9,13 @@ import { createBibleModule } from '../infrastructure/bible/bibleModule.js';
 import type { Env } from '../infrastructure/config/env.js';
 import { createContentModule } from '../infrastructure/content/contentModule.js';
 import { createIdentityModule } from '../infrastructure/identity/identityModule.js';
+import { createNotesModule } from '../infrastructure/notes/notesModule.js';
 import { createProgressModule } from '../infrastructure/progress/progressModule.js';
 import { bibleRoutes } from './bible/routes.js';
 import { contentRoutes } from './content/routes.js';
 import { identityErrorHandler } from './identity/errorHandler.js';
 import { identityRoutes } from './identity/routes.js';
+import { notesRoutes } from './notes/routes.js';
 import { progressRoutes } from './progress/routes.js';
 import { healthRoutes } from './routes/health.js';
 
@@ -38,6 +40,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
 
   const identity = createIdentityModule(prisma);
   const progress = createProgressModule(prisma);
+  const notes = createNotesModule(prisma);
   const bible = createBibleModule(prisma);
   const content = createContentModule(prisma, bible, {
     mediaDir: env.MEDIA_DIR,
@@ -55,6 +58,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
   app.register(healthRoutes);
   app.register(identityRoutes, { identity, env });
   app.register(progressRoutes, { progress });
+  app.register(notesRoutes, { notes });
   app.register(bibleRoutes, { bible });
   app.register(contentRoutes, { content });
 

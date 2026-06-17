@@ -39,6 +39,7 @@ export interface BlockRecord {
 }
 
 export interface DevotionalRecord {
+  id: string;
   date: string;
   theme: string | null;
   publishedAt: Date | null;

@@ -105,6 +105,7 @@ export const blockViewSchema = z.discriminatedUnion('type', [
 export type BlockView = z.infer<typeof blockViewSchema>;
 
 export const devotionalViewSchema = z.object({
+  id: z.string(),
   date: z.string(),
   theme: z.string().nullable(),
   publishedAt: z.string().datetime().nullable(),

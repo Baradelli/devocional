@@ -7,9 +7,11 @@ import {
 import { BibleError } from '../../application/bible/errors.js';
 import { ContentError } from '../../application/content/errors.js';
 import { IdentityError } from '../../application/identity/errors.js';
+import { NoteError } from '../../application/notes/errors.js';
 import { ProgressError } from '../../application/progress/errors.js';
 import { bibleErrorResponse } from '../bible/errorMessages.js';
 import { contentErrorResponse } from '../content/errorMessages.js';
+import { noteErrorResponse } from '../notes/errorMessages.js';
 import { progressErrorResponse } from '../progress/errorMessages.js';
 import { identityErrorResponse } from './errorMessages.js';
 
@@ -42,6 +44,12 @@ export function identityErrorHandler(
 
   if (error instanceof ContentError) {
     const mapped = contentErrorResponse(error.code);
+    void reply.status(mapped.status).send({ error: error.code, message: mapped.message });
+    return;
+  }
+
+  if (error instanceof NoteError) {
+    const mapped = noteErrorResponse(error.code);
     void reply.status(mapped.status).send({ error: error.code, message: mapped.message });
     return;
   }

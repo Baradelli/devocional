@@ -78,6 +78,7 @@ export function createContentRepository(prisma: PrismaClient): DevotionalReposit
         return null;
       }
       return {
+        id: devotional.id,
         date: devotional.date,
         theme: devotional.theme,
         publishedAt: devotional.publishedAt,

@@ -66,6 +66,7 @@ model User {
   dailyCompletions DailyCompletion[]
   streakState      StreakState?
   achievements     Achievement[]
+  notes            Note[]
 }
 
 model Invite {
@@ -186,6 +187,7 @@ model Devotional {
   updatedAt   DateTime  @updatedAt
 
   blocks DevotionalBlock[]
+  notes  Note[]
 }
 
 model DevotionalBlock {
@@ -233,4 +235,26 @@ model Media {
   size         Int
   originalName String?
   createdAt    DateTime  @default(now())
+}
+
+// Anotação pessoal do fiel sobre um devocional (no máximo uma por dia).
+// Privada ao dono. Escrita offline + sync idempotente: `editedAt` é o instante
+// da edição no device (autoridade do last-write-wins na reconciliação) e
+// `idempotencyKey` deduplica reenvios. Soft delete via `deletedAt`.
+model Note {
+  id             String     @id @default(cuid())
+  userId         String
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  devotionalId   String
+  devotional     Devotional @relation(fields: [devotionalId], references: [id], onDelete: Cascade)
+  text           String
+  idempotencyKey String
+  editedAt       DateTime
+  deletedAt      DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([userId, devotionalId])
+  @@index([userId])
+  @@index([devotionalId])
 }
