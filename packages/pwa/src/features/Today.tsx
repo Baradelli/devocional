@@ -5,20 +5,11 @@ import { ApiError } from '../api/client.js';
 import { fetchToday } from '../api/devotional.js';
 import { Block } from '../components/Blocks.js';
 import { NoteEditor } from '../components/NoteEditor.js';
+import { treeView } from '../gamification/treeView.js';
 import { localStorageQueue } from '../offline/queue.js';
 import { flushQueue } from '../offline/sync.js';
 
 type Status = 'loading' | 'ready' | 'empty' | 'error';
-
-const TREE_LABELS: Record<string, string> = {
-  SEED: 'Semente',
-  SPROUT: 'Broto',
-  SEEDLING: 'Muda',
-  BRANCHES: 'Galhos',
-  TRUNK: 'Tronco firme',
-  YOUNG_TREE: 'Árvore jovem',
-  FRUITING: 'Árvore que floresce',
-};
 
 export function Today() {
   const queue = useRef(localStorageQueue()).current;
@@ -98,7 +89,7 @@ export function Today() {
             {snapshot ? (
               <p className="muted">
                 Sequência de {snapshot.streak.currentStreak} dia(s) ·{' '}
-                {TREE_LABELS[snapshot.streak.treeStage] ?? snapshot.streak.treeStage}
+                {treeView(snapshot.streak.treeStage).label}
               </p>
             ) : (
               <p className="muted">Salvo. Sincroniza quando você estiver online.</p>

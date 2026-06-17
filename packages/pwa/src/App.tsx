@@ -1,12 +1,25 @@
 import type { UserPublic } from '@devocional/shared';
-import { useEffect, useState } from 'react';
+import { type ReactElement, useEffect, useState } from 'react';
 
 import { fetchCurrentUser, logout } from './api/auth.js';
+import { Garden } from './features/Garden.js';
 import { Library } from './features/Library.js';
 import { Login } from './features/Login.js';
 import { Today } from './features/Today.js';
 
-type View = 'today' | 'library';
+type View = 'today' | 'garden' | 'library';
+
+const TABS: { view: View; label: string }[] = [
+  { view: 'today', label: 'Hoje' },
+  { view: 'garden', label: 'Jardim' },
+  { view: 'library', label: 'Anotações' },
+];
+
+const VIEWS: Record<View, () => ReactElement> = {
+  today: Today,
+  garden: Garden,
+  library: Library,
+};
 
 export function App() {
   const [user, setUser] = useState<UserPublic | null>(null);
@@ -31,20 +44,16 @@ export function App() {
     <div className="app">
       <header className="topbar">
         <nav className="tabs">
-          <button
-            type="button"
-            className={view === 'today' ? 'tab active' : 'tab'}
-            onClick={() => setView('today')}
-          >
-            Hoje
-          </button>
-          <button
-            type="button"
-            className={view === 'library' ? 'tab active' : 'tab'}
-            onClick={() => setView('library')}
-          >
-            Anotações
-          </button>
+          {TABS.map((tab) => (
+            <button
+              key={tab.view}
+              type="button"
+              className={view === tab.view ? 'tab active' : 'tab'}
+              onClick={() => setView(tab.view)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </nav>
         <button
           type="button"
@@ -56,7 +65,7 @@ export function App() {
           Sair
         </button>
       </header>
-      <main>{view === 'today' ? <Today /> : <Library />}</main>
+      <main>{VIEWS[view]()}</main>
     </div>
   );
 }

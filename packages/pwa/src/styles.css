@@ -288,3 +288,104 @@ button.listen {
 .library-text {
   white-space: pre-wrap;
 }
+
+/* Garden / tree */
+.garden {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.tree {
+  margin: 0;
+  width: 100%;
+  max-width: 18rem;
+  text-align: center;
+}
+.tree-svg {
+  width: 100%;
+  height: auto;
+}
+.tree-ground {
+  fill: #e9dcc4;
+}
+.tree-seed {
+  fill: var(--bark);
+}
+.tree-trunk {
+  fill: var(--bark);
+  transition: all 700ms ease;
+}
+.tree-roots {
+  stroke: var(--bark);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.7;
+}
+.tree-leaf,
+.tree-canopy circle {
+  fill: var(--leaf);
+  transition: all 700ms ease;
+}
+.tree-canopy circle {
+  opacity: 0.92;
+}
+.tree-bloom circle {
+  fill: var(--bloom);
+}
+.tree-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.5rem;
+}
+.tree-stage {
+  font-weight: 700;
+  color: var(--leaf);
+  font-size: 1.2rem;
+}
+.garden-streak {
+  text-align: center;
+}
+.garden-streak-now {
+  font-weight: 600;
+}
+.garden-title {
+  align-self: flex-start;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+.collection {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+.collection-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  text-align: center;
+}
+.collection-icon {
+  font-size: 1.8rem;
+}
+.collection-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-trunk,
+  .tree-leaf,
+  .tree-canopy circle {
+    transition: none;
+  }
+}

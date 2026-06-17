@@ -1,6 +1,8 @@
 import {
   type ProgressSnapshot,
   progressSnapshotSchema,
+  type ProgressView,
+  progressViewSchema,
   type SyncRequest,
 } from '@devocional/shared';
 
@@ -11,4 +13,8 @@ export function syncCompletions(request: SyncRequest): Promise<ProgressSnapshot>
     method: 'POST',
     body: JSON.stringify(request),
   });
+}
+
+export function fetchProgress(): Promise<ProgressView> {
+  return apiRequest('/progress', progressViewSchema);
 }

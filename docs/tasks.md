@@ -66,9 +66,9 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Testes: integração do CRUD e do sync de anotações.
 
 ## M7 — Gamificação visual
-- [ ] Árvore por estágios (semente → ... → frutos), reflete `StreakState`.
-- [ ] Murcha/volta à semente ao quebrar streak.
-- [ ] Coleção permanente de insígnias e prêmios.
+- [x] Árvore por estágios (semente → ... → frutos), reflete `StreakState`.
+- [x] Murcha/volta à semente ao quebrar streak.
+- [x] Coleção permanente de insígnias e prêmios.
 
 ## M8 — Notificações multi-canal
 - [ ] Schema: `PushSubscription`, `WhatsappContact` (com verificação), `ReminderPreference` (horário + canais ativos).
