@@ -23,3 +23,6 @@ packages/api/src/generated/
 # editor / os
 .DS_Store
 *.local
+
+# impeccable tooling
+.impeccable/
