@@ -11,7 +11,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "seed": "tsx --env-file=.env src/scripts/seed.ts"
+    "seed": "tsx --env-file=.env src/scripts/seed.ts",
+    "import:bibles": "tsx --env-file=.env src/scripts/importBiblesFromSqlite.ts"
   },
   "dependencies": {
     "@devocional/shared": "workspace:*",

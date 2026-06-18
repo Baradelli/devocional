@@ -1,5 +1,6 @@
 # dependencies
 node_modules/
+bibles-sql/
 
 # build output
 dist/
@@ -26,3 +27,6 @@ packages/api/src/generated/
 
 # impeccable tooling
 .impeccable/
+
+# certificados de HTTPS de dev (gerados localmente por mkcert)
+certs/
