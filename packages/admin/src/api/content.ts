@@ -2,10 +2,14 @@ import {
   type CreateDevotionalRequest,
   type DevotionalSummary,
   devotionalSummarySchema,
+  type DevotionalView,
+  devotionalViewSchema,
   type MediaType,
   type MediaView,
   mediaViewSchema,
+  type UpdateDevotionalRequest,
 } from '@devocional/shared';
+import { z } from 'zod';
 
 import { API_BASE, ApiError, apiRequest } from './client.js';
 
@@ -31,6 +35,24 @@ export async function uploadMedia(file: File, type: MediaType): Promise<MediaVie
 export function createDevotional(input: CreateDevotionalRequest): Promise<DevotionalSummary> {
   return apiRequest('/admin/devotionals', devotionalSummarySchema, {
     method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export function listDevotionals(): Promise<DevotionalSummary[]> {
+  return apiRequest('/admin/devotionals', z.array(devotionalSummarySchema));
+}
+
+export function getDevotional(date: string): Promise<DevotionalView> {
+  return apiRequest(`/admin/devotionals/${date}`, devotionalViewSchema);
+}
+
+export function updateDevotional(
+  date: string,
+  input: UpdateDevotionalRequest,
+): Promise<DevotionalSummary> {
+  return apiRequest(`/admin/devotionals/${date}`, devotionalSummarySchema, {
+    method: 'PUT',
     body: JSON.stringify(input),
   });
 }

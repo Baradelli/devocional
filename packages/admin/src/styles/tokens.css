@@ -1,0 +1,127 @@
+/*
+ * Tokens do painel admin. Mesma identidade do fiel (cream/leaf/bark, ver
+ * docs/design-guide.md), porém com o vocabulário de estado que uma UI de
+ * produto exige: hover/focus/active/disabled + semântica de status.
+ * Contraste de texto verificado para AA (corpo >= 4.5:1 sobre o fundo).
+ */
+:root {
+  /* Superfícies — três camadas: página, conteúdo, painel/sidebar */
+  --bg: #f4f0e6;
+  --surface: #fffdf7;
+  --surface-2: #efe9da; /* sidebar/toolbar: levemente mais profundo que o bg */
+  --surface-inset: #fffefb; /* campos de formulário */
+  --surface-hover: #f7f2e7;
+
+  /* Tinta — rampa com contraste verificado sobre superfícies claras */
+  --ink: #2e2a24; /* primário ~12:1 */
+  --ink-2: #574f43; /* secundário ~5.8:1 */
+  --muted: #6f6859; /* terciário ~4.7:1 (legendas, meta) */
+
+  /* Marca */
+  --leaf: #4f7a4a; /* ação primária; texto branco ~5:1 */
+  --leaf-strong: #3f6b3b; /* hover/active */
+  --leaf-ink: #355e31; /* verde como texto sobre cream ~6.5:1 */
+  --leaf-tint: #e7efe2; /* fundo de chip/sucesso */
+  --bark: #8a6b4f; /* acento terroso (legendas/headings) */
+  --bark-ink: #6c5238; /* marrom como texto pequeno */
+  --bark-tint: #efe6da;
+
+  /* Semântica de status */
+  --danger: #a3431f; /* erro ~5.5:1 */
+  --danger-tint: #f6e6df;
+  --warn-ink: #8a5a12; /* "pendente" (ochre) */
+  --warn-tint: #f3e8d2;
+
+  /* Toast (depende do tema) */
+  --toast-bg: #2e2a24;
+  --toast-fg: #ffffff;
+
+  /* Estrutura */
+  --border: #e4ddcd;
+  --border-strong: #d3c9b4;
+  --ring: 0 0 0 3px rgba(79, 122, 74, 0.32);
+
+  /* Tipografia — escala rem fixa, razão ~1.2 (UI de produto) */
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-xs: 0.78rem;
+  --text-sm: 0.875rem;
+  --text-base: 0.95rem;
+  --text-md: 1.05rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.6rem;
+  --text-2xl: 2rem;
+
+  /* Espaçamento */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-8: 3rem;
+
+  /* Raio */
+  --r-sm: 8px;
+  --r-md: 11px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-pill: 999px;
+
+  /* Sombra (quente, suave) */
+  --shadow-sm: 0 1px 2px rgba(57, 46, 30, 0.06), 0 1px 1px rgba(57, 46, 30, 0.04);
+  --shadow-md: 0 4px 16px rgba(57, 46, 30, 0.09), 0 1px 3px rgba(57, 46, 30, 0.05);
+
+  /* z-index semântico */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-toast: 500;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 130ms;
+  --dur: 190ms;
+
+  color-scheme: light;
+}
+
+/*
+ * Tema escuro — mesma identidade orgânica (marrons quentes/espresso, não
+ * azul-preto). Aplicado via data-theme no <html>. Contraste AA verificado.
+ */
+:root[data-theme='dark'] {
+  --bg: #1b1916;
+  --surface: #272320;
+  --surface-2: #211d19;
+  --surface-inset: #211d19;
+  --surface-hover: #302b25;
+
+  --ink: #f3ece0;
+  --ink-2: #c9bfb0;
+  --muted: #9c9384;
+
+  --leaf: #4f7a4a;
+  --leaf-strong: #5e9156; /* hover clareia no escuro */
+  --leaf-ink: #8fc985;
+  --leaf-tint: #243224;
+  --bark: #b08a66;
+  --bark-ink: #d8b896;
+  --bark-tint: #2e2620;
+
+  --danger: #e09377;
+  --danger-tint: #382019;
+  --warn-ink: #d6a24e;
+  --warn-tint: #34291a;
+
+  --toast-bg: #34302a;
+  --toast-fg: var(--ink);
+
+  --border: #34302a;
+  --border-strong: #423c34;
+  --ring: 0 0 0 3px rgba(143, 201, 133, 0.36);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.38), 0 1px 4px rgba(0, 0, 0, 0.3);
+
+  color-scheme: dark;
+}

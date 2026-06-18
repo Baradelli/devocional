@@ -1,9 +1,14 @@
 import type { UserPublic } from '@devocional/shared';
 import { useEffect, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { fetchCurrentUser, logout } from './api/auth.js';
-import { DevotionalForm } from './features/DevotionalForm.js';
+import { AgendaScreen } from './features/AgendaScreen.js';
+import { DevotionalEditor } from './features/DevotionalEditor.js';
 import { Login } from './features/Login.js';
+import { AppShell } from './ui/AppShell.js';
+import { Skeleton } from './ui/Skeleton.js';
+import { ToastProvider } from './ui/Toast.js';
 
 export function App() {
   const [user, setUser] = useState<UserPublic | null>(null);
@@ -16,33 +21,31 @@ export function App() {
   }, []);
 
   if (loading) {
-    return <p className="muted center">Carregando…</p>;
+    return (
+      <div className="full-center">
+        <Skeleton width="14rem" height="2rem" />
+      </div>
+    );
   }
 
   if (!user) {
     return <Login onLoggedIn={setUser} />;
   }
 
+  const handleLogout = () => {
+    void logout().then(() => setUser(null));
+  };
+
   return (
-    <div className="app">
-      <header className="topbar">
-        <strong>Devocional — Admin</strong>
-        <span className="muted">
-          {user.name}
-          <button
-            type="button"
-            className="link"
-            onClick={() => {
-              void logout().then(() => setUser(null));
-            }}
-          >
-            Sair
-          </button>
-        </span>
-      </header>
-      <main>
-        <DevotionalForm />
-      </main>
-    </div>
+    <ToastProvider>
+      <Routes>
+        <Route element={<AppShell user={user} onLogout={handleLogout} />}>
+          <Route index element={<AgendaScreen />} />
+          <Route path="novo" element={<DevotionalEditor />} />
+          <Route path="dia/:date" element={<DevotionalEditor />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </ToastProvider>
   );
 }
