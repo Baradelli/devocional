@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Devocional — Linguagem visual</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Mulish:ital,wght@0,400..800;1,400..600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/themes.css" />
+    <script src="theme.js"></script>
+    <style>
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: clamp(1.5rem, 5vw, 4rem) 1.25rem 5rem;
+      }
+
+      .masthead {
+        margin-bottom: var(--space-6);
+      }
+      .masthead .eyebrow {
+        color: var(--moss);
+      }
+      .masthead h1 {
+        font-size: clamp(2.4rem, 8vw, 4rem);
+        font-weight: 500;
+        font-variation-settings: "SOFT" 50, "opsz" 144;
+        margin: 0.5rem 0 0.75rem;
+        line-height: 1.05;
+      }
+      .masthead p {
+        max-width: 46ch;
+        color: var(--ink-soft);
+        font-size: var(--step-lead);
+      }
+
+      .section {
+        margin-top: var(--space-6);
+      }
+      .section > .eyebrow {
+        display: block;
+        margin-bottom: var(--space-3);
+        padding-bottom: var(--space-2);
+        border-bottom: 1px solid var(--line);
+      }
+
+      /* paleta */
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+      }
+      .swatch {
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background: var(--surface);
+      }
+      .swatch__chip {
+        height: 74px;
+      }
+      .swatch__meta {
+        padding: 0.6rem 0.7rem 0.7rem;
+      }
+      .swatch__name {
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .swatch__hex {
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+        letter-spacing: 0.03em;
+      }
+
+      /* tipografia */
+      .type-spec {
+        display: grid;
+        gap: var(--space-4);
+      }
+      .type-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+        padding-bottom: var(--space-4);
+        border-bottom: 1px solid var(--line);
+      }
+      .type-row:last-child {
+        border-bottom: none;
+      }
+      .type-row .tag {
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+      .specimen-hero {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 6vw, 3rem);
+        font-weight: 450;
+        font-variation-settings: "SOFT" 60, "opsz" 144;
+        line-height: 1.15;
+      }
+      .specimen-h2 {
+        font-family: var(--font-display);
+        font-size: var(--step-h2);
+      }
+      .specimen-body {
+        max-width: var(--measure);
+      }
+
+      .components {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .card-demo {
+        max-width: 420px;
+        padding: var(--space-4);
+        margin-top: var(--space-3);
+      }
+      .card-demo .label {
+        color: var(--clay);
+      }
+      .card-demo .passage {
+        font-family: var(--font-display);
+        font-size: var(--step-lead);
+        margin: 0.5rem 0 1rem;
+        line-height: 1.5;
+      }
+
+      /* navegação para telas */
+      .screens {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .screen-link {
+        display: block;
+        padding: var(--space-4);
+        text-decoration: none;
+        color: inherit;
+        transition:
+          transform 0.2s var(--ease),
+          box-shadow 0.2s var(--ease);
+      }
+      .screen-link:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-2);
+      }
+      .screen-link h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.3rem;
+      }
+      .screen-link p {
+        font-size: 0.92rem;
+        color: var(--ink-soft);
+      }
+      .screen-link.soon {
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .screen-link .tag {
+        display: inline-block;
+        margin-top: 0.6rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--moss);
+        font-weight: 700;
+      }
+      .screen-link.soon .tag {
+        color: var(--ink-soft);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="masthead">
+        <span class="eyebrow">Devocional · linguagem visual</span>
+        <h1>Algo vivo, que se cultiva todo dia.</h1>
+        <p>
+          Direção aconchegante e orgânica, com a serenidade imersiva da oração. O musgo é a
+          cor do crescimento; a árvore, o elemento que se lembra. Esta página valida a
+          linguagem antes de tocar no app.
+        </p>
+      </header>
+
+      <section class="section">
+        <span class="eyebrow">Paleta — dia</span>
+        <div class="swatches" id="swatches-day"></div>
+      </section>
+
+      <section class="section">
+        <span class="eyebrow">Paleta — noite (oração)</span>
+        <div class="swatches" id="swatches-night"></div>
+      </section>
+
+      <section class="section">
+        <span class="eyebrow">Tipografia — Fraunces + Mulish</span>
+        <div class="type-spec">
+          <div class="type-row">
+            <span class="tag">Display · Fraunces · versículo</span>
+            <p class="specimen-hero">
+              “Porque Deus amou o mundo de tal maneira…”
+            </p>
+          </div>
+          <div class="type-row">
+            <span class="tag">Display · Fraunces · título</span>
+            <p class="specimen-h2">Para refletir</p>
+          </div>
+          <div class="type-row">
+            <span class="tag">Corpo · Mulish</span>
+            <p class="specimen-body">
+              A graça não se conquista — se recebe. Hoje, antes de pedir qualquer coisa,
+              respire e lembre que você já é amado. O devocional é um espaço de quietude, não
+              mais uma tarefa na lista.
+            </p>
+          </div>
+          <div class="type-row">
+            <span class="tag">Utilitário · Mulish small-caps</span>
+            <p class="label">João 3:16 · Terça, 17 jun</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <span class="eyebrow">Componentes</span>
+        <div class="components">
+          <button class="btn">Concluir o dia</button>
+          <button class="btn--ghost btn">Ver o jardim</button>
+          <button class="listen" id="demo-listen" type="button">
+            <span class="listen__wave"><span></span><span></span><span></span><span></span></span>
+            Escutar
+          </button>
+        </div>
+
+        <div class="card card-demo">
+          <span class="label">João 3:16</span>
+          <p class="passage">
+            “Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito.”
+          </p>
+          <button class="listen" type="button">
+            <span class="listen__wave"><span></span><span></span><span></span><span></span></span>
+            Escutar a passagem
+          </button>
+        </div>
+      </section>
+
+      <section class="section">
+        <span class="eyebrow">Telas</span>
+        <div class="screens">
+          <a class="card screen-link" href="today.html">
+            <h3>Hoje</h3>
+            <p>A tela principal: os cinco blocos do devocional e a haste viva.</p>
+            <span class="tag">Pronta →</span>
+          </a>
+          <div class="card screen-link soon">
+            <h3>Oração</h3>
+            <p>Tela imersiva escura, com ambiência e luz de vela.</p>
+            <span class="tag">Em breve</span>
+          </div>
+          <a class="card screen-link" href="garden.html">
+            <h3>Jardim</h3>
+            <p>A árvore por estágios e o herbário de conquistas.</p>
+            <span class="tag">Pronta →</span>
+          </a>
+          <a class="card screen-link" href="notes.html">
+            <h3>Anotações</h3>
+            <p>Biblioteca por data e editor estilo Notion/Obsidian.</p>
+            <span class="tag">Pronta →</span>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const day = [
+        ["Paper", "#F4EFE4", "fundo"],
+        ["Surface", "#FBF7EE", "cartões"],
+        ["Ink", "#2B2922", "tinta"],
+        ["Ink soft", "#6B6456", "2º texto"],
+        ["Moss", "#3E6B47", "primária"],
+        ["Moss deep", "#2C4E34", "hover"],
+        ["Clay", "#B9714B", "acento raro"],
+        ["Gold", "#C9A24B", "conquista"],
+        ["Line", "#E0D7C4", "bordas"],
+      ];
+      const night = [
+        ["Night 1", "#14181C", "topo"],
+        ["Night 2", "#2A3340", "base"],
+        ["Glow", "#E8C98F", "vela"],
+        ["Ink night", "#EDE7DA", "texto"],
+      ];
+      const render = (id, list) => {
+        document.getElementById(id).innerHTML = list
+          .map(
+            ([name, hex, role]) => `
+          <div class="swatch">
+            <div class="swatch__chip" style="background:${hex}"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">${name}</div>
+              <div class="swatch__hex">${hex} · ${role}</div>
+            </div>
+          </div>`,
+          )
+          .join("");
+      };
+      render("swatches-day", day);
+      render("swatches-night", night);
+
+      const demo = document.getElementById("demo-listen");
+      demo.addEventListener("click", () => demo.classList.toggle("is-playing"));
+    </script>
+  </body>
+</html>

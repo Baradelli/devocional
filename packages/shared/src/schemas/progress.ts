@@ -64,3 +64,21 @@ export const progressViewSchema = z.object({
   achievements: z.array(achievementSchema),
 });
 export type ProgressView = z.infer<typeof progressViewSchema>;
+
+/** Mês no formato YYYY-MM (querystring do calendário de sequência). */
+export const calendarMonthSchema = z.string().regex(/^\d{4}-\d{2}$/, 'month_invalid');
+
+export const calendarQuerySchema = z.object({
+  month: calendarMonthSchema,
+});
+export type CalendarQuery = z.infer<typeof calendarQuerySchema>;
+
+/**
+ * Dias concluídos de um mês (dia lógico no fuso do usuário). Alimenta a faixa
+ * da semana e o calendário de sequência na tela do fiel.
+ */
+export const calendarViewSchema = z.object({
+  month: calendarMonthSchema,
+  completedDates: z.array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+});
+export type CalendarView = z.infer<typeof calendarViewSchema>;

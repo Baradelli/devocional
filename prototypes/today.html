@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Hoje — Devocional</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=Mulish:ital,wght@0,400..800;1,400..600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/themes.css" />
+    <link rel="stylesheet" href="styles/today.css" />
+    <script src="theme.js"></script>
+  </head>
+  <body>
+    <!-- ============================= HOME ============================= -->
+    <section class="screen screen--home" data-screen="home">
+      <header class="topbar">
+        <a class="topbar__icon" href="index.html" aria-label="Voltar à vitrine">←</a>
+        <span class="eyebrow" id="dateline">Quarta · 17 jun</span>
+        <button class="topbar__icon topbar__icon--garden" aria-label="Ver o jardim">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+            <path d="M12 21v-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+            <path
+              d="M12 14c-4 0-6-2.5-6-5 3 0 6 1.5 6 5Zm0 0c4 0 6-2.5 6-5-3 0-6 1.5-6 5Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </header>
+
+      <main class="home">
+        <!-- A SEMANA — dias feitos / não feitos + dia atual -->
+        <section class="week card">
+          <div class="week__head">
+            <span class="label">Esta semana</span>
+            <button class="week__cal" type="button" data-open="calendar">Ver calendário →</button>
+          </div>
+          <ol class="week__days" id="weekDays"></ol>
+        </section>
+
+        <p class="home__theme">Sobre receber a graça</p>
+
+        <!-- A JORNADA DE HOJE — cada etapa abre uma tela -->
+
+        <ol class="journey" id="journey">
+          <li class="station" data-step="verse">
+            <span class="station__node" aria-hidden="true"></span>
+            <button class="station__card" data-open="verse">
+              <span class="station__kicker">Para começar</span>
+              <span class="station__title">A frase do dia</span>
+              <span class="station__meta">uma palavra · 30s</span>
+              <span class="station__chev" aria-hidden="true">→</span>
+            </button>
+          </li>
+          <li class="station" data-step="reading">
+            <span class="station__node" aria-hidden="true"></span>
+            <button class="station__card" data-open="reading">
+              <span class="station__kicker">Leitura bíblica</span>
+              <span class="station__title">Efésios 2:8–10</span>
+              <span class="station__meta">3 versículos · ler ou escutar</span>
+              <span class="station__chev" aria-hidden="true">→</span>
+            </button>
+          </li>
+          <li class="station" data-step="devotional">
+            <span class="station__node" aria-hidden="true"></span>
+            <button class="station__card" data-open="devotional">
+              <span class="station__kicker">Devocional</span>
+              <span class="station__title">Merecer ou receber?</span>
+              <span class="station__meta">leitura · 2 min</span>
+              <span class="station__chev" aria-hidden="true">→</span>
+            </button>
+          </li>
+          <li class="station" data-step="prayer">
+            <span class="station__node" aria-hidden="true"></span>
+            <button class="station__card station__card--prayer" data-open="prayer">
+              <span class="station__kicker">Oração</span>
+              <span class="station__title">Um momento de quietude</span>
+              <span class="station__meta">imersivo · 2 min</span>
+              <span class="station__chev" aria-hidden="true">→</span>
+            </button>
+          </li>
+          <li class="station" data-step="reflection">
+            <span class="station__node" aria-hidden="true"></span>
+            <button class="station__card" data-open="reflection">
+              <span class="station__kicker">Reflexão</span>
+              <span class="station__title">Para refletir e praticar</span>
+              <span class="station__meta">3 perguntas · 3 ações</span>
+              <span class="station__chev" aria-hidden="true">→</span>
+            </button>
+          </li>
+        </ol>
+
+        <footer class="finish" id="finish">
+          <p class="finish__hint muted" id="finishHint">Complete as etapas para encerrar o dia.</p>
+          <button class="btn btn--block" id="finishBtn" disabled>Concluir o dia</button>
+          <div class="finish__done" id="finishDone" hidden>
+            <span class="finish__bloom" aria-hidden="true">✿</span>
+            <p class="finish__title display">Dia concluído</p>
+            <p class="muted">Sua sequência cresceu para <strong>8 dias</strong>.</p>
+          </div>
+        </footer>
+      </main>
+
+      <!-- FAB anotações (abre a biblioteca) -->
+      <a class="fab" href="notes.html" aria-label="Minhas anotações">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true">
+          <path
+            d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"
+          />
+          <path d="M14 7.5l2.5 2.5" stroke="currentColor" stroke-width="1.8" />
+        </svg>
+      </a>
+    </section>
+
+    <!-- ======================= FRASE DO DIA ========================= -->
+    <section class="screen screen--verse" data-screen="verse" hidden aria-label="Frase do dia">
+      <header class="screen__bar">
+        <button class="iconbtn" data-close aria-label="Voltar">←</button>
+        <span class="eyebrow">Frase do dia</span>
+        <span class="iconbtn iconbtn--ghost" aria-hidden="true"></span>
+      </header>
+      <div class="verse-screen">
+        <p class="verse-screen__text display">“Pela graça sois salvos, mediante a fé.”</p>
+        <img class="verse-screen__sprig" src="assets/sprig.svg" alt="" width="140" height="52" />
+        <span class="label verse-screen__ref">Efésios 2:8</span>
+      </div>
+      <div class="doc__foot">
+        <button class="listen" type="button" data-audio>
+          <span class="listen__wave"><span></span><span></span><span></span><span></span></span>
+          Escutar
+        </button>
+        <button class="btn" data-complete="verse" data-close>Começar o dia</button>
+      </div>
+    </section>
+
+    <!-- ======================== CALENDÁRIO ========================== -->
+    <section
+      class="screen screen--calendar"
+      data-screen="calendar"
+      hidden
+      aria-label="Calendário de sequência"
+    >
+      <header class="screen__bar">
+        <button class="iconbtn" data-close aria-label="Voltar">←</button>
+        <span class="eyebrow">Sua sequência</span>
+        <span class="iconbtn iconbtn--ghost" aria-hidden="true"></span>
+      </header>
+      <div class="cal">
+        <div class="cal__stats">
+          <div><b>8</b><span>dias seguidos</span></div>
+          <div><b>21</b><span>maior sequência</span></div>
+        </div>
+        <div class="cal__month">
+          <button class="iconbtn" type="button" aria-label="Mês anterior">‹</button>
+          <span class="display">Junho 2026</span>
+          <button class="iconbtn" type="button" aria-label="Próximo mês">›</button>
+        </div>
+        <div class="cal__dows">
+          <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span
+          ><span>S</span>
+        </div>
+        <div class="cal__grid" id="calGrid"></div>
+        <div class="cal__legend">
+          <span><i class="dot dot--done"></i>Concluído</span>
+          <span><i class="dot dot--today"></i>Hoje</span>
+          <span><i class="dot dot--miss"></i>Faltou</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== LEITURA (stories) ====================== -->
+    <section
+      class="screen screen--stories"
+      data-screen="reading"
+      hidden
+      aria-label="Leitura bíblica"
+    >
+      <div class="stories__bars" id="storyBars"></div>
+      <header class="stories__head">
+        <span class="label" id="storyRef">Efésios 2</span>
+        <button class="iconbtn iconbtn--light" data-close aria-label="Fechar leitura">×</button>
+      </header>
+      <button
+        class="stories__zone stories__zone--prev"
+        id="storyPrev"
+        aria-label="Versículo anterior"
+      ></button>
+      <button
+        class="stories__zone stories__zone--next"
+        id="storyNext"
+        aria-label="Próximo versículo"
+      ></button>
+      <div class="stories__stage">
+        <p class="stories__verseno label" id="storyNo">Versículo 8</p>
+        <p class="stories__text display" id="storyText"></p>
+      </div>
+      <div class="stories__foot">
+        <button class="listen listen--night" type="button" data-audio>
+          <span class="listen__wave"><span></span><span></span><span></span><span></span></span>
+          Escutar
+        </button>
+        <span class="stories__hint">toque para avançar</span>
+      </div>
+    </section>
+
+    <!-- ========================= DEVOCIONAL ========================== -->
+    <section class="screen screen--doc" data-screen="devotional" hidden aria-label="Devocional">
+      <header class="screen__bar">
+        <button class="iconbtn" data-close aria-label="Voltar">←</button>
+        <span class="eyebrow">Devocional</span>
+        <span class="iconbtn iconbtn--ghost" aria-hidden="true"></span>
+      </header>
+      <article class="doc" id="devotionalBody"></article>
+      <div class="doc__foot">
+        <button class="listen" type="button" data-audio>
+          <span class="listen__wave"><span></span><span></span><span></span><span></span></span>
+          Escutar o devocional
+        </button>
+        <button class="btn" data-complete="devotional" data-close>Concluir leitura</button>
+      </div>
+    </section>
+
+    <!-- ====================== ORAÇÃO (imersiva) ====================== -->
+    <section class="screen screen--prayer" data-screen="prayer" hidden aria-label="Oração">
+      <div class="prayer__bg" aria-hidden="true"></div>
+      <div class="prayer__veil" aria-hidden="true"></div>
+      <button class="iconbtn iconbtn--light prayer__close" data-close aria-label="Sair da oração">
+        ×
+      </button>
+      <div class="prayer__content">
+        <span class="eyebrow prayer__kicker">Oração</span>
+        <p class="prayer__text display">
+          Senhor, hoje eu paro de provar. Recebo o teu amor como ele é: presente, gratuito, inteiro.
+          Aquieta o meu coração e ensina-me a descansar em ti.
+        </p>
+        <button class="listen listen--night" type="button" id="prayerListen">
+          <span class="listen__wave"><span></span><span></span><span></span><span></span></span>
+          Escutar a oração
+        </button>
+        <button class="prayer__ambience" id="ambienceBtn" type="button">
+          Som ambiente: <strong>ligado</strong>
+        </button>
+        <button class="btn prayer__amen" data-complete="prayer" data-close>Amém</button>
+      </div>
+    </section>
+
+    <!-- ========================== REFLEXÃO =========================== -->
+    <section
+      class="screen screen--reflection"
+      data-screen="reflection"
+      hidden
+      aria-label="Reflexão"
+    >
+      <header class="screen__bar">
+        <button class="iconbtn" data-close aria-label="Voltar">←</button>
+        <span class="eyebrow">Reflexão</span>
+        <span class="iconbtn iconbtn--ghost" aria-hidden="true"></span>
+      </header>
+      <div class="reflect">
+        <div class="reflect__col">
+          <span class="label">Para refletir</span>
+          <ol class="reflect__list">
+            <li>Onde você ainda tenta merecer o que já é presente?</li>
+            <li>O que mudaria no seu dia se você cresse mesmo nesse amor?</li>
+            <li>De que peso a graça quer te aliviar hoje?</li>
+          </ol>
+        </div>
+        <div class="reflect__col">
+          <span class="label">Para praticar</span>
+          <ul class="reflect__list reflect__list--actions">
+            <li>Escreva uma coisa que você recebeu sem merecer.</li>
+            <li>Diga a alguém algo gratuito e gentil, sem esperar troca.</li>
+            <li>Reserve 5 minutos de silêncio, só para descansar.</li>
+          </ul>
+        </div>
+        <a class="note-prompt" href="notes.html?new=1">
+          <span>Guarde o que pensou hoje — <b>escrever anotação</b></span>
+          <span class="note-prompt__icon" aria-hidden="true">✎</span>
+        </a>
+      </div>
+      <div class="doc__foot">
+        <button class="listen" type="button" data-audio>
+          <span class="listen__wave"><span></span><span></span><span></span><span></span></span>
+          Escutar a reflexão
+        </button>
+        <button class="btn" data-complete="reflection" data-close>Concluir reflexão</button>
+      </div>
+    </section>
+
+    <div class="scrim" id="scrim" hidden></div>
+
+    <script src="today.js"></script>
+  </body>
+</html>

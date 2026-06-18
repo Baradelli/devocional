@@ -1,0 +1,235 @@
+/* ============================================================
+   JARDIM — a árvore por estágios + o herbário de conquistas
+   ============================================================ */
+
+.screen--garden {
+  max-width: var(--app-width);
+  margin: 0 auto;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  padding: 0.9rem 1.1rem;
+  background: linear-gradient(var(--paper) 72%, transparent);
+  backdrop-filter: blur(4px);
+}
+.topbar .eyebrow {
+  text-align: center;
+}
+.topbar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 1.3rem;
+}
+.topbar__icon:hover {
+  background: var(--surface-2);
+}
+
+.garden {
+  padding: 0.5rem 1.25rem 5rem;
+}
+
+/* --- A árvore ----------------------------------------------- */
+.tree-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem 2rem;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  /* céu/terra: luz suave atrás da árvore */
+  background:
+    radial-gradient(60% 42% at 50% 38%, rgba(201, 162, 75, 0.16), transparent 70%),
+    linear-gradient(180deg, #fbf7ee, #eee6d4);
+  border: 1px solid var(--line);
+}
+.tree-art {
+  width: min(78%, 260px);
+  aspect-ratio: 240 / 300;
+}
+.tree-art svg {
+  width: 100%;
+  height: 100%;
+  transition:
+    opacity 0.6s var(--ease),
+    transform 0.7s var(--grow);
+}
+.tree-art.is-changing svg {
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+}
+
+.tree-meta {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+.tree-streak {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.tree-streak b {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 50, "opsz" 144;
+  color: var(--moss-deep);
+  line-height: 1;
+}
+.tree-streak span {
+  font-size: var(--step-label);
+  color: var(--ink-soft);
+}
+.tree-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+}
+.tree-hint {
+  font-size: var(--step-label);
+  color: var(--ink-soft);
+  margin-top: 0.25rem;
+  max-width: 28ch;
+  margin-inline: auto;
+}
+
+/* --- Scrubber de estágios (auxílio de validação) ------------ */
+.scrubber {
+  margin: 1.75rem 0 2.5rem;
+  text-align: center;
+}
+.scrubber > .label {
+  display: block;
+  color: var(--ink-soft);
+  margin-bottom: 0.75rem;
+}
+.scrubber__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.scrubber__chips button {
+  padding: 0.4rem 0.85rem;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: var(--step-label);
+  font-weight: 600;
+  transition:
+    background 0.2s var(--ease),
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.scrubber__chips button.is-active {
+  background: var(--moss);
+  border-color: var(--moss);
+  color: #fdfbf4;
+}
+
+/* --- Herbário ----------------------------------------------- */
+.herbarium {
+  margin-top: 1rem;
+}
+.herbarium > h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.3rem;
+}
+.herbarium__intro {
+  color: var(--ink-soft);
+  font-size: var(--step-label);
+  margin-bottom: 1.5rem;
+}
+.herb-group {
+  margin-bottom: 2rem;
+}
+.herb-group__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.herb-group__title .label {
+  color: var(--moss-deep);
+}
+.herb-group__count {
+  font-size: var(--step-label);
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.herb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+.herb-grid--prizes {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.herb-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.9rem 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+.herb-card__art {
+  width: 64px;
+  height: 64px;
+}
+.herb-card__art svg {
+  width: 100%;
+  height: 100%;
+}
+.herb-card__name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+.herb-card__date {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* não conquistada: silhueta prensada, moldura tracejada */
+.herb-card--locked {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--line);
+}
+.herb-card--locked .herb-card__art {
+  opacity: 0.32;
+  filter: grayscale(0.6);
+}
+.herb-card--locked .herb-card__name {
+  color: var(--ink-soft);
+  font-style: normal;
+  font-family: var(--font-body);
+  font-size: var(--step-label);
+}

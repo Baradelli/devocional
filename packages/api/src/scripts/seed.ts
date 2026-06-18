@@ -83,6 +83,24 @@ async function main(): Promise<void> {
     // 4) Streak de exemplo para o jardim/árvore (M7) não nascer vazio.
     const today = logicalDate(new Date(), member.timezone);
     const streak = 5;
+
+    // Conclusões dos últimos `streak` dias, para a semana e o calendário não
+    // nascerem vazios. logicalDate de cada dia no fuso do membro.
+    const days = Array.from({ length: streak }, (_, i) => {
+      const d = new Date();
+      d.setUTCDate(d.getUTCDate() - i);
+      return logicalDate(d, member.timezone);
+    });
+    await prisma.dailyCompletion.createMany({
+      data: days.map((logical) => ({
+        userId: member.id,
+        logicalDate: logical,
+        idempotencyKey: `seed-${logical}`,
+        completedAt: new Date(`${logical}T12:00:00Z`),
+      })),
+      skipDuplicates: true,
+    });
+
     await prisma.streakState.upsert({
       where: { userId: member.id },
       create: {

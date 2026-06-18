@@ -1,0 +1,238 @@
+/* ============================================================
+   Devocional — Base (reset + tipografia + componentes)
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--step-body);
+  line-height: var(--leading-body);
+  color: var(--ink);
+  background-color: var(--paper);
+  /* textura de papel sutil: grão + véu quente, baixíssima opacidade */
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(201, 162, 75, 0.05), transparent 42%),
+    radial-gradient(circle at 84% 78%, rgba(62, 107, 71, 0.045), transparent 46%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* --- Tipografia ---------------------------------------------- */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 460;
+  line-height: var(--leading-tight);
+  font-variation-settings:
+    'SOFT' 40,
+    'opsz' 40;
+  letter-spacing: -0.005em;
+}
+
+h1 {
+  font-size: var(--step-h1);
+}
+h2 {
+  font-size: var(--step-h2);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+.display {
+  font-family: var(--font-display);
+}
+
+/* rótulos/eyebrows: estrutura que codifica informação */
+.eyebrow,
+.label {
+  font-family: var(--font-body);
+  font-size: var(--step-eyebrow);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.muted {
+  color: var(--ink-soft);
+}
+
+.accent {
+  color: var(--clay);
+}
+
+/* --- Botões / pílulas ---------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--step-body);
+  padding: 0.85rem 1.6rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--moss);
+  color: #fdfbf4;
+  box-shadow: var(--shadow-1);
+  transition:
+    transform 0.18s var(--ease),
+    background-color 0.18s var(--ease),
+    box-shadow 0.18s var(--ease);
+}
+
+.btn:hover {
+  background: var(--moss-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--moss-deep);
+  box-shadow: inset 0 0 0 1.5px var(--line);
+}
+.btn--ghost:hover {
+  background: var(--moss-tint);
+  box-shadow: inset 0 0 0 1.5px var(--moss);
+}
+
+.btn--block {
+  display: flex;
+  width: 100%;
+}
+
+/* pílula "Escutar" com indicador de onda */
+.listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--step-label);
+  padding: 0.5rem 1rem 0.5rem 0.85rem;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--moss-deep);
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+
+.listen:hover {
+  border-color: var(--moss);
+  background: var(--moss-tint);
+}
+
+.listen__wave {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+}
+
+.listen__wave span {
+  width: 2.5px;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--moss);
+  transform-origin: center;
+}
+
+.listen.is-playing .listen__wave span {
+  animation: wave 0.9s var(--ease) infinite;
+}
+.listen.is-playing .listen__wave span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.listen.is-playing .listen__wave span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.listen.is-playing .listen__wave span:nth-child(4) {
+  animation-delay: 0.1s;
+}
+
+@keyframes wave {
+  0%,
+  100% {
+    transform: scaleY(0.5);
+  }
+  50% {
+    transform: scaleY(2.4);
+  }
+}
+
+/* --- Cartão -------------------------------------------------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-1);
+}
+
+/* --- Foco visível (quality floor) ---------------------------- */
+:focus-visible {
+  outline: 2.5px solid var(--moss);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* --- Reduced motion ------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

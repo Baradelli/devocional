@@ -90,7 +90,7 @@ export interface MediaRepository {
 /** Resolve o texto montado de uma passagem (implementado pelo módulo Bíblia). */
 export type PassageResolver = (
   reference: PassageRefData,
-) => Promise<{ label: string; text: string } | null>;
+) => Promise<{ label: string; text: string; verses: { verse: number; text: string }[] } | null>;
 
 export interface Clock {
   now(): Date;

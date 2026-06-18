@@ -56,11 +56,19 @@ export const quoteBlockViewSchema = z.object({
   text: z.string(),
 });
 
+export const passageVerseSchema = z.object({
+  verse: z.number().int().positive(),
+  text: z.string(),
+});
+export type PassageVerseView = z.infer<typeof passageVerseSchema>;
+
 export const passageBlockViewSchema = z.object({
   type: z.literal('PASSAGE'),
   ...baseBlock,
   label: z.string(),
   text: z.string(),
+  /** Versículos individuais (para a leitura em "stories", um por tela). */
+  verses: z.array(passageVerseSchema),
   reference: z.object({
     translationId: z.string(),
     bookReferenceId: z.number().int().positive(),

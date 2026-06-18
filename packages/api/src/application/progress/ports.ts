@@ -21,6 +21,11 @@ export interface DailyCompletionRepository {
    * Usa insert idempotente (skipDuplicates) para não envenenar a transação.
    */
   insert(input: DailyCompletionInput): Promise<boolean>;
+  /**
+   * Dias lógicos concluídos (YYYY-MM-DD) de um mês YYYY-MM, em ordem crescente.
+   * Alimenta a faixa da semana e o calendário de sequência.
+   */
+  listCompletedDatesInMonth(userId: string, month: string): Promise<string[]>;
 }
 
 export interface StoredStreakState extends StreakState {

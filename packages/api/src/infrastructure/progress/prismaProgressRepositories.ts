@@ -31,6 +31,14 @@ function createDailyCompletionRepository(db: PrismaLike): DailyCompletionReposit
       });
       return result.count > 0;
     },
+    async listCompletedDatesInMonth(userId, month) {
+      const rows = await db.dailyCompletion.findMany({
+        where: { userId, logicalDate: { startsWith: `${month}-` } },
+        select: { logicalDate: true },
+        orderBy: { logicalDate: 'asc' },
+      });
+      return rows.map((row) => row.logicalDate);
+    },
   };
 }
 

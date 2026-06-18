@@ -1,0 +1,165 @@
+/* ============================================================
+   Temas — trocam apenas as variáveis de cor (tokens).
+   Padrão = "aconchego" (definido em tokens.css).
+   ============================================================ */
+
+/* --- SERENO (sálvia/frio, claro) ---------------------------- */
+[data-theme="sereno"] {
+  --paper: #eef1ed;
+  --surface: #f7f9f5;
+  --surface-2: #e2e7df;
+  --ink: #232925;
+  --ink-soft: #61685f;
+  --moss: #3f6e5e;
+  --moss-deep: #2c4e43;
+  --moss-tint: #dde9e2;
+  --clay: #6f8499;
+  --gold: #c2a24f;
+  --gold-soft: #e0cf9a;
+  --line: #d7ddd4;
+}
+[data-theme="sereno"] body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(63, 110, 94, 0.06), transparent 44%),
+    radial-gradient(circle at 84% 80%, rgba(111, 132, 153, 0.06), transparent 46%);
+}
+[data-theme="sereno"] .tree-stage {
+  background:
+    radial-gradient(60% 42% at 50% 38%, rgba(194, 162, 79, 0.14), transparent 70%),
+    linear-gradient(180deg, #f7f9f5, #e6ebe3);
+}
+
+/* --- CLARO (branco, limpo) ---------------------------------- */
+[data-theme="claro"] {
+  --paper: #fbfbf9;
+  --surface: #ffffff;
+  --surface-2: #f0f1ed;
+  --ink: #20231f;
+  --ink-soft: #66695f;
+  --moss: #3c6b45;
+  --moss-deep: #2c4e34;
+  --moss-tint: #e9f1e9;
+  --clay: #b26a45;
+  --gold: #be9740;
+  --gold-soft: #e3c98a;
+  --line: #e6e7e1;
+}
+[data-theme="claro"] body {
+  background-color: var(--paper);
+  background-image: none;
+}
+[data-theme="claro"] .tree-stage {
+  background:
+    radial-gradient(60% 42% at 50% 38%, rgba(190, 151, 64, 0.12), transparent 70%),
+    linear-gradient(180deg, #ffffff, #f2f1ec);
+}
+
+/* --- ESCURO (dark) ------------------------------------------ */
+[data-theme="escuro"] {
+  --paper: #15181b;
+  --surface: #1e2329;
+  --surface-2: #262c30;
+  --ink: #ece8dc;
+  --ink-soft: #9aa09a;
+  --moss: #6fa06a;
+  --moss-deep: #84b27d;
+  --moss-tint: #233029;
+  --clay: #cd8a5e;
+  --gold: #d8b45f;
+  --gold-soft: #c9a24b;
+  --line: #2f353a;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.42);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.4), 0 18px 48px rgba(0, 0, 0, 0.55);
+}
+[data-theme="escuro"] body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 18% 10%, rgba(111, 160, 106, 0.1), transparent 44%),
+    radial-gradient(circle at 84% 82%, rgba(216, 180, 95, 0.07), transparent 46%);
+}
+[data-theme="escuro"] .tree-stage {
+  background:
+    radial-gradient(60% 42% at 50% 38%, rgba(216, 180, 95, 0.12), transparent 70%),
+    linear-gradient(180deg, #20262b, #171b1e);
+  border-color: var(--line);
+}
+/* botão primário sobre dark mantém texto legível */
+[data-theme="escuro"] .btn {
+  color: #11150f;
+}
+
+/* ============================================================
+   Botão de troca de tema (flutuante, canto inferior esquerdo)
+   ============================================================ */
+.theme-switch {
+  position: fixed;
+  left: max(1.1rem, env(safe-area-inset-left));
+  bottom: max(1.4rem, env(safe-area-inset-bottom));
+  z-index: 31;
+}
+.theme-switch__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-1);
+  transition:
+    transform 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+.theme-switch__btn:hover {
+  transform: translateY(-2px);
+  background: var(--surface-2);
+}
+.theme-switch__menu {
+  position: absolute;
+  left: 0;
+  bottom: 58px;
+  min-width: 178px;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-2);
+}
+.theme-switch__menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  text-align: left;
+}
+.theme-switch__menu button:hover {
+  background: var(--surface-2);
+}
+.theme-switch__menu button.is-active {
+  color: var(--moss-deep);
+  font-weight: 700;
+}
+.theme-switch__menu button.is-active::after {
+  content: "✓";
+  margin-left: auto;
+  color: var(--moss);
+}
+.theme-switch__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--accent, #3e6b47);
+  background: var(--swatch, #f4efe4);
+}

@@ -1,4 +1,6 @@
 import {
+  calendarQuerySchema,
+  calendarViewSchema,
   completionInputSchema,
   progressSnapshotSchema,
   progressViewSchema,
@@ -63,6 +65,15 @@ export const progressRoutes: FastifyPluginAsync<ProgressRoutesOptions> = (app, o
       const view = await progress.getProgress(request.currentUser!.id);
       return toProgressView(view);
     },
+  );
+
+  r.get(
+    '/progress/calendar',
+    {
+      preHandler: requireAuth,
+      schema: { querystring: calendarQuerySchema, response: { 200: calendarViewSchema } },
+    },
+    (request) => progress.getCalendar(request.currentUser!.id, request.query.month),
   );
 
   return Promise.resolve();
