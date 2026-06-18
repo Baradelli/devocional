@@ -26,6 +26,11 @@ export interface CreateDevotionalData {
   blocks: CreateBlockData[];
 }
 
+export interface UpdateDevotionalData {
+  theme: string | null;
+  blocks: CreateBlockData[];
+}
+
 export interface BlockRecord {
   type: BlockType;
   order: number;
@@ -55,6 +60,9 @@ export interface DevotionalSummaryRecord {
 export interface DevotionalRepository {
   /** Cria o devocional e seus blocos atomicamente. Lança ContentError se a data já existe. */
   create(data: CreateDevotionalData): Promise<void>;
+  /** Substitui tema e blocos de um devocional existente, preservando publishedAt.
+   * Lança ContentError('DEVOTIONAL_NOT_FOUND') se a data não existe. */
+  update(date: string, data: UpdateDevotionalData): Promise<DevotionalSummaryRecord>;
   findByDate(date: string): Promise<DevotionalRecord | null>;
   listSummaries(): Promise<DevotionalSummaryRecord[]>;
   /** Publica os devocionais com data <= hoje ainda não publicados. Retorna quantos. */
