@@ -3,17 +3,19 @@ import { useRef, useState } from 'react';
 import { API_BASE } from '../api/client.js';
 
 /**
- * Player simples de "escutar": play/pause. O texto do bloco fica visível
- * acompanhando o áudio (sem destaque por trecho — decisão de UX do v1).
+ * Pílula "Escutar" com indicador de onda animado (.listen). Toca o áudio real
+ * do bloco; `night` usa a variante clara sobre fundo escuro (leitura/oração).
  */
 export function AudioPlayer({
   url,
   label = 'Escutar',
+  night = false,
   onPlay,
   onPause,
 }: {
   url: string;
   label?: string;
+  night?: boolean;
   onPlay?: () => void;
   onPause?: () => void;
 }) {
@@ -32,10 +34,20 @@ export function AudioPlayer({
     }
   };
 
+  const className = ['listen', night ? 'listen--night' : '', playing ? 'is-playing' : '']
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <span className="audio-player">
-      <button type="button" className="listen" onClick={toggle}>
-        {playing ? '❚❚ Pausar' : `▶ ${label}`}
+    <>
+      <button type="button" className={className} onClick={toggle}>
+        <span className="listen__wave" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+        </span>
+        {playing ? 'Pausar' : label}
       </button>
       <audio
         ref={ref}
@@ -55,6 +67,6 @@ export function AudioPlayer({
           onPause?.();
         }}
       />
-    </span>
+    </>
   );
 }

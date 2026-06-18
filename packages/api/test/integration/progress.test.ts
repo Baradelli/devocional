@@ -28,6 +28,10 @@ interface ProgressBody {
   streak: { currentStreak: number; treeStage: string };
   achievements: { type: string; milestone: number }[];
 }
+interface CalendarBody {
+  month: string;
+  completedDates: string[];
+}
 
 beforeAll(async () => {
   container = await new PostgreSqlContainer('postgres:16-alpine').start();
@@ -182,5 +186,48 @@ describe('progress: offline sync + achievement permanence', () => {
     expect(view.achievements).toContainEqual(
       expect.objectContaining({ type: 'WEEKLY_BADGE', milestone: 7 }),
     );
+  });
+});
+
+describe('progress: calendar (completed logical dates by month)', () => {
+  it('returns the user’s completed days of a month, scoped by month and user', async () => {
+    await createMember('c@devocional.test');
+    const cookie = await loginAs('c@devocional.test');
+
+    // Conclui dias em maio e junho (fuso São Paulo: 12:00Z cai no mesmo dia).
+    await complete(cookie, '2026-05-30T12:00:00Z', 'c-1');
+    await complete(cookie, '2026-06-01T12:00:00Z', 'c-2');
+    await complete(cookie, '2026-06-02T12:00:00Z', 'c-3');
+
+    // Outro usuário não deve vazar para o calendário deste.
+    await createMember('d@devocional.test');
+    const otherCookie = await loginAs('d@devocional.test');
+    await complete(otherCookie, '2026-06-05T12:00:00Z', 'd-1');
+
+    const june = await app.inject({
+      method: 'GET',
+      url: '/progress/calendar?month=2026-06',
+      headers: { cookie },
+    });
+    expect(june.statusCode).toBe(200);
+    expect(june.json<CalendarBody>()).toEqual({
+      month: '2026-06',
+      completedDates: ['2026-06-01', '2026-06-02'],
+    });
+
+    const may = await app.inject({
+      method: 'GET',
+      url: '/progress/calendar?month=2026-05',
+      headers: { cookie },
+    });
+    expect(may.json<CalendarBody>().completedDates).toEqual(['2026-05-30']);
+
+    // Mês inválido → 400 (validação Zod na borda).
+    const bad = await app.inject({
+      method: 'GET',
+      url: '/progress/calendar?month=2026-6',
+      headers: { cookie },
+    });
+    expect(bad.statusCode).toBe(400);
   });
 });

@@ -1,4 +1,9 @@
-import './styles.css';
+// Fontes self-hosted (offline-first): Fraunces (display, eixos SOFT/opsz) e
+// Mulish (corpo/UI). "full" traz todos os eixos variáveis do Fraunces.
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/mulish';
+import '@fontsource-variable/mulish/wght-italic.css';
+import './styles/index.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

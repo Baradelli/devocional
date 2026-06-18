@@ -1,4 +1,6 @@
 import {
+  type CalendarView,
+  calendarViewSchema,
   type ProgressSnapshot,
   progressSnapshotSchema,
   type ProgressView,
@@ -17,4 +19,9 @@ export function syncCompletions(request: SyncRequest): Promise<ProgressSnapshot>
 
 export function fetchProgress(): Promise<ProgressView> {
   return apiRequest('/progress', progressViewSchema);
+}
+
+/** Dias concluídos de um mês (YYYY-MM) para a semana e o calendário. */
+export function fetchCalendar(month: string): Promise<CalendarView> {
+  return apiRequest(`/progress/calendar?month=${month}`, calendarViewSchema);
 }

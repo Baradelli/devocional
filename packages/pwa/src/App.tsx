@@ -9,15 +9,9 @@ import { Login } from './features/Login.js';
 import { Onboarding } from './features/Onboarding.js';
 import { Settings } from './features/Settings.js';
 import { Today } from './features/Today.js';
+import { ThemeSwitch } from './theme/ThemeSwitch.js';
 
 type View = 'today' | 'garden' | 'library' | 'settings';
-
-const TABS: { view: View; label: string }[] = [
-  { view: 'today', label: 'Hoje' },
-  { view: 'garden', label: 'Jardim' },
-  { view: 'library', label: 'Anotações' },
-  { view: 'settings', label: 'Lembretes' },
-];
 
 export function App() {
   const [user, setUser] = useState<UserPublic | null>(null);
@@ -68,42 +62,36 @@ export function App() {
     return <Onboarding onFinish={finishTour} />;
   }
 
+  const backToToday = () => setView('today');
+
   return (
-    <div className="app">
-      <header className="topbar">
-        <nav className="tabs">
-          {TABS.map((tab) => (
-            <button
-              key={tab.view}
-              type="button"
-              className={view === tab.view ? 'tab active' : 'tab'}
-              onClick={() => setView(tab.view)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-        <button
-          type="button"
-          className="link"
-          onClick={() => {
-            void logout().then(() => setUser(null));
+    <>
+      {view === 'today' && (
+        <Today
+          onOpenGarden={() => setView('garden')}
+          onOpenLibrary={() => setView('library')}
+          onOpenSettings={() => setView('settings')}
+        />
+      )}
+      {view === 'garden' && <Garden onBack={backToToday} />}
+      {view === 'library' && <Library onBack={backToToday} />}
+      {view === 'settings' && (
+        <Settings
+          onBack={backToToday}
+          onReviewOnboarding={() => setShowTour(true)}
+          onAccountDeleted={() => {
+            setUser(null);
+            setView('today');
           }}
-        >
-          Sair
-        </button>
-      </header>
-      <main>
-        {view === 'today' && <Today />}
-        {view === 'garden' && <Garden />}
-        {view === 'library' && <Library />}
-        {view === 'settings' && (
-          <Settings
-            onReviewOnboarding={() => setShowTour(true)}
-            onAccountDeleted={() => setUser(null)}
-          />
-        )}
-      </main>
-    </div>
+          onLogout={() => {
+            void logout().then(() => {
+              setUser(null);
+              setView('today');
+            });
+          }}
+        />
+      )}
+      <ThemeSwitch />
+    </>
   );
 }

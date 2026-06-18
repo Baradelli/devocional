@@ -29,6 +29,7 @@ async function assembleBlock(block: BlockRecord, resolve: PassageResolver): Prom
         order: block.order,
         label: resolved.label,
         text: resolved.text,
+        verses: resolved.verses,
         reference: block.passage,
         audioUrl: mediaUrl(block.audioMediaId),
       };

@@ -23,7 +23,7 @@ export default defineConfig({
         icons: [{ src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg}'],
+        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
         // Handlers de Web Push (push + notificationclick) anexados ao SW gerado.
         importScripts: ['push-handler.js'],
         runtimeCaching: [

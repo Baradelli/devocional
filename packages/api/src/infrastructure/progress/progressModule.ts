@@ -23,10 +23,16 @@ export interface ProgressView {
   achievements: AchievementRecord[];
 }
 
+export interface CalendarView {
+  month: string;
+  completedDates: string[];
+}
+
 export interface ProgressModule {
   complete(input: CompleteDevotionalInput): Promise<ProgressSnapshot>;
   sync(input: SyncCompletionsInput): Promise<ProgressSnapshot>;
   getProgress(userId: string): Promise<ProgressView>;
+  getCalendar(userId: string, month: string): Promise<CalendarView>;
 }
 
 export function createProgressModule(prisma: PrismaClient): ProgressModule {
@@ -45,6 +51,10 @@ export function createProgressModule(prisma: PrismaClient): ProgressModule {
         repos.achievements.listByUserId(userId),
       ]);
       return { streak: streak ?? defaultStoredState(), achievements };
+    },
+    getCalendar: async (userId, month) => {
+      const completedDates = await repos.completions.listCompletedDatesInMonth(userId, month);
+      return { month, completedDates };
     },
   };
 }

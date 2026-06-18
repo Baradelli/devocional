@@ -48,7 +48,7 @@
         <p class="home__theme">Sobre receber a graça</p>
 
         <!-- A JORNADA DE HOJE — cada etapa abre uma tela -->
-        <p class="label home__journey-label">A jornada de hoje</p>
+
         <ol class="journey" id="journey">
           <li class="station" data-step="verse">
             <span class="station__node" aria-hidden="true"></span>
@@ -144,7 +144,12 @@
     </section>
 
     <!-- ======================== CALENDÁRIO ========================== -->
-    <section class="screen screen--calendar" data-screen="calendar" hidden aria-label="Calendário de sequência">
+    <section
+      class="screen screen--calendar"
+      data-screen="calendar"
+      hidden
+      aria-label="Calendário de sequência"
+    >
       <header class="screen__bar">
         <button class="iconbtn" data-close aria-label="Voltar">←</button>
         <span class="eyebrow">Sua sequência</span>
@@ -161,7 +166,8 @@
           <button class="iconbtn" type="button" aria-label="Próximo mês">›</button>
         </div>
         <div class="cal__dows">
-          <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+          <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span
+          ><span>S</span>
         </div>
         <div class="cal__grid" id="calGrid"></div>
         <div class="cal__legend">
@@ -173,14 +179,27 @@
     </section>
 
     <!-- ====================== LEITURA (stories) ====================== -->
-    <section class="screen screen--stories" data-screen="reading" hidden aria-label="Leitura bíblica">
+    <section
+      class="screen screen--stories"
+      data-screen="reading"
+      hidden
+      aria-label="Leitura bíblica"
+    >
       <div class="stories__bars" id="storyBars"></div>
       <header class="stories__head">
         <span class="label" id="storyRef">Efésios 2</span>
         <button class="iconbtn iconbtn--light" data-close aria-label="Fechar leitura">×</button>
       </header>
-      <button class="stories__zone stories__zone--prev" id="storyPrev" aria-label="Versículo anterior"></button>
-      <button class="stories__zone stories__zone--next" id="storyNext" aria-label="Próximo versículo"></button>
+      <button
+        class="stories__zone stories__zone--prev"
+        id="storyPrev"
+        aria-label="Versículo anterior"
+      ></button>
+      <button
+        class="stories__zone stories__zone--next"
+        id="storyNext"
+        aria-label="Próximo versículo"
+      ></button>
       <div class="stories__stage">
         <p class="stories__verseno label" id="storyNo">Versículo 8</p>
         <p class="stories__text display" id="storyText"></p>
@@ -215,12 +234,14 @@
     <section class="screen screen--prayer" data-screen="prayer" hidden aria-label="Oração">
       <div class="prayer__bg" aria-hidden="true"></div>
       <div class="prayer__veil" aria-hidden="true"></div>
-      <button class="iconbtn iconbtn--light prayer__close" data-close aria-label="Sair da oração">×</button>
+      <button class="iconbtn iconbtn--light prayer__close" data-close aria-label="Sair da oração">
+        ×
+      </button>
       <div class="prayer__content">
         <span class="eyebrow prayer__kicker">Oração</span>
         <p class="prayer__text display">
-          Senhor, hoje eu paro de provar. Recebo o teu amor como ele é: presente, gratuito,
-          inteiro. Aquieta o meu coração e ensina-me a descansar em ti.
+          Senhor, hoje eu paro de provar. Recebo o teu amor como ele é: presente, gratuito, inteiro.
+          Aquieta o meu coração e ensina-me a descansar em ti.
         </p>
         <button class="listen listen--night" type="button" id="prayerListen">
           <span class="listen__wave"><span></span><span></span><span></span><span></span></span>
@@ -234,7 +255,12 @@
     </section>
 
     <!-- ========================== REFLEXÃO =========================== -->
-    <section class="screen screen--reflection" data-screen="reflection" hidden aria-label="Reflexão">
+    <section
+      class="screen screen--reflection"
+      data-screen="reflection"
+      hidden
+      aria-label="Reflexão"
+    >
       <header class="screen__bar">
         <button class="iconbtn" data-close aria-label="Voltar">←</button>
         <span class="eyebrow">Reflexão</span>

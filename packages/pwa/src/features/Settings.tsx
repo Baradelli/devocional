@@ -24,11 +24,18 @@ import { disablePush, enablePush, isPushSupported } from '../push/subscribe.js';
 type Status = 'loading' | 'ready' | 'error';
 
 interface SettingsProps {
+  onBack: () => void;
   onReviewOnboarding?: () => void;
   onAccountDeleted?: () => void;
+  onLogout?: () => void;
 }
 
-export function Settings({ onReviewOnboarding, onAccountDeleted }: SettingsProps) {
+export function Settings({
+  onBack,
+  onReviewOnboarding,
+  onAccountDeleted,
+  onLogout,
+}: SettingsProps) {
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [status, setStatus] = useState<Status>('loading');
 
@@ -45,25 +52,45 @@ export function Settings({ onReviewOnboarding, onAccountDeleted }: SettingsProps
     void reload();
   }, []);
 
-  if (status === 'loading') {
-    return <p className="muted center">Carregando seus lembretes…</p>;
-  }
-  if (status === 'error' || !settings) {
-    return <p className="center">Não foi possível carregar agora. Tente novamente.</p>;
-  }
-
   return (
-    <section className="settings">
-      <h2 className="settings-title">Lembretes</h2>
-      <ReminderForm settings={settings} onSaved={reload} />
-      <PushSection settings={settings} onChanged={reload} />
-      <WhatsappSection settings={settings} onChanged={reload} />
-      {onReviewOnboarding && (
-        <button type="button" className="link" onClick={onReviewOnboarding}>
-          Rever a introdução
+    <section className="screen screen--settings">
+      <header className="topbar">
+        <button
+          type="button"
+          className="topbar__icon"
+          onClick={onBack}
+          aria-label="Voltar para hoje"
+        >
+          ←
         </button>
+        <span className="eyebrow">Ajustes</span>
+        <span className="topbar__icon" aria-hidden="true" />
+      </header>
+
+      {status === 'loading' && <p className="muted center">Carregando seus lembretes…</p>}
+      {(status === 'error' || !settings) && status !== 'loading' && (
+        <p className="center">Não foi possível carregar agora. Tente novamente.</p>
       )}
-      <DangerZone onAccountDeleted={onAccountDeleted} />
+
+      {status === 'ready' && settings && (
+        <div className="settings">
+          <h2 className="settings-title">Lembretes</h2>
+          <ReminderForm settings={settings} onSaved={reload} />
+          <PushSection settings={settings} onChanged={reload} />
+          <WhatsappSection settings={settings} onChanged={reload} />
+          {onReviewOnboarding && (
+            <button type="button" className="link" onClick={onReviewOnboarding}>
+              Rever a introdução
+            </button>
+          )}
+          {onLogout && (
+            <button type="button" className="link" onClick={onLogout}>
+              Sair
+            </button>
+          )}
+          <DangerZone onAccountDeleted={onAccountDeleted} />
+        </div>
+      )}
     </section>
   );
 }

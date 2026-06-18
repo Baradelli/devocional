@@ -1,0 +1,6 @@
+/* Design system do PWA — fundação única.
+   Ordem: tokens (variáveis) → base (reset/tipografia/componentes) → temas. */
+@import './tokens.css';
+@import './base.css';
+@import './themes.css';
+@import './screens.css';

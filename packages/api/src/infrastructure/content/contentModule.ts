@@ -53,7 +53,7 @@ export function createContentModule(
   const resolvePassage: PassageResolver = async (reference) => {
     try {
       const preview = await bible.getPassagePreview(reference);
-      return { label: preview.label, text: preview.text };
+      return { label: preview.label, text: preview.text, verses: preview.verses };
     } catch {
       return null;
     }
