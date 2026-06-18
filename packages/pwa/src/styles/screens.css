@@ -1482,71 +1482,85 @@
   background: #a3431f;
 }
 
-/* --- Onboarding (tour) -------------------------------------- */
-.tour {
+/* --- Onboarding contextual (coachmark) ---------------------- */
+.coachmark {
   position: fixed;
   inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: linear-gradient(160deg, var(--moss-tint), var(--paper));
+  z-index: 70;
+  /* Captura e descarta cliques na tela; só o card abaixo volta a ser clicável. */
+  pointer-events: auto;
 }
-.tour-card {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
+.coachmark__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 20, 16, 0.58);
+}
+.coachmark__spotlight {
+  position: fixed;
+  border-radius: 16px;
+  border: 2px solid var(--gold-soft);
+  box-shadow:
+    0 0 0 9999px rgba(23, 20, 16, 0.58),
+    0 0 0 1px rgba(255, 255, 255, 0.42) inset;
+  transition:
+    top 0.22s var(--ease),
+    left 0.22s var(--ease),
+    width 0.22s var(--ease),
+    height 0.22s var(--ease);
+}
+.coachmark__card {
+  position: fixed;
+  width: min(360px, calc(100vw - 2rem));
+  pointer-events: auto;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-2);
-  padding: 2.25rem 1.5rem 1.5rem;
+  padding: 1.1rem 1rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.6rem;
 }
-.tour-skip {
-  position: absolute;
-  top: 1rem;
-  right: 1.25rem;
+.coachmark__skip {
+  align-self: flex-end;
 }
-.tour-body {
-  min-height: 8rem;
+.coachmark__install {
+  margin-top: 0.2rem;
 }
-.tour-title {
+.coachmark__step {
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.coachmark__title {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: 1.35rem;
+  line-height: 1.15;
   color: var(--moss-deep);
-  margin-bottom: 0.6rem;
 }
-.tour-dots {
-  display: flex;
-  gap: 0.4rem;
-  justify-content: center;
+.coachmark__body,
+.coachmark__wait {
+  margin: 0;
 }
-.tour-dots .dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 999px;
-  background: var(--line);
+.coachmark__wait {
+  font-size: 0.85rem;
 }
-.tour-dots .dot.active {
-  background: var(--moss);
-}
-.tour-nav {
+.coachmark__actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: 0.9rem;
 }
-.tour-nav button:last-child {
+.coachmark__actions button:last-child {
   margin-left: auto;
 }
-.tour-nav button:not(.link) {
+.coachmark__actions button:not(.link) {
   border: none;
   border-radius: var(--radius-pill);
-  padding: 0.7rem 1.4rem;
+  padding: 0.65rem 1.25rem;
   font-weight: 700;
   background: var(--moss);
   color: #fdfbf4;

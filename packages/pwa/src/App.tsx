@@ -3,15 +3,18 @@ import { useEffect, useState } from 'react';
 
 import { fetchCurrentUser, logout } from './api/auth.js';
 import { completeOnboarding } from './api/onboarding.js';
+import { ContextualOnboarding } from './features/ContextualOnboarding.js';
 import { Garden } from './features/Garden.js';
 import { Library } from './features/Library.js';
 import { Login } from './features/Login.js';
-import { Onboarding } from './features/Onboarding.js';
 import { Settings } from './features/Settings.js';
 import { Today } from './features/Today.js';
+import { localOnboardingSeen } from './onboarding/onboardingSeen.js';
 import { ThemeSwitch } from './theme/ThemeSwitch.js';
 
 type View = 'today' | 'garden' | 'library' | 'settings';
+
+const onboardingSeen = localOnboardingSeen();
 
 export function App() {
   const [user, setUser] = useState<UserPublic | null>(null);
@@ -24,7 +27,8 @@ export function App() {
       .then(
         (current) => {
           setUser(current);
-          setShowTour(current.onboardingCompletedAt === null);
+          setView('today');
+          setShowTour(current.onboardingCompletedAt === null && !onboardingSeen.hasSeen());
         },
         () => setUser(null),
       )
@@ -40,7 +44,8 @@ export function App() {
       <Login
         onLoggedIn={(loggedIn) => {
           setUser(loggedIn);
-          setShowTour(loggedIn.onboardingCompletedAt === null);
+          setView('today');
+          setShowTour(loggedIn.onboardingCompletedAt === null && !onboardingSeen.hasSeen());
         }}
       />
     );
@@ -48,6 +53,7 @@ export function App() {
 
   // Conclui o tour: na primeira vez marca no servidor; rever depois só fecha.
   const finishTour = async () => {
+    onboardingSeen.markSeen();
     if (user.onboardingCompletedAt === null) {
       try {
         setUser(await completeOnboarding());
@@ -58,11 +64,11 @@ export function App() {
     setShowTour(false);
   };
 
-  if (showTour) {
-    return <Onboarding onFinish={finishTour} />;
-  }
-
   const backToToday = () => setView('today');
+  const reviewTour = () => {
+    setView('today');
+    setShowTour(true);
+  };
 
   return (
     <>
@@ -78,7 +84,7 @@ export function App() {
       {view === 'settings' && (
         <Settings
           onBack={backToToday}
-          onReviewOnboarding={() => setShowTour(true)}
+          onReviewOnboarding={reviewTour}
           onAccountDeleted={() => {
             setUser(null);
             setView('today');
@@ -90,6 +96,9 @@ export function App() {
             });
           }}
         />
+      )}
+      {showTour && (
+        <ContextualOnboarding currentView={view} onRequestView={setView} onFinish={finishTour} />
       )}
       <ThemeSwitch />
     </>

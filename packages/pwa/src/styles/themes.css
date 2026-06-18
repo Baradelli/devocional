@@ -94,7 +94,7 @@
 [data-theme='escuro'] .auth button[type='submit'],
 [data-theme='escuro'] .settings .card button:not(.link),
 [data-theme='escuro'] .settings button[type='submit'],
-[data-theme='escuro'] .tour-nav button:not(.link) {
+[data-theme='escuro'] .coachmark__actions button:not(.link) {
   color: #11150f;
 }
 

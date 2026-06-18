@@ -20,10 +20,20 @@ export default defineConfig({
         display: 'standalone',
         background_color: '#f7f4ec',
         theme_color: '#4f7a4a',
-        icons: [{ src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
+        icons: [
+          { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          {
+            src: '/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         // Handlers de Web Push (push + notificationclick) anexados ao SW gerado.
         importScripts: ['push-handler.js'],
         runtimeCaching: [
@@ -45,7 +55,8 @@ export default defineConfig({
       },
     }),
   ],
-  server: { port: 5173 },
+  // host: true expõe o dev server na rede local (0.0.0.0) para abrir pelo celular via IP.
+  server: { port: 5173, host: true },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],

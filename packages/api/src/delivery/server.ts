@@ -23,6 +23,16 @@ import { healthRoutes } from './routes/health.js';
 
 const MAX_MEDIA_BYTES = 30 * 1024 * 1024; // 30 MB
 
+// Origens de rede local (LAN): localhost e faixas de IP privado, em qualquer porta.
+const LAN_ORIGIN =
+  /^https?:\/\/(127(\.\d{1,3}){3}|10(\.\d{1,3}){3}|192\.168(\.\d{1,3}){2}|172\.(1[6-9]|2\d|3[01])(\.\d{1,3}){2})(:\d+)?$/;
+
+// Em produção, só as origens configuradas. Em dev, libera também a LAN para
+// abrir o PWA pelo celular via IP em vez de localhost.
+function corsOrigin(env: Env): (string | RegExp)[] {
+  return env.NODE_ENV === 'production' ? env.CORS_ORIGINS : [...env.CORS_ORIGINS, LAN_ORIGIN];
+}
+
 export interface BuildServerOptions {
   prisma: PrismaClient;
   env: Env;
@@ -36,7 +46,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
   app.setSerializerCompiler(serializerCompiler);
   app.setErrorHandler(identityErrorHandler);
 
-  app.register(cors, { origin: env.CORS_ORIGINS, credentials: true });
+  app.register(cors, { origin: corsOrigin(env), credentials: true });
   app.register(cookie);
   app.register(multipart, { limits: { fileSize: MAX_MEDIA_BYTES, files: 1 } });
 

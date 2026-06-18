@@ -19,6 +19,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   overflow-x: hidden;
+  /* Sem rubber-band/pull-to-refresh: sensação de app nativo. */
+  overscroll-behavior: none;
 }
 
 body {
@@ -35,6 +37,9 @@ body {
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Sem duplo-toque-para-zoom nem flash cinza ao tocar (ar de app). */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 img,
@@ -47,6 +52,9 @@ button {
   font: inherit;
   color: inherit;
   cursor: pointer;
+  /* Botões não selecionam texto nem abrem menu de toque longo. */
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* --- Tipografia ---------------------------------------------- */

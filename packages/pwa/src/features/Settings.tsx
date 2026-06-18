@@ -60,6 +60,7 @@ export function Settings({
           className="topbar__icon"
           onClick={onBack}
           aria-label="Voltar para hoje"
+          data-onboard="settings-back"
         >
           ←
         </button>
@@ -79,9 +80,13 @@ export function Settings({
           <PushSection settings={settings} onChanged={reload} />
           <WhatsappSection settings={settings} onChanged={reload} />
           {onReviewOnboarding && (
-            <button type="button" className="link" onClick={onReviewOnboarding}>
-              Rever a introdução
-            </button>
+            <div className="card">
+              <h3 className="card-title">Introdução guiada</h3>
+              <p className="muted">Refaça o passo a passo de boas-vindas quando quiser.</p>
+              <button type="button" className="link" onClick={onReviewOnboarding}>
+                Repetir a introdução
+              </button>
+            </div>
           )}
           {onLogout && (
             <button type="button" className="link" onClick={onLogout}>
@@ -183,8 +188,8 @@ function ReminderForm({
         void submit(event);
       }}
     >
-      <label>
-        Horário do lembrete
+      <label data-onboard="settings-reminder-time">
+        <span>Horário do lembrete</span>
         <input type="time" {...register('localTime')} />
       </label>
       <label className="checkbox">
@@ -293,7 +298,7 @@ function WhatsappSection({
   });
 
   return (
-    <div className="card">
+    <div className="card" data-onboard="settings-whatsapp">
       <h3 className="card-title">WhatsApp</h3>
       {settings.whatsapp.status === 'VERIFIED' ? (
         <p className="muted">Número validado: {settings.whatsapp.phone}</p>
