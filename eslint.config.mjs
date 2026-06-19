@@ -60,7 +60,11 @@ export default tseslint.config(
 
   // Frontends (browser) — globals de browser
   {
-    files: ['packages/pwa/**/*.{ts,tsx}', 'packages/admin/**/*.{ts,tsx}'],
+    files: [
+      'packages/pwa/**/*.{ts,tsx}',
+      'packages/admin/**/*.{ts,tsx}',
+      'packages/ui/**/*.{ts,tsx}',
+    ],
     languageOptions: { globals: { ...globals.browser } },
   },
 

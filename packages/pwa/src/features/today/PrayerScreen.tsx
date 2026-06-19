@@ -1,3 +1,4 @@
+import { Markdown } from '@devocional/ui';
 import { useRef, useState } from 'react';
 
 import { API_BASE } from '../../api/client.js';
@@ -52,7 +53,7 @@ export function PrayerScreen({ text, audioUrl, soundUrl, onComplete, onClose }: 
       </button>
       <div className="prayer__content">
         <span className="eyebrow prayer__kicker">Oração</span>
-        <p className="prayer__text display">{text}</p>
+        <Markdown source={text} className="prayer__text display" />
         {audioUrl && (
           <AudioPlayer
             url={audioUrl}

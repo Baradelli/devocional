@@ -1,5 +1,6 @@
+import { Markdown } from '@devocional/ui';
+
 import { AudioPlayer } from '../../components/AudioPlayer.js';
-import { Markdown } from '../../components/Markdown.js';
 import { ScreenBar } from './ScreenBar.js';
 
 interface DevotionalScreenProps {

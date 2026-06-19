@@ -85,5 +85,33 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Logs estruturados; alertas nos jobs críticos (publicação 00h, notificações) e na sessão do WhatsApp.
 - [x] Exclusão de conta + dados (LGPD).
 
-## v2 (depois)
-- Dashboard analítico do admin (cobertura da Bíblia, passagens mais repetidas, rankings, uso) sobre os dados já coletados.
+## M11 — Admin moderno: Markdown, dashboards e restyle
+> Decisões nesta milestone vieram de uma sessão de design (grilling). Resumo das regras abaixo.
+>
+> **Markdown**: CommonMark + GFM completo via `react-markdown` + `remark-gfm`. HTML cru DESLIGADO (sem `rehype-raw`). Imagem inline BLOQUEADA (mídia só por upload). Links abrem em nova aba (`rel="noopener noreferrer"`). Componente `<Markdown>` no pacote novo `packages/ui` (React compartilhado pwa↔admin) — NÃO em `shared` (só Zod). "Stories" (um por tela) só na passagem bíblica; devocional é uma tela com scroll.
+>
+> **Cobertura (Grupo A)**: régua = contagem real de versículos da tradução **ACF** no banco. Dedup por (livro, capítulo, versículo), ignora tradução. Período: tudo.
+>
+> **Engajamento (Grupo B)**: tudo agregado, nunca nominal. Ativo = concluiu nos últimos 7 dias. Taxa de conclusão diária = conclusões ÷ todos os usuários cadastrados, com médias móveis de 7 e 30 dias. Retenção = semana-a-semana (concluiu esta semana e a passada). "Devocional mais concluído" via `devotionalId`; conclusões sem id são ignoradas.
+
+### Fatia 0 — `packages/ui` + Markdown
+- [ ] Criar pacote `packages/ui` (React + TS strict) no workspace; deps `react-markdown` + `remark-gfm`.
+- [ ] **Teste primeiro**: `<Markdown>` renderiza títulos, listas (incl. numeradas), tabelas GFM, citações, código, `---`, negrito/itálico; **não** renderiza imagem inline; links recebem `target="_blank"` + `rel="noopener noreferrer"`; sem HTML cru.
+- [ ] Implementar `<Markdown>` (CommonMark + GFM, img off, links seguros).
+- [ ] PWA: trocar o renderizador artesanal pelo de `packages/ui` no devocional; aplicar render MD na `PrayerScreen`.
+
+### Fatia 1 — Restyle admin + preview MD
+- [ ] Modernizar shell + editor ancorado em `docs/design-guide.md` e na linguagem da PWA; mesmos tokens/cores. Agenda fica como está.
+- [ ] Editor: preview lado-a-lado (fonte → render) nos campos Devocional e Oração.
+
+### Fatia 2 — Dashboard cobertura (Grupo A)
+- [ ] `shared`: `coverageStatsSchema` (Zod) da resposta.
+- [ ] **Teste primeiro** (integração, Postgres real): use-case `computeCoverageStats` — % coberta (vs versículos ACF), heatmap livro×capítulo, balanço AT×NT, distribuição por seção, top 5 livros/referências, livros/capítulos nunca usados. Dedup correto e range expandido.
+- [ ] Repo Prisma + rota admin-only `GET /admin/stats/coverage`; teste de contrato.
+- [ ] Admin: tela de dashboard de cobertura + heatmap.
+
+### Fatia 3 — Dashboard engajamento (Grupo B)
+- [ ] `shared`: `engagementStatsSchema` (Zod) da resposta.
+- [ ] **Teste primeiro** (integração, Postgres real): use-case `computeEngagementStats` — ativos 7d, taxa de conclusão diária (médias 7d/30d), retenção semana-a-semana, devocional mais concluído (ignora `devotionalId` nulo), streak médio/maior. Tudo agregado.
+- [ ] Repo Prisma + rota admin-only `GET /admin/stats/engagement`; teste de contrato.
+- [ ] Admin: cards de engajamento no dashboard.

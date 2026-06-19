@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@devocional/shared": "workspace:*",
+    "@devocional/ui": "workspace:*",
     "@fontsource-variable/fraunces": "^5.2.9",
     "@fontsource-variable/mulish": "^5.2.8",
     "@hookform/resolvers": "^3.10.0",
