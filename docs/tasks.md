@@ -109,10 +109,11 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Reduzir os dois apps a apenas light (`claro`, padrão) e dark (`escuro`); PWA perde `aconchego`/`sereno`.
 
 ### Fatia 2 — Dashboard cobertura (Grupo A)
-- [ ] `shared`: `coverageStatsSchema` (Zod) da resposta.
-- [ ] **Teste primeiro** (integração, Postgres real): use-case `computeCoverageStats` — % coberta (vs versículos ACF), heatmap livro×capítulo, balanço AT×NT, distribuição por seção, top 5 livros/referências, livros/capítulos nunca usados. Dedup correto e range expandido.
-- [ ] Repo Prisma + rota admin-only `GET /admin/stats/coverage`; teste de contrato.
-- [ ] Admin: tela de dashboard de cobertura + heatmap.
+- [x] `shared`: `coverageStatsSchema` (Zod) da resposta.
+- [x] Domínio puro `canon` (testamento + seção por bookReferenceId) com testes.
+- [x] **Teste primeiro** (integração, Postgres real): use-case `computeCoverageStats` — % coberta (vs versículos ACF), heatmap livro×capítulo, balanço AT×NT, distribuição por seção, top 5 livros/referências, livros nunca usados. Dedup por (livro, capítulo, versículo) e range expandido.
+- [x] Repo Prisma + rota admin-only `GET /admin/stats/coverage`; guard 401/403 testado.
+- [x] Admin: tela de dashboard de cobertura + heatmap (paleta/tipografia unificadas).
 
 ### Fatia 3 — Dashboard engajamento (Grupo B)
 - [ ] `shared`: `engagementStatsSchema` (Zod) da resposta.

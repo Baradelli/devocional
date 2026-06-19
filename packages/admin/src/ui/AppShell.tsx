@@ -7,6 +7,7 @@ import { ThemeToggle } from './ThemeToggle.js';
 
 const NAV = [
   { to: '/', label: 'Agenda', icon: '🌱', end: true },
+  { to: '/painel', label: 'Painel', icon: '📊', end: false },
   { to: '/novo', label: 'Novo devocional', icon: '✏️', end: false },
 ];
 

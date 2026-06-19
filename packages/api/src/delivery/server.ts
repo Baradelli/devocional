@@ -12,6 +12,7 @@ import { createIdentityModule } from '../infrastructure/identity/identityModule.
 import { createNotesModule } from '../infrastructure/notes/notesModule.js';
 import { createNotificationsModule } from '../infrastructure/notifications/notificationsModule.js';
 import { createProgressModule } from '../infrastructure/progress/progressModule.js';
+import { createStatsModule } from '../infrastructure/stats/statsModule.js';
 import { bibleRoutes } from './bible/routes.js';
 import { contentRoutes } from './content/routes.js';
 import { identityErrorHandler } from './identity/errorHandler.js';
@@ -20,6 +21,7 @@ import { notesRoutes } from './notes/routes.js';
 import { notificationsRoutes } from './notifications/routes.js';
 import { progressRoutes } from './progress/routes.js';
 import { healthRoutes } from './routes/health.js';
+import { statsRoutes } from './stats/routes.js';
 
 const MAX_MEDIA_BYTES = 30 * 1024 * 1024; // 30 MB
 
@@ -69,6 +71,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
     app.log,
   );
   const bible = createBibleModule(prisma);
+  const stats = createStatsModule(prisma);
   const content = createContentModule(prisma, bible, {
     mediaDir: env.MEDIA_DIR,
     serverTimezone: env.SERVER_TIMEZONE,
@@ -88,6 +91,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
   app.register(notesRoutes, { notes });
   app.register(notificationsRoutes, { notifications });
   app.register(bibleRoutes, { bible });
+  app.register(statsRoutes, { stats });
   app.register(contentRoutes, { content });
 
   return app;
