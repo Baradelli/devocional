@@ -15,6 +15,7 @@ import { Field } from '../ui/Field.js';
 import { Panel } from '../ui/Panel.js';
 import { Skeleton } from '../ui/Skeleton.js';
 import { useToast } from '../ui/Toast.js';
+import { MarkdownField } from './MarkdownField.js';
 import { MediaUpload } from './MediaUpload.js';
 import { PassagePicker } from './PassagePicker.js';
 
@@ -84,6 +85,7 @@ export function DevotionalEditor() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -278,16 +280,15 @@ export function DevotionalEditor() {
         </Panel>
 
         <Panel title="Devocional">
-          <Field
+          <MarkdownField
             label="Texto do devocional"
-            error={errors.devotionalText && 'Escreva o devocional.'}
-          >
-            <Textarea
-              rows={6}
-              invalid={Boolean(errors.devotionalText)}
-              {...register('devotionalText')}
-            />
-          </Field>
+            hint="Markdown — títulos, listas, citações, ênfase. Imagens entram só pela mídia."
+            error={errors.devotionalText ? 'Escreva o devocional.' : undefined}
+            invalid={Boolean(errors.devotionalText)}
+            value={watch('devotionalText') ?? ''}
+            rows={10}
+            textareaProps={register('devotionalText')}
+          />
           <MediaUpload
             label="Áudio do devocional (opcional)"
             type="AUDIO"
@@ -298,9 +299,15 @@ export function DevotionalEditor() {
         </Panel>
 
         <Panel title="Oração">
-          <Field label="Texto da oração" error={errors.prayerText && 'Escreva a oração.'}>
-            <Textarea rows={4} invalid={Boolean(errors.prayerText)} {...register('prayerText')} />
-          </Field>
+          <MarkdownField
+            label="Texto da oração"
+            hint="Markdown — a oração também é renderizada na tela do fiel."
+            error={errors.prayerText ? 'Escreva a oração.' : undefined}
+            invalid={Boolean(errors.prayerText)}
+            value={watch('prayerText') ?? ''}
+            rows={8}
+            textareaProps={register('prayerText')}
+          />
           <MediaUpload
             label="Áudio da oração (opcional)"
             type="AUDIO"

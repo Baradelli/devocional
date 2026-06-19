@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@devocional/shared": "workspace:*",
+    "@devocional/ui": "workspace:*",
     "@hookform/resolvers": "^3.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -95,10 +95,13 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 > **Engajamento (Grupo B)**: tudo agregado, nunca nominal. Ativo = concluiu nos últimos 7 dias. Taxa de conclusão diária = conclusões ÷ todos os usuários cadastrados, com médias móveis de 7 e 30 dias. Retenção = semana-a-semana (concluiu esta semana e a passada). "Devocional mais concluído" via `devotionalId`; conclusões sem id são ignoradas.
 
 ### Fatia 0 — `packages/ui` + Markdown
-- [ ] Criar pacote `packages/ui` (React + TS strict) no workspace; deps `react-markdown` + `remark-gfm`.
-- [ ] **Teste primeiro**: `<Markdown>` renderiza títulos, listas (incl. numeradas), tabelas GFM, citações, código, `---`, negrito/itálico; **não** renderiza imagem inline; links recebem `target="_blank"` + `rel="noopener noreferrer"`; sem HTML cru.
-- [ ] Implementar `<Markdown>` (CommonMark + GFM, img off, links seguros).
-- [ ] PWA: trocar o renderizador artesanal pelo de `packages/ui` no devocional; aplicar render MD na `PrayerScreen`.
+- [x] Criar pacote `packages/ui` (React + TS strict) no workspace; deps `react-markdown` + `remark-gfm`.
+- [x] **Teste primeiro**: `<Markdown>` renderiza títulos, listas (incl. numeradas), tabelas GFM, citações, código, `---`, negrito/itálico; **não** renderiza imagem inline; links recebem `target="_blank"` + `rel="noopener noreferrer"`; sem HTML cru.
+- [x] Implementar `<Markdown>` (CommonMark + GFM, img off, links seguros).
+- [x] PWA: trocar o renderizador artesanal pelo de `packages/ui` no devocional; aplicar render MD na `PrayerScreen`.
+
+### Fatia L — Limpeza de lint (à parte)
+- [ ] Adicionar artefatos gerados da PWA (service worker do Workbox, `dev-dist/`, etc.) ao `ignores` do ESLint para `eslint .` voltar a passar. Commit separado.
 
 ### Fatia 1 — Restyle admin + preview MD
 - [ ] Modernizar shell + editor ancorado em `docs/design-guide.md` e na linguagem da PWA; mesmos tokens/cores. Agenda fica como está.
