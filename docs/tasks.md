@@ -87,4 +87,3 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 
 ## v2 (depois)
 - Dashboard analítico do admin (cobertura da Bíblia, passagens mais repetidas, rankings, uso) sobre os dados já coletados.
-- Migrar para Node 26 LTS (out/2026) e adotar a Temporal API no cálculo de dia lógico.
