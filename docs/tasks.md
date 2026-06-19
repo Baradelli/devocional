@@ -101,7 +101,7 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] PWA: trocar o renderizador artesanal pelo de `packages/ui` no devocional; aplicar render MD na `PrayerScreen`.
 
 ### Fatia L — Limpeza de lint (à parte)
-- [ ] Adicionar artefatos gerados da PWA (service worker do Workbox, `dev-dist/`, etc.) ao `ignores` do ESLint para `eslint .` voltar a passar. Commit separado.
+- [x] Adicionar artefatos gerados/descartáveis ao `ignores` do ESLint (`**/.vite/`, `**/dev-dist/`, `prototypes/`) — `eslint .` voltou a passar limpo (de ~2010 erros para 0).
 
 ### Fatia 1 — Restyle admin + preview MD
 - [x] Editor: preview lado-a-lado (fonte → render) nos campos Devocional e Oração, com tipografia de leitura nos tokens existentes.

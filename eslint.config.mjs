@@ -17,10 +17,13 @@ export default tseslint.config(
   {
     ignores: [
       '**/dist/',
+      '**/dev-dist/',
       '**/build/',
       '**/coverage/',
       '**/node_modules/',
+      '**/.vite/',
       '**/*.d.ts',
+      'prototypes/',
       'packages/api/src/generated/',
     ],
   },
