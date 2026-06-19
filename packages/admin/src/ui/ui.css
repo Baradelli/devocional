@@ -171,8 +171,9 @@ select.control {
   margin-bottom: var(--s-4);
 }
 .panel__title {
+  font-family: var(--font-display);
   font-size: var(--text-md);
-  font-weight: 700;
+  font-weight: 560;
   color: var(--bark-ink);
 }
 .panel__hint {
@@ -309,4 +310,12 @@ select.control {
     opacity: 0;
     transform: translateY(8px);
   }
+}
+
+/* No escuro o musgo clareia — texto sobre fundo musgo vira tinta escura para
+   manter contraste (espelha a regra da PWA). */
+:root[data-theme='dark'] .btn--primary,
+:root[data-theme='dark'] .cal__cell--today .cal__daynum,
+:root[data-theme='dark'] .auth__mark {
+  color: #11150f;
 }

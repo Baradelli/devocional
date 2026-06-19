@@ -1,36 +1,9 @@
 /* ============================================================
-   Temas — trocam apenas as variáveis de cor (tokens).
-   Padrão = "aconchego" (definido em tokens.css).
+   Temas — trocam apenas as variáveis de cor (tokens). Só claro e escuro.
+   "claro" é o padrão (aplicado sempre via data-theme; ver index.html).
    ============================================================ */
 
-/* --- SERENO (sálvia/frio, claro) ---------------------------- */
-[data-theme='sereno'] {
-  --paper: #eef1ed;
-  --surface: #f7f9f5;
-  --surface-2: #e2e7df;
-  --ink: #232925;
-  --ink-soft: #61685f;
-  --moss: #3f6e5e;
-  --moss-deep: #2c4e43;
-  --moss-tint: #dde9e2;
-  --clay: #6f8499;
-  --gold: #c2a24f;
-  --gold-soft: #e0cf9a;
-  --line: #d7ddd4;
-}
-[data-theme='sereno'] body {
-  background-color: var(--paper);
-  background-image:
-    radial-gradient(circle at 18% 12%, rgba(63, 110, 94, 0.06), transparent 44%),
-    radial-gradient(circle at 84% 80%, rgba(111, 132, 153, 0.06), transparent 46%);
-}
-[data-theme='sereno'] .tree-stage {
-  background:
-    radial-gradient(60% 42% at 50% 38%, rgba(194, 162, 79, 0.14), transparent 70%),
-    linear-gradient(180deg, #f7f9f5, #e6ebe3);
-}
-
-/* --- CLARO (branco, limpo) ---------------------------------- */
+/* --- CLARO (branco, limpo) — PADRÃO ------------------------- */
 [data-theme='claro'] {
   --paper: #fbfbf9;
   --surface: #ffffff;

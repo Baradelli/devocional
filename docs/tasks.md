@@ -104,8 +104,9 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [ ] Adicionar artefatos gerados da PWA (service worker do Workbox, `dev-dist/`, etc.) ao `ignores` do ESLint para `eslint .` voltar a passar. Commit separado.
 
 ### Fatia 1 — Restyle admin + preview MD
-- [ ] Modernizar shell + editor ancorado em `docs/design-guide.md` e na linguagem da PWA; mesmos tokens/cores. Agenda fica como está.
-- [ ] Editor: preview lado-a-lado (fonte → render) nos campos Devocional e Oração.
+- [x] Editor: preview lado-a-lado (fonte → render) nos campos Devocional e Oração, com tipografia de leitura nos tokens existentes.
+- [x] Unificar visual com a PWA: admin adota a paleta `claro`/`escuro` da PWA (musgo + clay sobre papel) e a tipografia (Fraunces display + Mulish body), mantendo a densidade desktop.
+- [x] Reduzir os dois apps a apenas light (`claro`, padrão) e dark (`escuro`); PWA perde `aconchego`/`sereno`.
 
 ### Fatia 2 — Dashboard cobertura (Grupo A)
 - [ ] `shared`: `coverageStatsSchema` (Zod) da resposta.

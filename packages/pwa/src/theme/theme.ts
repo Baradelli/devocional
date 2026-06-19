@@ -11,14 +11,12 @@ export interface Theme {
   accent: string;
 }
 
-export type ThemeId = 'aconchego' | 'sereno' | 'claro' | 'escuro';
+export type ThemeId = 'claro' | 'escuro';
 
 export const THEME_KEY = 'devo-theme';
-export const DEFAULT_THEME: ThemeId = 'aconchego';
+export const DEFAULT_THEME: ThemeId = 'claro';
 
 export const THEMES: Theme[] = [
-  { id: 'aconchego', name: 'Aconchego', swatch: '#f4efe4', accent: '#3e6b47' },
-  { id: 'sereno', name: 'Sereno', swatch: '#eef1ed', accent: '#3f6e5e' },
   { id: 'claro', name: 'Claro', swatch: '#ffffff', accent: '#3c6b45' },
   { id: 'escuro', name: 'Escuro', swatch: '#1e2329', accent: '#6fa06a' },
 ];

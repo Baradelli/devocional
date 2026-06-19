@@ -31,6 +31,15 @@ h4 {
   text-wrap: balance;
 }
 
+/* Títulos maiores usam a display serif da PWA (Fraunces); rótulos pequenos
+   (h3/h4) ficam na sans para manter a densidade do admin. */
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 560;
+  letter-spacing: 0;
+}
+
 h1 {
   font-size: var(--text-xl);
 }

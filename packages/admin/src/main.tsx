@@ -1,3 +1,6 @@
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/mulish';
+import '@fontsource-variable/mulish/wght-italic.css';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/layout.css';
