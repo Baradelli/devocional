@@ -81,3 +81,38 @@ export const coverageStatsSchema = z.object({
   ),
 });
 export type CoverageStats = z.infer<typeof coverageStatsSchema>;
+
+/**
+ * Grupo B (engajamento): tudo agregado, nunca nominal. Ativo = concluiu nos
+ * últimos 7 dias. Taxa de conclusão diária sobre TODOS os usuários cadastrados,
+ * com médias móveis de 7 e 30 dias. Retenção é semana-a-semana.
+ */
+export const engagementStatsSchema = z.object({
+  referenceDate: z.string(),
+  registeredUsers: z.number().int().nonnegative(),
+  activeUsers7d: z.number().int().nonnegative(),
+  dailyCompletionRate: z.object({
+    today: z.number().min(0).max(100),
+    avg7: z.number().min(0).max(100),
+    avg30: z.number().min(0).max(100),
+  }),
+  retention: z.object({
+    thisWeekActive: z.number().int().nonnegative(),
+    lastWeekActive: z.number().int().nonnegative(),
+    retained: z.number().int().nonnegative(),
+    retentionPct: z.number().min(0).max(100),
+  }),
+  streaks: z.object({
+    averageCurrent: z.number().nonnegative(),
+    longest: z.number().int().nonnegative(),
+  }),
+  mostCompleted: z.array(
+    z.object({
+      devotionalId: z.string(),
+      date: z.string(),
+      theme: z.string().nullable(),
+      completions: z.number().int().positive(),
+    }),
+  ),
+});
+export type EngagementStats = z.infer<typeof engagementStatsSchema>;

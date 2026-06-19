@@ -15,6 +15,7 @@ import type { Env } from '../../src/infrastructure/config/env.js';
 import { createIdentityModule } from '../../src/infrastructure/identity/identityModule.js';
 import { createScryptPasswordHasher } from '../../src/infrastructure/identity/passwordHasher.js';
 import { createPrismaClient } from '../../src/infrastructure/prisma/client.js';
+import { createStatsModule } from '../../src/infrastructure/stats/statsModule.js';
 
 const apiRoot = fileURLToPath(new URL('../../', import.meta.url));
 const samplePath = fileURLToPath(
@@ -192,6 +193,102 @@ describe('coverage stats (admin)', () => {
       method: 'GET',
       url: '/admin/stats/coverage',
       headers: { cookie: `${cookie!.name}=${cookie!.value}` },
+    });
+    expect(member.statusCode).toBe(403);
+  });
+});
+
+describe('engagement stats (admin)', () => {
+  const round1 = (value: number) => Math.round(value * 10) / 10;
+  let memberCookieValue: string;
+
+  beforeAll(async () => {
+    const passwordHash = await createScryptPasswordHasher().hash('member-supersecret');
+    const members = await Promise.all(
+      ['a', 'b', 'c', 'd'].map((slug) =>
+        prisma.user.create({
+          data: {
+            name: `Membro ${slug}`,
+            email: `${slug}@engagement.test`,
+            passwordHash,
+            role: 'MEMBER',
+            timezone: 'UTC',
+          },
+        }),
+      ),
+    );
+    const [uA, uB, uC, uD] = members;
+
+    const devoX = await prisma.devotional.create({
+      data: { date: '2026-03-10', theme: 'Graça', publishedAt: new Date('2026-03-10T00:00:00Z') },
+    });
+    const devoY = await prisma.devotional.create({
+      data: { date: '2026-03-11', publishedAt: new Date('2026-03-11T00:00:00Z') },
+    });
+
+    const completion = (userId: string, logicalDate: string, devotionalId: string) =>
+      prisma.dailyCompletion.create({
+        data: {
+          userId,
+          logicalDate,
+          devotionalId,
+          idempotencyKey: `${userId}-${logicalDate}`,
+          completedAt: new Date(`${logicalDate}T12:00:00Z`),
+        },
+      });
+
+    await completion(uA!.id, '2026-01-15', devoX.id); // hoje
+    await completion(uA!.id, '2026-01-05', devoY.id); // semana passada
+    await completion(uB!.id, '2026-01-14', devoX.id); // esta semana
+    await completion(uC!.id, '2026-01-03', devoY.id); // só semana passada
+    await completion(uD!.id, '2026-01-12', devoX.id); // esta semana
+
+    await prisma.streakState.create({
+      data: { userId: uA!.id, currentStreak: 5, longestStreak: 10 },
+    });
+    await prisma.streakState.create({
+      data: { userId: uB!.id, currentStreak: 0, longestStreak: 3 },
+    });
+
+    const login = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email: 'a@engagement.test', password: 'member-supersecret' },
+    });
+    const cookie = login.cookies.find((c) => c.name === env.COOKIE_NAME);
+    memberCookieValue = `${cookie!.name}=${cookie!.value}`;
+  });
+
+  it('aggregates active users, retention, streaks and most-completed for a fixed today', async () => {
+    const stats = createStatsModule(prisma, {
+      serverTimezone: 'UTC',
+      now: () => new Date('2026-01-15T12:00:00Z'),
+    });
+    const eng = await stats.computeEngagement();
+
+    expect(eng.referenceDate).toBe('2026-01-15');
+    expect(eng.activeUsers7d).toBe(3); // A(15), B(14), D(12)
+    expect(eng.retention).toEqual({
+      thisWeekActive: 3,
+      lastWeekActive: 2, // A(05), C(03)
+      retained: 1, // só A em ambas as semanas
+      retentionPct: 50,
+    });
+    expect(eng.streaks).toEqual({ averageCurrent: 2.5, longest: 10 });
+    expect(eng.mostCompleted[0]?.completions).toBe(3); // devoX: A,B,D
+    expect(eng.mostCompleted[0]?.theme).toBe('Graça');
+    // Taxa do dia: só A concluiu em 2026-01-15, sobre todos os cadastrados.
+    expect(eng.dailyCompletionRate.today).toBe(round1((1 / eng.registeredUsers) * 100));
+  });
+
+  it('guards the dashboard: 401 anonymous, 403 for a member', async () => {
+    const anon = await app.inject({ method: 'GET', url: '/admin/stats/engagement' });
+    expect(anon.statusCode).toBe(401);
+
+    const member = await app.inject({
+      method: 'GET',
+      url: '/admin/stats/engagement',
+      headers: { cookie: memberCookieValue },
     });
     expect(member.statusCode).toBe(403);
   });

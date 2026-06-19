@@ -71,7 +71,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
     app.log,
   );
   const bible = createBibleModule(prisma);
-  const stats = createStatsModule(prisma);
+  const stats = createStatsModule(prisma, { serverTimezone: env.SERVER_TIMEZONE });
   const content = createContentModule(prisma, bible, {
     mediaDir: env.MEDIA_DIR,
     serverTimezone: env.SERVER_TIMEZONE,

@@ -18,6 +18,36 @@
   color: var(--muted);
   font-size: var(--text-sm);
 }
+.dash__section {
+  font-family: var(--font-display);
+  font-weight: 560;
+  font-size: var(--text-lg);
+  color: var(--ink);
+  margin: var(--s-2) 0 calc(-1 * var(--s-1));
+}
+
+/* Grade de mini-indicadores (conclusão diária, streaks) */
+.statgrid {
+  display: flex;
+  gap: var(--s-5);
+  flex-wrap: wrap;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.stat__value {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 560;
+  color: var(--leaf-ink);
+  line-height: 1;
+}
+.stat__label {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
 
 .kpi {
   display: flex;

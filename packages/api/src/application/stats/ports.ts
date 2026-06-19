@@ -16,9 +16,27 @@ export interface PassageRef {
   verseEnd: number;
 }
 
+/** Uma conclusão por (usuário, dia lógico) — já único no banco. */
+export interface CompletionDay {
+  userId: string;
+  logicalDate: string;
+}
+
+export interface StreakRow {
+  currentStreak: number;
+  longestStreak: number;
+}
+
+export interface MostCompletedRow {
+  devotionalId: string;
+  date: string;
+  theme: string | null;
+  completions: number;
+}
+
 /**
- * Porta de leitura para as estatísticas de cobertura. A régua é uma tradução
- * (ACF) resolvida por código; a cobertura é medida contra os versículos dela.
+ * Porta de leitura das estatísticas. Cobertura (Grupo A) mede contra a régua
+ * (ACF); engajamento (Grupo B) agrega conclusões/streaks — sempre agregado.
  */
 export interface StatsRepository {
   findRulerTranslationId(code: string): Promise<string | null>;
@@ -27,4 +45,11 @@ export interface StatsRepository {
   /** Toda referência de passagem de todos os devocionais (uma por bloco PASSAGE). */
   getPassageReferences(): Promise<PassageRef[]>;
   countDevotionals(): Promise<number>;
+
+  countUsers(): Promise<number>;
+  /** Conclusões (userId + dia lógico) a partir de `sinceDate` (inclusive). */
+  getCompletionDaysSince(sinceDate: string): Promise<CompletionDay[]>;
+  getStreakRows(): Promise<StreakRow[]>;
+  /** Devocionais mais concluídos; ignora conclusões sem `devotionalId`. */
+  getMostCompletedDevotionals(limit: number): Promise<MostCompletedRow[]>;
 }

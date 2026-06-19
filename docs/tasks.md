@@ -116,7 +116,8 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Admin: tela de dashboard de cobertura + heatmap (paleta/tipografia unificadas).
 
 ### Fatia 3 — Dashboard engajamento (Grupo B)
-- [ ] `shared`: `engagementStatsSchema` (Zod) da resposta.
-- [ ] **Teste primeiro** (integração, Postgres real): use-case `computeEngagementStats` — ativos 7d, taxa de conclusão diária (médias 7d/30d), retenção semana-a-semana, devocional mais concluído (ignora `devotionalId` nulo), streak médio/maior. Tudo agregado.
-- [ ] Repo Prisma + rota admin-only `GET /admin/stats/engagement`; teste de contrato.
-- [ ] Admin: cards de engajamento no dashboard.
+- [x] `shared`: `engagementStatsSchema` (Zod) da resposta.
+- [x] Domínio puro `dateWindow` (addDays + lastNDates) com testes.
+- [x] **Teste primeiro** (integração, Postgres real): use-case `computeEngagementStats` — ativos 7d, taxa de conclusão diária (médias 7d/30d), retenção semana-a-semana, devocional mais concluído (ignora `devotionalId` nulo), streak médio/maior. Tudo agregado; `today` injetado para determinismo.
+- [x] Repo Prisma + rota admin-only `GET /admin/stats/engagement`; guard 401/403 testado.
+- [x] Admin: cards de engajamento no dashboard (ativos, conclusão diária, retenção, streaks, mais concluídos).
