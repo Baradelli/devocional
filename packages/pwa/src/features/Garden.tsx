@@ -1,6 +1,7 @@
 import type { ProgressView } from '@devocional/shared';
 import { useEffect, useState } from 'react';
 import { LuArrowLeft } from 'react-icons/lu';
+import { useNavigate } from 'react-router-dom';
 
 import { fetchProgress } from '../api/progress.js';
 import { Herbarium } from '../components/Herbarium.js';
@@ -10,7 +11,8 @@ import { TREE_ART } from '../gamification/treeArt.js';
 type Status = 'loading' | 'ready' | 'error';
 
 /** O jardim: a árvore que cresce com o streak + o herbário de conquistas. */
-export function Garden({ onBack }: { onBack: () => void }) {
+export function Garden() {
+  const navigate = useNavigate();
   const [progress, setProgress] = useState<ProgressView | null>(null);
   const [status, setStatus] = useState<Status>('loading');
 
@@ -30,7 +32,7 @@ export function Garden({ onBack }: { onBack: () => void }) {
         <button
           type="button"
           className="topbar__icon"
-          onClick={onBack}
+          onClick={() => void navigate('/today')}
           aria-label="Voltar para hoje"
         >
           <LuArrowLeft />

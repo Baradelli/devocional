@@ -10,7 +10,8 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { LuArrowLeft } from 'react-icons/lu';
+import { LuArrowLeft, LuMoon, LuSun } from 'react-icons/lu';
+import { useNavigate } from 'react-router-dom';
 
 import { deleteAccount } from '../api/auth.js';
 import { ApiError } from '../api/client.js';
@@ -21,22 +22,18 @@ import {
   verifyWhatsapp,
 } from '../api/notifications.js';
 import { disablePush, enablePush, isPushSupported } from '../push/subscribe.js';
+import { applyTheme, readStoredTheme, type ThemeId, THEMES } from '../theme/theme.js';
 
 type Status = 'loading' | 'ready' | 'error';
 
 interface SettingsProps {
-  onBack: () => void;
   onReviewOnboarding?: () => void;
   onAccountDeleted?: () => void;
   onLogout?: () => void;
 }
 
-export function Settings({
-  onBack,
-  onReviewOnboarding,
-  onAccountDeleted,
-  onLogout,
-}: SettingsProps) {
+export function Settings({ onReviewOnboarding, onAccountDeleted, onLogout }: SettingsProps) {
+  const navigate = useNavigate();
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [status, setStatus] = useState<Status>('loading');
 
@@ -59,7 +56,7 @@ export function Settings({
         <button
           type="button"
           className="topbar__icon"
-          onClick={onBack}
+          onClick={() => void navigate('/today')}
           aria-label="Voltar para hoje"
           data-onboard="settings-back"
         >
@@ -80,6 +77,7 @@ export function Settings({
           <ReminderForm settings={settings} onSaved={reload} />
           <PushSection settings={settings} onChanged={reload} />
           <WhatsappSection settings={settings} onChanged={reload} />
+          <ThemeCard />
           {onReviewOnboarding && (
             <div className="card">
               <h3 className="card-title">Introdução guiada</h3>
@@ -150,6 +148,35 @@ function DangerZone({ onAccountDeleted }: { onAccountDeleted?: () => void }) {
         </button>
       )}
       {error && <p className="form-error">{error}</p>}
+    </div>
+  );
+}
+
+function ThemeCard() {
+  const [current, setCurrent] = useState<ThemeId>(readStoredTheme);
+
+  const choose = (id: ThemeId) => {
+    setCurrent(id);
+    applyTheme(id);
+  };
+
+  return (
+    <div className="card">
+      <h3 className="card-title">Tema</h3>
+      <div className="theme-choice">
+        {THEMES.map((theme) => (
+          <button
+            key={theme.id}
+            type="button"
+            className={`theme-choice__btn${current === theme.id ? ' is-active' : ''}`}
+            aria-pressed={current === theme.id}
+            onClick={() => choose(theme.id)}
+          >
+            {theme.id === 'escuro' ? <LuMoon aria-hidden="true" /> : <LuSun aria-hidden="true" />}
+            {theme.name}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

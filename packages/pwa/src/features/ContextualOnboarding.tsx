@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { promptInstall, useCanInstall } from '../lib/installPrompt.js';
 
@@ -73,9 +74,20 @@ const COACH_STEPS: CoachStep[] = [
 ];
 
 interface ContextualOnboardingProps {
-  currentView: OnboardingView;
-  onRequestView: (view: OnboardingView) => void;
   onFinish: () => void | Promise<void>;
+}
+
+function viewFromPath(pathname: string): OnboardingView {
+  if (pathname.startsWith('/garden')) {
+    return 'garden';
+  }
+  if (pathname.startsWith('/library')) {
+    return 'library';
+  }
+  if (pathname.startsWith('/settings')) {
+    return 'settings';
+  }
+  return 'today';
 }
 
 function currentViewport() {
@@ -86,11 +98,10 @@ function currentViewport() {
 }
 
 /** Onboarding contextual com spotlight: guia o fiel nas telas reais do app. */
-export function ContextualOnboarding({
-  currentView,
-  onRequestView,
-  onFinish,
-}: ContextualOnboardingProps) {
+export function ContextualOnboarding({ onFinish }: ContextualOnboardingProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentView = viewFromPath(location.pathname);
   const [index, setIndex] = useState(0);
   const [finishing, setFinishing] = useState(false);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
@@ -102,9 +113,9 @@ export function ContextualOnboarding({
 
   useEffect(() => {
     if (step && currentView !== step.view) {
-      onRequestView(step.view);
+      void navigate(`/${step.view}`);
     }
-  }, [currentView, onRequestView, step]);
+  }, [currentView, navigate, step]);
 
   useLayoutEffect(() => {
     if (!step) {
