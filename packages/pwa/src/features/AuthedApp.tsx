@@ -1,21 +1,21 @@
 import type { UserPublic } from '@devocional/shared';
 import { useState } from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 
 import { logout } from '../api/auth.js';
 import { completeOnboarding } from '../api/onboarding.js';
 import { localOnboardingSeen } from '../onboarding/onboardingSeen.js';
-import { ThemeSwitch } from '../theme/ThemeSwitch.js';
 import { ContextualOnboarding } from './ContextualOnboarding.js';
 import { Garden } from './Garden.js';
 import { Library } from './Library.js';
+import { NoteEditorScreen } from './NoteEditorScreen.js';
 import { Settings } from './Settings.js';
 import { Today } from './Today.js';
-
-type View = 'today' | 'garden' | 'library' | 'settings';
+import { CalendarScreen } from './today/CalendarScreen.js';
 
 const onboardingSeen = localOnboardingSeen();
 
-/** App do fiel já autenticado: telas + onboarding. O roteamento público
+/** App do fiel já autenticado: rotas das telas + onboarding. O roteamento público
  * (login/cadastro) e o gate de sessão vivem no App. */
 export function AuthedApp({
   user,
@@ -24,7 +24,7 @@ export function AuthedApp({
   user: UserPublic;
   onUserChange: (user: UserPublic | null) => void;
 }) {
-  const [view, setView] = useState<View>('today');
+  const navigate = useNavigate();
   const [showTour, setShowTour] = useState(
     user.onboardingCompletedAt === null && !onboardingSeen.hasSeen(),
   );
@@ -42,37 +42,35 @@ export function AuthedApp({
     setShowTour(false);
   };
 
-  const backToToday = () => setView('today');
   const reviewTour = () => {
-    setView('today');
+    void navigate('/today');
     setShowTour(true);
   };
 
   return (
     <>
-      {view === 'today' && (
-        <Today
-          onOpenGarden={() => setView('garden')}
-          onOpenLibrary={() => setView('library')}
-          onOpenSettings={() => setView('settings')}
+      <Routes>
+        <Route path="/" element={<Navigate to="/today" replace />} />
+        <Route path="/today" element={<Today />} />
+        <Route path="/garden" element={<Garden />} />
+        <Route path="/library" element={<Library />} />
+        <Route
+          path="/settings"
+          element={
+            <Settings
+              onReviewOnboarding={reviewTour}
+              onAccountDeleted={() => onUserChange(null)}
+              onLogout={() => {
+                void logout().then(() => onUserChange(null));
+              }}
+            />
+          }
         />
-      )}
-      {view === 'garden' && <Garden onBack={backToToday} />}
-      {view === 'library' && <Library onBack={backToToday} />}
-      {view === 'settings' && (
-        <Settings
-          onBack={backToToday}
-          onReviewOnboarding={reviewTour}
-          onAccountDeleted={() => onUserChange(null)}
-          onLogout={() => {
-            void logout().then(() => onUserChange(null));
-          }}
-        />
-      )}
-      {showTour && (
-        <ContextualOnboarding currentView={view} onRequestView={setView} onFinish={finishTour} />
-      )}
-      <ThemeSwitch />
+        <Route path="/calendar" element={<CalendarScreen />} />
+        <Route path="/notes/:id/edit" element={<NoteEditorScreen />} />
+        <Route path="*" element={<Navigate to="/today" replace />} />
+      </Routes>
+      {showTour && <ContextualOnboarding onFinish={finishTour} />}
     </>
   );
 }

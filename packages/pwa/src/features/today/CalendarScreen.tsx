@@ -1,17 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { fetchCalendar } from '../../api/progress.js';
+import { fetchCalendar, fetchProgress } from '../../api/progress.js';
 import { StreakStats } from '../../components/StreakStats.js';
 import { buildMonthGrid, formatMonthTitle, toMonthKey, WEEKDAY_SHORT } from '../../lib/dates.js';
 import { ScreenBar } from './ScreenBar.js';
-
-interface CalendarScreenProps {
-  current: number;
-  longest: number;
-  today: Date;
-  initialCompleted: string[];
-  onClose: () => void;
-}
 
 function shiftMonth(monthKey: string, delta: number): string {
   const parts = monthKey.split('-');
@@ -20,22 +13,26 @@ function shiftMonth(monthKey: string, delta: number): string {
 }
 
 /** Calendário de sequência: totalizador + grade mensal navegável. */
-export function CalendarScreen({
-  current,
-  longest,
-  today,
-  initialCompleted,
-  onClose,
-}: CalendarScreenProps) {
+export function CalendarScreen() {
+  const navigate = useNavigate();
+  const today = useRef(new Date()).current;
   const thisMonth = toMonthKey(today);
+  const [current, setCurrent] = useState(0);
+  const [longest, setLongest] = useState(0);
   const [month, setMonth] = useState(thisMonth);
-  const [completed, setCompleted] = useState<string[]>(initialCompleted);
+  const [completed, setCompleted] = useState<string[]>([]);
 
   useEffect(() => {
-    if (month === thisMonth) {
-      setCompleted(initialCompleted);
-      return;
-    }
+    void fetchProgress().then(
+      (p) => {
+        setCurrent(p.streak.currentStreak);
+        setLongest(p.streak.longestStreak);
+      },
+      () => undefined,
+    );
+  }, []);
+
+  useEffect(() => {
     let active = true;
     void fetchCalendar(month).then(
       (view) => active && setCompleted(view.completedDates),
@@ -44,7 +41,7 @@ export function CalendarScreen({
     return () => {
       active = false;
     };
-  }, [month, thisMonth, initialCompleted]);
+  }, [month]);
 
   const grid = buildMonthGrid(month, today, completed);
 
@@ -53,7 +50,7 @@ export function CalendarScreen({
       className="screen screen--overlay screen--calendar"
       aria-label="Calendário de sequência"
     >
-      <ScreenBar title="Sua sequência" onClose={onClose} />
+      <ScreenBar title="Sua sequência" onClose={() => void navigate('/today')} />
       <div className="cal">
         <StreakStats current={current} longest={longest} />
         <div className="cal__month">

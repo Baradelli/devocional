@@ -70,30 +70,3 @@
 [data-theme='escuro'] .coachmark__actions button:not(.link) {
   color: #11150f;
 }
-
-/* ============================================================
-   Botão de troca de tema (flutuante, canto inferior esquerdo)
-   ============================================================ */
-.theme-switch__btn {
-  position: fixed;
-  right: max(0.85rem, env(safe-area-inset-right));
-  top: max(0.85rem, env(safe-area-inset-top));
-  z-index: 35;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--shadow-1);
-  transition:
-    transform 0.2s var(--ease),
-    background 0.2s var(--ease);
-}
-.theme-switch__btn:hover {
-  transform: translateY(-2px);
-  background: var(--surface-2);
-}

@@ -5,19 +5,19 @@ import type {
   StreakStateView,
 } from '@devocional/shared';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { LuArrowRight, LuCheck, LuFlower2 } from 'react-icons/lu';
+import { LuArrowRight, LuCheck, LuFlame, LuFlower2 } from 'react-icons/lu';
+import { useNavigate } from 'react-router-dom';
 
 import { ApiError } from '../api/client.js';
 import { fetchToday } from '../api/devotional.js';
 import { fetchCalendar, fetchProgress } from '../api/progress.js';
 import { GardenIcon, PencilIcon, SettingsIcon } from '../components/icons.js';
 import { WeekStrip } from '../components/WeekStrip.js';
-import { buildWeek, formatDateline, toMonthKey } from '../lib/dates.js';
+import { buildWeek, formatDateline, toIsoDate, toMonthKey } from '../lib/dates.js';
 import { useScreenStack } from '../navigation/useScreenStack.js';
+import { localStorageDayProgress } from '../offline/dayProgress.js';
 import { localStorageQueue } from '../offline/queue.js';
 import { flushQueue } from '../offline/sync.js';
-import { NoteEditorScreen } from './NoteEditorScreen.js';
-import { CalendarScreen } from './today/CalendarScreen.js';
 import { DevotionalScreen } from './today/DevotionalScreen.js';
 import { PrayerScreen } from './today/PrayerScreen.js';
 import { ReadingScreen } from './today/ReadingScreen.js';
@@ -26,15 +26,8 @@ import { VerseScreen } from './today/VerseScreen.js';
 
 type Status = 'loading' | 'ready' | 'empty' | 'error';
 type Step = 'verse' | 'reading' | 'devotional' | 'prayer' | 'reflection';
-type Overlay = Step | 'calendar' | 'note';
 
 const STEP_ORDER: Step[] = ['verse', 'reading', 'devotional', 'prayer', 'reflection'];
-
-interface TodayProps {
-  onOpenGarden: () => void;
-  onOpenLibrary: () => void;
-  onOpenSettings: () => void;
-}
 
 function find<T extends BlockView['type']>(
   blocks: BlockView[],
@@ -64,8 +57,10 @@ interface StationDef {
   prayer?: boolean;
 }
 
-export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProps) {
+export function Today() {
+  const navigate = useNavigate();
   const queue = useRef(localStorageQueue()).current;
+  const dayProgress = useRef(localStorageDayProgress()).current;
   const today = useRef(new Date()).current;
   const [devotional, setDevotional] = useState<DevotionalView | null>(null);
   const [status, setStatus] = useState<Status>('loading');
@@ -74,14 +69,20 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
   const [finished, setFinished] = useState(false);
   const [streak, setStreak] = useState<StreakStateView | null>(null);
   const [completedDates, setCompletedDates] = useState<string[]>([]);
-  const { top, open, close } = useScreenStack<Overlay>();
+  const { top, open, close } = useScreenStack<Step>();
   const journeyRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
+    const todayIso = toIsoDate(today);
     void fetchToday().then(
       (view) => {
         setDevotional(view);
         setStatus('ready');
+        // Restaura os passos já feitos hoje (só valem para o devocional de hoje).
+        const saved = dayProgress.read();
+        if (saved && saved.devotionalId === view.id) {
+          setDone(new Set(saved.done as Step[]));
+        }
       },
       (error: unknown) => {
         setStatus(error instanceof ApiError && error.status === 404 ? 'empty' : 'error');
@@ -92,14 +93,22 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
       () => undefined,
     );
     void fetchCalendar(toMonthKey(today)).then(
-      (c) => setCompletedDates(c.completedDates),
+      (c) => {
+        setCompletedDates(c.completedDates);
+        // O banco é a autoridade do "dia concluído": se hoje já consta, encerra
+        // e descarta o progresso local de passos.
+        if (c.completedDates.includes(todayIso)) {
+          setFinished(true);
+          dayProgress.clear();
+        }
+      },
       () => undefined,
     );
     void flushQueue(queue).then(
       (s) => s && setSnapshot(s),
       () => undefined,
     );
-  }, [queue, today]);
+  }, [queue, dayProgress, today]);
 
   useEffect(() => {
     const reconcile = () => {
@@ -111,6 +120,15 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
     window.addEventListener('online', reconcile);
     return () => window.removeEventListener('online', reconcile);
   }, [queue]);
+
+  // Persiste os passos feitos hoje no localStorage (some no dia seguinte por
+  // estar atrelado ao devocional; some também ao concluir o dia).
+  useEffect(() => {
+    if (!devotional || finished) {
+      return;
+    }
+    dayProgress.save({ devotionalId: devotional.id, done: [...done] });
+  }, [done, devotional, finished, dayProgress]);
 
   const blocks = devotional ? [...devotional.blocks].sort((a, b) => a.order - b.order) : [];
   const quote = find(blocks, 'QUOTE');
@@ -127,8 +145,10 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
     reflection: !!reflection,
   };
   const steps = STEP_ORDER.filter((s) => present[s]);
-  const currentStep = steps.find((s) => !done.has(s)) ?? null;
-  const allDone = steps.length > 0 && steps.every((s) => done.has(s));
+  // Dia concluído ⇒ tudo marcado, mesmo sem o progresso de passos no localStorage.
+  const effectiveDone = finished ? new Set<Step>(steps) : done;
+  const currentStep = steps.find((s) => !effectiveDone.has(s)) ?? null;
+  const allDone = steps.length > 0 && steps.every((s) => effectiveDone.has(s));
 
   // Haste viva: cresce até o centro do último nó concluído (ou até o fim ao finalizar).
   useLayoutEffect(() => {
@@ -168,6 +188,7 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
   const finish = () => {
     queue.enqueue({ idempotencyKey: crypto.randomUUID(), completedAt: new Date().toISOString() });
     setFinished(true);
+    dayProgress.clear();
     void flushQueue(queue).then(
       (s) => s && setSnapshot(s),
       () => undefined,
@@ -229,6 +250,7 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
 
   const week = buildWeek(today, completedDates);
   const finishStreak = snapshot?.streak.currentStreak ?? streak?.currentStreak;
+  const currentStreak = finishStreak ?? 0;
 
   return (
     <>
@@ -237,28 +259,38 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
           <button
             type="button"
             className="topbar__icon"
-            onClick={onOpenSettings}
+            onClick={() => void navigate('/settings')}
             aria-label="Ajustes"
             data-onboard="today-settings"
           >
             <SettingsIcon />
           </button>
           <span className="eyebrow">{formatDateline(today)}</span>
-          <span className="topbar__icon" aria-hidden="true" />
+          <span
+            className="topbar__streak"
+            aria-label={`Sequência atual: ${String(currentStreak)} dia(s)`}
+          >
+            <LuFlame aria-hidden="true" />
+            {currentStreak}
+          </span>
         </header>
 
         <main className="home">
-          <WeekStrip week={week} onOpenCalendar={() => open('calendar')} />
+          <WeekStrip week={week} onOpenCalendar={() => void navigate('/calendar')} />
 
           <nav className="home__nav">
-            <button type="button" className="home__nav-btn" onClick={onOpenGarden}>
+            <button
+              type="button"
+              className="home__nav-btn"
+              onClick={() => void navigate('/garden')}
+            >
               <GardenIcon />
               Seu jardim
             </button>
             <button
               type="button"
               className="home__nav-btn"
-              onClick={onOpenLibrary}
+              onClick={() => void navigate('/library')}
               data-onboard="today-library"
             >
               <PencilIcon />
@@ -268,7 +300,7 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
           <ol className="journey" ref={journeyRef} data-onboard="today-journey">
             {steps.map((step) => {
               const def = stationDefs[step];
-              const isDone = done.has(step);
+              const isDone = effectiveDone.has(step);
               const isCurrent = step === currentStep;
               return (
                 <li
@@ -373,23 +405,11 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
           audioUrl={reflection.audioUrl}
           onComplete={() => markDone('reflection')}
           onClose={close}
-          onWriteNote={() => open('note')}
-        />
-      )}
-      {top === 'calendar' && (
-        <CalendarScreen
-          current={streak?.currentStreak ?? 0}
-          longest={streak?.longestStreak ?? 0}
-          today={today}
-          initialCompleted={completedDates}
-          onClose={close}
-        />
-      )}
-      {top === 'note' && (
-        <NoteEditorScreen
-          devotionalId={devotional.id}
-          dateLabel={formatDateline(today)}
-          onClose={close}
+          onWriteNote={() =>
+            void navigate(`/notes/${devotional.id}/edit`, {
+              state: { dateLabel: formatDateline(today) },
+            })
+          }
         />
       )}
     </>

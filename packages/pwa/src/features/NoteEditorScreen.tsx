@@ -1,15 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ApiError } from '../api/client.js';
 import { fetchNote } from '../api/notes.js';
 import { localStorageNoteQueue } from '../offline/noteQueue.js';
 import { flushNoteQueue } from '../offline/noteSync.js';
-
-interface NoteEditorScreenProps {
-  devotionalId: string;
-  dateLabel: string;
-  onClose: () => void;
-}
 
 type ExecCommand = 'bold' | 'italic' | 'h2' | 'h3' | 'quote' | 'list' | 'highlight';
 
@@ -44,7 +39,12 @@ function toggleHighlight(): void {
  * otimista e offline: salvar enfileira uma operação idempotente e sincroniza.
  * O corpo é HTML guardado no campo `text` da anotação.
  */
-export function NoteEditorScreen({ devotionalId, dateLabel, onClose }: NoteEditorScreenProps) {
+export function NoteEditorScreen() {
+  const { id: devotionalId = '' } = useParams<{ id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dateLabel = (location.state as { dateLabel?: string } | null)?.dateLabel ?? 'Anotação';
+  const close = () => void navigate(-1);
   const queue = useRef(localStorageNoteQueue()).current;
   const bodyRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
@@ -116,13 +116,13 @@ export function NoteEditorScreen({ devotionalId, dateLabel, onClose }: NoteEdito
       text,
       deleted: false,
     });
-    void flushNoteQueue(queue).finally(onClose);
+    void flushNoteQueue(queue).finally(close);
   };
 
   return (
     <section className="screen screen--overlay screen--note" aria-label="Anotação">
       <header className="screen__bar screen__bar--note">
-        <button type="button" className="iconbtn" onClick={onClose} aria-label="Fechar sem salvar">
+        <button type="button" className="iconbtn" onClick={close} aria-label="Fechar sem salvar">
           ×
         </button>
         <span className="eyebrow">Anotação · {dateLabel}</span>
