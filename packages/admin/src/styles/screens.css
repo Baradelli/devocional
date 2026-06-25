@@ -353,6 +353,17 @@
   font-weight: 600;
 }
 
+/* Ícones inline (react-icons) alinhados ao texto em células e labels. */
+.ok {
+  color: var(--leaf-ink);
+}
+.upload-row .ok,
+.streak-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 /* ---------- Login ---------- */
 .auth {
   width: min(380px, 100%);

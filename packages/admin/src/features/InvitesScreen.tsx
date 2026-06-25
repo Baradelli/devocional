@@ -6,6 +6,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { LuCopy, LuLink, LuMail, LuTrash2 } from 'react-icons/lu';
 
 import { ApiError } from '../api/client.js';
 import { createInvite, listInvites, revokeInvite } from '../api/identity.js';
@@ -192,7 +193,7 @@ function InvitesTable({
       <Panel>
         <div className="empty">
           <span className="empty__mark" aria-hidden>
-            ✉️
+            <LuMail />
           </span>
           <span className="empty__title">Nenhum convite ainda</span>
           <p>Gere o primeiro convite acima para liberar o cadastro de um novo membro.</p>
@@ -272,7 +273,7 @@ function InvitesTable({
                       aria-label="Copiar link"
                       onClick={() => void copy(invite.registerUrl, 'Link')}
                     >
-                      🔗
+                      <LuLink aria-hidden />
                     </button>
                     <button
                       type="button"
@@ -281,7 +282,7 @@ function InvitesTable({
                       aria-label="Copiar código"
                       onClick={() => void copy(invite.code, 'Código')}
                     >
-                      📋
+                      <LuCopy aria-hidden />
                     </button>
                     {invite.status === 'PENDING' && (
                       <button
@@ -291,7 +292,7 @@ function InvitesTable({
                         aria-label="Cancelar convite"
                         onClick={() => setConfirmingId(invite.id)}
                       >
-                        🗑️
+                        <LuTrash2 aria-hidden />
                       </button>
                     )}
                   </div>

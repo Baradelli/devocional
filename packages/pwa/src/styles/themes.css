@@ -74,13 +74,11 @@
 /* ============================================================
    Botão de troca de tema (flutuante, canto inferior esquerdo)
    ============================================================ */
-.theme-switch {
+.theme-switch__btn {
   position: fixed;
   right: max(0.85rem, env(safe-area-inset-right));
   top: max(0.85rem, env(safe-area-inset-top));
   z-index: 35;
-}
-.theme-switch__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -98,50 +96,4 @@
 .theme-switch__btn:hover {
   transform: translateY(-2px);
   background: var(--surface-2);
-}
-.theme-switch__menu {
-  position: absolute;
-  right: 0;
-  top: 58px;
-  min-width: 178px;
-  padding: 0.4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: var(--shadow-2);
-}
-.theme-switch__menu button {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.55rem 0.7rem;
-  border: none;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-  font-size: 0.92rem;
-  text-align: left;
-}
-.theme-switch__menu button:hover {
-  background: var(--surface-2);
-}
-.theme-switch__menu button.is-active {
-  color: var(--moss-deep);
-  font-weight: 700;
-}
-.theme-switch__menu button.is-active::after {
-  content: '✓';
-  margin-left: auto;
-  color: var(--moss);
-}
-.theme-switch__dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid var(--accent, #3e6b47);
-  background: var(--swatch, #f4efe4);
 }

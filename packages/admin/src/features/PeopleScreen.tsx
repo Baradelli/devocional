@@ -1,5 +1,6 @@
 import type { RosterEntry } from '@devocional/shared';
 import { useEffect, useState } from 'react';
+import { LuCheck, LuFlame, LuUsers } from 'react-icons/lu';
 
 import { getRoster } from '../api/stats.js';
 import { formatLong } from '../lib/date.js';
@@ -66,7 +67,7 @@ function PeopleTable({ people }: { people: RosterEntry[] }) {
       <Panel>
         <div className="empty">
           <span className="empty__mark" aria-hidden>
-            🌿
+            <LuUsers />
           </span>
           <span className="empty__title">Ninguém cadastrado ainda</span>
           <p>Gere um convite para que a primeira pessoa entre.</p>
@@ -96,12 +97,32 @@ function PeopleTable({ people }: { people: RosterEntry[] }) {
               <td className="dev-row__date">{person.name}</td>
               <td className="dev-row__theme">{person.email}</td>
               <td className="dev-row__weekday">{formatLong(person.joinedAt.slice(0, 10), true)}</td>
-              <td>{person.onboardingCompleted ? '✓' : '—'}</td>
-              <td>{person.currentStreak > 0 ? `${person.currentStreak} 🔥` : '0'}</td>
+              <td>
+                {person.onboardingCompleted ? (
+                  <LuCheck className="ok" aria-label="sim" />
+                ) : (
+                  <span className="muted">—</span>
+                )}
+              </td>
+              <td>
+                {person.currentStreak > 0 ? (
+                  <span className="streak-cell">
+                    {person.currentStreak} <LuFlame aria-hidden />
+                  </span>
+                ) : (
+                  '0'
+                )}
+              </td>
               <td className="dev-row__weekday">
                 {person.lastCompletedDate ? formatLong(person.lastCompletedDate, true) : '—'}
               </td>
-              <td>{person.completedToday ? '✓' : '—'}</td>
+              <td>
+                {person.completedToday ? (
+                  <LuCheck className="ok" aria-label="sim" />
+                ) : (
+                  <span className="muted">—</span>
+                )}
+              </td>
               <td>{person.totalCompletions}</td>
             </tr>
           ))}

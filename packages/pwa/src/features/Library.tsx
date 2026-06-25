@@ -1,5 +1,6 @@
 import type { NoteView } from '@devocional/shared';
 import { useEffect, useRef, useState } from 'react';
+import { LuArrowLeft, LuPencil } from 'react-icons/lu';
 
 import { ApiError } from '../api/client.js';
 import { fetchToday } from '../api/devotional.js';
@@ -109,7 +110,7 @@ export function Library({ onBack }: { onBack: () => void }) {
             onClick={onBack}
             aria-label="Voltar para hoje"
           >
-            ←
+            <LuArrowLeft />
           </button>
           <span className="eyebrow">Minhas anotações</span>
           <span className="topbar__icon" aria-hidden="true" />
@@ -134,7 +135,7 @@ export function Library({ onBack }: { onBack: () => void }) {
               onClick={() => openEditor(todayRef.id, todayRef.label)}
             >
               <span className="lib__today__icon" aria-hidden="true">
-                ✎
+                <LuPencil />
               </span>
               <span className="lib__today__txt">
                 <b>Anotar sobre hoje</b>

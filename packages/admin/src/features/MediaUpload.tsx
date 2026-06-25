@@ -1,5 +1,6 @@
 import type { MediaType } from '@devocional/shared';
 import { type ChangeEvent, useState } from 'react';
+import { LuCheck } from 'react-icons/lu';
 
 import { uploadMedia } from '../api/content.js';
 
@@ -43,9 +44,17 @@ export function MediaUpload({
       <span className="field__label">{label}</span>
       <div className="upload-row">
         <input type="file" accept={accept} onChange={handleChange} />
-        {status === 'idle' && hasExisting && <span className="ok">✓ arquivo atual</span>}
+        {status === 'idle' && hasExisting && (
+          <span className="ok">
+            <LuCheck aria-hidden /> arquivo atual
+          </span>
+        )}
         {status === 'uploading' && <span className="muted">Enviando…</span>}
-        {status === 'done' && <span className="ok">✓ {name}</span>}
+        {status === 'done' && (
+          <span className="ok">
+            <LuCheck aria-hidden /> {name}
+          </span>
+        )}
         {status === 'error' && <span className="field__error">Falha no envio.</span>}
       </div>
     </div>
