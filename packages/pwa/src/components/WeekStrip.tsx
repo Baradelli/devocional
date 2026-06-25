@@ -1,3 +1,5 @@
+import { LuArrowRight } from 'react-icons/lu';
+
 import type { WeekDay } from '../lib/dates.js';
 
 interface WeekStripProps {
@@ -12,7 +14,7 @@ export function WeekStrip({ week, onOpenCalendar }: WeekStripProps) {
       <div className="week__head">
         <span className="label">Esta semana</span>
         <button type="button" className="week__cal" onClick={onOpenCalendar}>
-          Ver calendário →
+          Ver calendário <LuArrowRight aria-hidden />
         </button>
       </div>
       <ol className="week__days">

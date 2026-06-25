@@ -1,3 +1,5 @@
+import { LuPencil } from 'react-icons/lu';
+
 import { AudioPlayer } from '../../components/AudioPlayer.js';
 import { ScreenBar } from './ScreenBar.js';
 
@@ -44,7 +46,7 @@ export function ReflectionScreen({
             Guarde o que pensou hoje — <b>escrever anotação</b>
           </span>
           <span className="note-prompt__icon" aria-hidden="true">
-            ✎
+            <LuPencil />
           </span>
         </button>
       </div>

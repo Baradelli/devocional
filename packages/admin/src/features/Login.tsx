@@ -2,6 +2,7 @@ import { type LoginRequest, loginRequestSchema, type UserPublic } from '@devocio
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { LuSparkles } from 'react-icons/lu';
 
 import { login } from '../api/auth.js';
 import { ApiError } from '../api/client.js';
@@ -33,7 +34,7 @@ export function Login({ onLoggedIn }: { onLoggedIn: (user: UserPublic) => void }
       <Panel className="auth">
         <div className="auth__head">
           <div className="auth__mark" aria-hidden>
-            ✦
+            <LuSparkles />
           </div>
           <h1>Devocional</h1>
           <p>Entre para montar o devocional do dia.</p>

@@ -5,6 +5,7 @@ import type {
   StreakStateView,
 } from '@devocional/shared';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { LuArrowRight, LuCheck, LuFlower2 } from 'react-icons/lu';
 
 import { ApiError } from '../api/client.js';
 import { fetchToday } from '../api/devotional.js';
@@ -284,7 +285,7 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
                     <span className="station__title">{def.title}</span>
                     <span className="station__meta">{def.meta}</span>
                     <span className="station__chev" aria-hidden="true">
-                      {isDone ? '✓' : '→'}
+                      {isDone ? <LuCheck /> : <LuArrowRight />}
                     </span>
                   </button>
                 </li>
@@ -296,7 +297,7 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
             {finished ? (
               <div className="finish__done">
                 <span className="finish__bloom" aria-hidden="true">
-                  ✿
+                  <LuFlower2 />
                 </span>
                 <p className="finish__title display">Dia concluído</p>
                 {finishStreak !== undefined ? (

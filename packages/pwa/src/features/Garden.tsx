@@ -1,5 +1,6 @@
 import type { ProgressView } from '@devocional/shared';
 import { useEffect, useState } from 'react';
+import { LuArrowLeft } from 'react-icons/lu';
 
 import { fetchProgress } from '../api/progress.js';
 import { Herbarium } from '../components/Herbarium.js';
@@ -32,7 +33,7 @@ export function Garden({ onBack }: { onBack: () => void }) {
           onClick={onBack}
           aria-label="Voltar para hoje"
         >
-          ←
+          <LuArrowLeft />
         </button>
         <span className="eyebrow">Seu jardim</span>
         <span className="topbar__icon" aria-hidden="true" />

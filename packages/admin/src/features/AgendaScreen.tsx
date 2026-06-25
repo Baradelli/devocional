@@ -1,5 +1,6 @@
 import type { DevotionalSummary } from '@devocional/shared';
 import { useEffect, useMemo, useState } from 'react';
+import { LuSprout } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 
 import { listDevotionals } from '../api/content.js';
@@ -223,7 +224,7 @@ function ListView({
       <Panel>
         <div className="empty">
           <span className="empty__mark" aria-hidden>
-            🌱
+            <LuSprout />
           </span>
           <span className="empty__title">Nenhum devocional ainda</span>
           <p>Crie o primeiro devocional ou escolha um dia no calendário para começar.</p>

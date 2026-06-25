@@ -10,6 +10,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { LuArrowLeft } from 'react-icons/lu';
 
 import { deleteAccount } from '../api/auth.js';
 import { ApiError } from '../api/client.js';
@@ -62,7 +63,7 @@ export function Settings({
           aria-label="Voltar para hoje"
           data-onboard="settings-back"
         >
-          ←
+          <LuArrowLeft />
         </button>
         <span className="eyebrow">Ajustes</span>
         <span className="topbar__icon" aria-hidden="true" />
