@@ -1,8 +1,9 @@
-import type { CoverageStats, EngagementStats } from '@devocional/shared';
+import type { CoverageStats, EngagementStats, RosterEntry } from '@devocional/shared';
 import type { PrismaClient } from '@prisma/client';
 
 import { computeCoverageStats } from '../../application/stats/computeCoverageStats.js';
 import { computeEngagementStats } from '../../application/stats/computeEngagementStats.js';
+import { computeRoster } from '../../application/stats/computeRoster.js';
 import { logicalDate } from '../../domain/gamification/logicalDate.js';
 import { createStatsRepository } from './prismaStatsRepository.js';
 
@@ -20,6 +21,7 @@ export interface StatsModuleOptions {
 export interface StatsModule {
   computeCoverage(): Promise<CoverageStats>;
   computeEngagement(): Promise<EngagementStats>;
+  computeRoster(): Promise<RosterEntry[]>;
 }
 
 export function createStatsModule(
@@ -33,5 +35,6 @@ export function createStatsModule(
   return {
     computeCoverage: () => computeCoverageStats(repo, rulerCode),
     computeEngagement: () => computeEngagementStats(repo, logicalDate(now(), serverTimezone)),
+    computeRoster: () => computeRoster(repo, now()),
   };
 }

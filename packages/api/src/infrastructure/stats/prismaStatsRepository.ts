@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import type {
   PassageRef,
+  RosterUserRow,
   RulerBook,
   RulerVerseKey,
   StatsRepository,
@@ -96,6 +97,49 @@ export function createStatsRepository(prisma: PrismaClient): StatsRepository {
             completions: g._count.devotionalId,
           },
         ];
+      });
+    },
+
+    async getRosterUsers(): Promise<RosterUserRow[]> {
+      const [users, streaks, completionGroups] = await Promise.all([
+        prisma.user.findMany({
+          where: { role: 'MEMBER' },
+          orderBy: { name: 'asc' },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+            onboardingCompletedAt: true,
+            timezone: true,
+          },
+        }),
+        prisma.streakState.findMany({ select: { userId: true, currentStreak: true } }),
+        prisma.dailyCompletion.groupBy({
+          by: ['userId'],
+          _count: { _all: true },
+          _max: { logicalDate: true },
+        }),
+      ]);
+
+      const streakByUser = new Map(streaks.map((s) => [s.userId, s.currentStreak]));
+      const completionByUser = new Map(
+        completionGroups.map((g) => [g.userId, { total: g._count._all, last: g._max.logicalDate }]),
+      );
+
+      return users.map((user) => {
+        const completions = completionByUser.get(user.id);
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          createdAt: user.createdAt,
+          onboardingCompletedAt: user.onboardingCompletedAt,
+          timezone: user.timezone,
+          currentStreak: streakByUser.get(user.id) ?? 0,
+          lastCompletedDate: completions?.last ?? null,
+          totalCompletions: completions?.total ?? 0,
+        };
       });
     },
   };

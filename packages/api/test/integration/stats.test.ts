@@ -293,3 +293,120 @@ describe('engagement stats (admin)', () => {
     expect(member.statusCode).toBe(403);
   });
 });
+
+describe('roster of people (admin)', () => {
+  let memberCookieValue: string;
+
+  beforeAll(async () => {
+    const passwordHash = await createScryptPasswordHasher().hash('member-supersecret');
+
+    // Mesmo dia lógico armazenado, fusos diferentes → "concluiu hoje?" diverge.
+    const sp = await prisma.user.create({
+      data: {
+        name: 'Pessoa SP',
+        email: 'sp@roster.test',
+        passwordHash,
+        role: 'MEMBER',
+        timezone: 'America/Sao_Paulo',
+        onboardingCompletedAt: new Date('2026-01-01T00:00:00Z'),
+      },
+    });
+    const utc = await prisma.user.create({
+      data: {
+        name: 'Pessoa UTC',
+        email: 'utc@roster.test',
+        passwordHash,
+        role: 'MEMBER',
+        timezone: 'UTC',
+      },
+    });
+    await prisma.user.create({
+      data: {
+        name: 'Pessoa Nova',
+        email: 'nova@roster.test',
+        passwordHash,
+        role: 'MEMBER',
+        timezone: 'America/Sao_Paulo',
+      },
+    });
+
+    const completion = (userId: string, logicalDate: string, key: string) =>
+      prisma.dailyCompletion.create({
+        data: {
+          userId,
+          logicalDate,
+          idempotencyKey: key,
+          completedAt: new Date(`${logicalDate}T12:00:00Z`),
+        },
+      });
+
+    await completion(sp.id, '2026-02-09', 'sp-1');
+    await completion(sp.id, '2026-02-01', 'sp-2');
+    await completion(utc.id, '2026-02-09', 'utc-1');
+    await prisma.streakState.create({
+      data: { userId: sp.id, currentStreak: 4, longestStreak: 8 },
+    });
+
+    const login = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email: 'sp@roster.test', password: 'member-supersecret' },
+    });
+    const cookie = login.cookies.find((c) => c.name === env.COOKIE_NAME);
+    memberCookieValue = `${cookie!.name}=${cookie!.value}`;
+  });
+
+  it('builds per-user signals with completedToday resolved in each user timezone', async () => {
+    const stats = createStatsModule(prisma, {
+      // 02:00Z → ainda 09/02 23:00 em São Paulo, já 10/02 em UTC.
+      now: () => new Date('2026-02-10T02:00:00Z'),
+    });
+    const roster = await stats.computeRoster();
+    const byEmail = new Map(roster.map((entry) => [entry.email, entry]));
+
+    const sp = byEmail.get('sp@roster.test');
+    expect(sp).toMatchObject({
+      name: 'Pessoa SP',
+      onboardingCompleted: true,
+      currentStreak: 4,
+      lastCompletedDate: '2026-02-09',
+      completedToday: true, // hoje em SP = 09/02
+      totalCompletions: 2,
+    });
+
+    const utc = byEmail.get('utc@roster.test');
+    expect(utc).toMatchObject({
+      currentStreak: 0, // sem StreakState
+      lastCompletedDate: '2026-02-09',
+      completedToday: false, // hoje em UTC = 10/02, então 09/02 é ontem
+      totalCompletions: 1,
+    });
+
+    const nova = byEmail.get('nova@roster.test');
+    expect(nova).toMatchObject({
+      onboardingCompleted: false,
+      currentStreak: 0,
+      lastCompletedDate: null,
+      completedToday: false,
+      totalCompletions: 0,
+    });
+  });
+
+  it('does not list the admin (people screen is about members)', async () => {
+    const stats = createStatsModule(prisma, { now: () => new Date('2026-02-10T02:00:00Z') });
+    const roster = await stats.computeRoster();
+    expect(roster.some((entry) => entry.email === ADMIN.email)).toBe(false);
+  });
+
+  it('guards the screen: 401 anonymous, 403 for a member', async () => {
+    const anon = await app.inject({ method: 'GET', url: '/admin/users' });
+    expect(anon.statusCode).toBe(401);
+
+    const member = await app.inject({
+      method: 'GET',
+      url: '/admin/users',
+      headers: { cookie: memberCookieValue },
+    });
+    expect(member.statusCode).toBe(403);
+  });
+});

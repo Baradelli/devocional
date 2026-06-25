@@ -34,6 +34,20 @@ export interface MostCompletedRow {
   completions: number;
 }
 
+/** Linha do roster: usuário (MEMBER) + sinais leves de hábito (ADR-009). */
+export interface RosterUserRow {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+  onboardingCompletedAt: Date | null;
+  timezone: string;
+  currentStreak: number;
+  /** Maior dia lógico concluído (YYYY-MM-DD) ou null. */
+  lastCompletedDate: string | null;
+  totalCompletions: number;
+}
+
 /**
  * Porta de leitura das estatísticas. Cobertura (Grupo A) mede contra a régua
  * (ACF); engajamento (Grupo B) agrega conclusões/streaks — sempre agregado.
@@ -52,4 +66,7 @@ export interface StatsRepository {
   getStreakRows(): Promise<StreakRow[]>;
   /** Devocionais mais concluídos; ignora conclusões sem `devotionalId`. */
   getMostCompletedDevotionals(limit: number): Promise<MostCompletedRow[]>;
+
+  /** Membros (não-admin) com agregados de hábito, ordenados por nome. */
+  getRosterUsers(): Promise<RosterUserRow[]>;
 }

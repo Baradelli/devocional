@@ -57,6 +57,10 @@
   background: var(--surface-hover);
   color: var(--ink);
 }
+.icon-btn--danger:hover {
+  background: var(--danger-tint);
+  border-color: var(--danger);
+}
 .cal__spacer {
   margin-left: auto;
 }
@@ -231,6 +235,50 @@
 .empty p {
   color: var(--muted);
   max-width: 34ch;
+}
+
+/* ---------- Convites ---------- */
+.invite-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: var(--s-4);
+  align-items: end;
+}
+.invite-form__action {
+  padding-bottom: 0.15rem;
+}
+.invite-actions {
+  display: flex;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+.badge--invite-pendente {
+  background: var(--bark-tint);
+  color: var(--bark-ink);
+}
+.badge--invite-pendente .badge__dot {
+  background: var(--bark-ink);
+}
+.badge--invite-usado {
+  background: var(--leaf-tint);
+  color: var(--leaf-ink);
+}
+.badge--invite-usado .badge__dot {
+  background: var(--leaf-ink);
+}
+.badge--invite-expirado {
+  background: var(--warn-tint);
+  color: var(--warn-ink);
+}
+.badge--invite-expirado .badge__dot {
+  background: var(--warn-ink);
+}
+.badge--invite-revogado {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.badge--invite-revogado .badge__dot {
+  background: var(--muted);
 }
 
 /* ---------- Editor ---------- */

@@ -87,7 +87,7 @@ export const identityRoutes: FastifyPluginAsync<IdentityRoutesOptions> = (app, o
         email: request.body.email ?? null,
         expiresInDays: request.body.expiresInDays,
       });
-      return reply.status(201).send(toInvitePublic(invite));
+      return reply.status(201).send(toInvitePublic(invite, env.APP_URL));
     },
   );
 
@@ -96,7 +96,19 @@ export const identityRoutes: FastifyPluginAsync<IdentityRoutesOptions> = (app, o
     { preHandler: requireAdmin, schema: { response: { 200: z.array(inviteSchema) } } },
     async (request) => {
       const invites = await identity.listInvites(request.currentUser!.id);
-      return invites.map(toInvitePublic);
+      return invites.map((invite) => toInvitePublic(invite, env.APP_URL));
+    },
+  );
+
+  r.post(
+    '/admin/invites/:id/revoke',
+    {
+      preHandler: requireAdmin,
+      schema: { params: z.object({ id: z.string() }), response: { 200: inviteSchema } },
+    },
+    async (request) => {
+      const invite = await identity.revokeInvite(request.params.id);
+      return toInvitePublic(invite, env.APP_URL);
     },
   );
 

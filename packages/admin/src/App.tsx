@@ -6,7 +6,9 @@ import { fetchCurrentUser, logout } from './api/auth.js';
 import { AgendaScreen } from './features/AgendaScreen.js';
 import { DashboardScreen } from './features/DashboardScreen.js';
 import { DevotionalEditor } from './features/DevotionalEditor.js';
+import { InvitesScreen } from './features/InvitesScreen.js';
 import { Login } from './features/Login.js';
+import { PeopleScreen } from './features/PeopleScreen.js';
 import { AppShell } from './ui/AppShell.js';
 import { Skeleton } from './ui/Skeleton.js';
 import { ToastProvider } from './ui/Toast.js';
@@ -45,6 +47,8 @@ export function App() {
           <Route path="painel" element={<DashboardScreen />} />
           <Route path="novo" element={<DevotionalEditor />} />
           <Route path="dia/:date" element={<DevotionalEditor />} />
+          <Route path="convites" element={<InvitesScreen />} />
+          <Route path="pessoas" element={<PeopleScreen />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

@@ -9,6 +9,8 @@ const NAV = [
   { to: '/', label: 'Agenda', icon: '🌱', end: true },
   { to: '/painel', label: 'Painel', icon: '📊', end: false },
   { to: '/novo', label: 'Novo devocional', icon: '✏️', end: false },
+  { to: '/convites', label: 'Convites', icon: '✉️', end: false },
+  { to: '/pessoas', label: 'Pessoas', icon: '🌿', end: false },
 ];
 
 export function AppShell({ user, onLogout }: { user: UserPublic; onLogout: () => void }) {

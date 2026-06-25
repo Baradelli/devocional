@@ -1,4 +1,4 @@
-import { coverageStatsSchema, engagementStatsSchema } from '@devocional/shared';
+import { coverageStatsSchema, engagementStatsSchema, rosterSchema } from '@devocional/shared';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 
@@ -23,6 +23,12 @@ export const statsRoutes: FastifyPluginAsync<StatsRoutesOptions> = (app, opts) =
     '/admin/stats/engagement',
     { preHandler: requireAdmin, schema: { response: { 200: engagementStatsSchema } } },
     () => stats.computeEngagement(),
+  );
+
+  r.get(
+    '/admin/users',
+    { preHandler: requireAdmin, schema: { response: { 200: rosterSchema } } },
+    () => stats.computeRoster(),
   );
 
   return Promise.resolve();

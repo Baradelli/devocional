@@ -16,6 +16,7 @@ import {
   registerWithInvite,
   type RegisterWithInviteInput,
 } from '../../application/identity/registerWithInvite.js';
+import { revokeInvite } from '../../application/identity/revokeInvite.js';
 import { createSystemClock } from '../clock.js';
 import { createScryptPasswordHasher } from './passwordHasher.js';
 import { createIdentityRepositories, createPrismaUnitOfWork } from './prismaRepositories.js';
@@ -31,6 +32,7 @@ export interface IdentityModule {
   logout(rawToken: string): Promise<void>;
   authenticate(rawToken: string): Promise<UserRecord | null>;
   createInvite(input: CreateInviteInput): Promise<InviteRecord>;
+  revokeInvite(inviteId: string): Promise<InviteRecord>;
   listInvites(createdById: string): Promise<InviteRecord[]>;
   createAdminUser(input: CreateAdminUserInput): Promise<UserRecord>;
   completeOnboarding(user: UserRecord): Promise<UserRecord>;
@@ -53,6 +55,7 @@ export function createIdentityModule(prisma: PrismaClient): IdentityModule {
     authenticate: (rawToken) =>
       authenticate({ users: repos.users, sessions: repos.sessions, tokens, clock }, rawToken),
     createInvite: (input) => createInvite({ invites: repos.invites, codes, clock }, input),
+    revokeInvite: (inviteId) => revokeInvite({ invites: repos.invites }, inviteId),
     listInvites: (createdById) => repos.invites.listByCreator(createdById),
     createAdminUser: (input) => createAdminUser({ users: repos.users, hasher }, input),
     completeOnboarding: (user) => completeOnboarding({ users: repos.users, clock }, user),

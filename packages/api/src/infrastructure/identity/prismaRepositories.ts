@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 
 import type {
   IdentityRepositories,
+  InviteRecord,
   InviteRepository,
   SessionRepository,
   UnitOfWork,
@@ -24,15 +25,60 @@ function createUserRepository(db: PrismaLike): UserRepository {
   };
 }
 
+// Inclui o relacionamento usedBy (nome+email de quem resgatou) e o achata no
+// formato de InviteRecord. Convite não-usado tem usedBy = null.
+const inviteInclude = { usedBy: { select: { name: true, email: true } } } as const;
+
+type InviteRow = Prisma.InviteGetPayload<{ include: typeof inviteInclude }>;
+
+function toInviteRecord(row: InviteRow): InviteRecord {
+  return {
+    id: row.id,
+    code: row.code,
+    email: row.email,
+    status: row.status,
+    expiresAt: row.expiresAt,
+    createdById: row.createdById,
+    usedById: row.usedById,
+    usedAt: row.usedAt,
+    createdAt: row.createdAt,
+    usedBy: row.usedBy,
+  };
+}
+
 function createInviteRepository(db: PrismaLike): InviteRepository {
   return {
-    findByCode: (code) => db.invite.findUnique({ where: { code } }),
-    create: (input) => db.invite.create({ data: input }),
+    async findById(id) {
+      const row = await db.invite.findUnique({ where: { id }, include: inviteInclude });
+      return row && toInviteRecord(row);
+    },
+    async findByCode(code) {
+      const row = await db.invite.findUnique({ where: { code }, include: inviteInclude });
+      return row && toInviteRecord(row);
+    },
+    async create(input) {
+      return toInviteRecord(await db.invite.create({ data: input, include: inviteInclude }));
+    },
     async markUsed(id, usedById, usedAt) {
       await db.invite.update({ where: { id }, data: { status: 'USED', usedById, usedAt } });
     },
-    listByCreator: (createdById) =>
-      db.invite.findMany({ where: { createdById }, orderBy: { createdAt: 'desc' } }),
+    async revoke(id) {
+      return toInviteRecord(
+        await db.invite.update({
+          where: { id },
+          data: { status: 'REVOKED' },
+          include: inviteInclude,
+        }),
+      );
+    },
+    async listByCreator(createdById) {
+      const rows = await db.invite.findMany({
+        where: { createdById },
+        orderBy: { createdAt: 'desc' },
+        include: inviteInclude,
+      });
+      return rows.map(toInviteRecord);
+    },
   };
 }
 

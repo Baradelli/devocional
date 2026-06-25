@@ -1,4 +1,4 @@
-import { evaluateInvite } from '../../domain/identity/invite.js';
+import { evaluateInvite, inviteAllowsEmail } from '../../domain/identity/invite.js';
 import type { AuthResult } from './authResult.js';
 import { IdentityError } from './errors.js';
 import { addDays, DEFAULT_SESSION_TTL_DAYS, inviteErrorCode } from './internal.js';
@@ -43,6 +43,11 @@ export async function registerWithInvite(
     const evaluation = evaluateInvite(invite, now);
     if (evaluation !== 'USABLE') {
       throw new IdentityError(inviteErrorCode(evaluation));
+    }
+
+    // Convite emitido para um e-mail específico só aceita aquele e-mail.
+    if (!inviteAllowsEmail(invite.email, input.email)) {
+      throw new IdentityError('INVITE_EMAIL_MISMATCH');
     }
 
     if (await users.findByEmail(input.email)) {

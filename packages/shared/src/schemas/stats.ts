@@ -116,3 +116,25 @@ export const engagementStatsSchema = z.object({
   ),
 });
 export type EngagementStats = z.infer<typeof engagementStatsSchema>;
+
+/**
+ * Roster de pessoas (tela de acompanhamento pastoral — ver ADR-009). Nominal,
+ * mas só com SINAIS LEVES por pessoa (streak, último dia, concluiu hoje?, total);
+ * sem histórico devocional-a-devocional. `completedToday` é resolvido no fuso de
+ * cada usuário (autoridade do servidor). Read-only.
+ */
+export const rosterEntrySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  joinedAt: z.string().datetime(),
+  onboardingCompleted: z.boolean(),
+  currentStreak: z.number().int().nonnegative(),
+  lastCompletedDate: z.string().nullable(),
+  completedToday: z.boolean(),
+  totalCompletions: z.number().int().nonnegative(),
+});
+export type RosterEntry = z.infer<typeof rosterEntrySchema>;
+
+export const rosterSchema = z.array(rosterEntrySchema);
+export type Roster = z.infer<typeof rosterSchema>;

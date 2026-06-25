@@ -2,6 +2,7 @@ import { type LoginRequest, loginRequestSchema, type UserPublic } from '@devocio
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 
 import { login } from '../api/auth.js';
 import { ApiError } from '../api/client.js';
@@ -47,6 +48,9 @@ export function Login({ onLoggedIn }: { onLoggedIn: (user: UserPublic) => void }
           {isSubmitting ? 'Entrando…' : 'Entrar'}
         </button>
       </form>
+      <p className="muted center">
+        Tem um convite? <Link to="/register">Criar conta</Link>
+      </p>
     </div>
   );
 }

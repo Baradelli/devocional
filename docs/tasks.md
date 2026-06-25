@@ -121,3 +121,27 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] **Teste primeiro** (integração, Postgres real): use-case `computeEngagementStats` — ativos 7d, taxa de conclusão diária (médias 7d/30d), retenção semana-a-semana, devocional mais concluído (ignora `devotionalId` nulo), streak médio/maior. Tudo agregado; `today` injetado para determinismo.
 - [x] Repo Prisma + rota admin-only `GET /admin/stats/engagement`; guard 401/403 testado.
 - [x] Admin: cards de engajamento no dashboard (ativos, conclusão diária, retenção, streaks, mais concluídos).
+
+## M12 — Gestão de convites, cadastro e pessoas
+> Fecha o fluxo de cadastro fechado por convite (UI faltante) e adiciona a tela de pessoas para acompanhamento pastoral. Decisões nesta milestone: ver `@docs/design.md` ADR-009 (roster nominal com sinais leves, estreita "nunca nominal"), ADR-010 (ciclo de vida do convite: link `registerUrl`, e-mail que trava, revogação, quem resgatou) e ADR-011 (PWA ganha react-router). Termos em `@docs/glossary.md`.
+
+### Fatia 1 — Backend: revogação, e-mail que trava, exposição de dados
+- [x] **Teste primeiro** (domínio): `inviteAllowsEmail` (trava no e-mail quando o convite tem e-mail) e `canRevokeInvite` (só `PENDING`); `registerWithInvite` lança `INVITE_EMAIL_MISMATCH` no mismatch.
+- [x] `InviteRepository.findById/revoke` + use-case `revokeInvite` (só `PENDING` → `REVOKED`; erro se `USED`/`REVOKED`). Integração (Postgres real).
+- [x] Default de expiração do convite passa a **1 dia** (`createInviteRequestSchema`); mantém ajustável (1–365).
+- [x] `shared`: `inviteSchema` ganha `registerUrl` e `usedBy` (`{ name, email } | null`); serializer monta `registerUrl` de `APP_URL` e popula `usedBy` via join `usedById`.
+- [x] Rota admin-only `POST /admin/invites/:id/revoke`; guard 401/403 testado.
+
+### Fatia 2 — Admin: tela de convites
+- [x] Tela "Convites": formulário de geração (e-mail opcional, expira em N dias com default 1) + lista com status (Pendente/Expirado/Usado/Revogado), `usedBy` nos usados, botões "copiar link"/"copiar código" e "cancelar" (só em pendentes).
+- [x] Item de navegação no admin; paleta/tipografia unificadas.
+
+### Fatia 3 — PWA: roteador + cadastro
+- [x] Instalar react-router no PWA; rotas públicas `/login` e `/register`, app autenticado no restante (`AuthedApp`); gate de auth no router (ADR-011).
+- [x] Tela `/register`: lê `?code=` (pré-preenche), captura fuso via `Intl.DateTimeFormat().resolvedOptions().timeZone`, RHF + `registerRequestSchema`, mensagens PT-BR mapeadas na apresentação. Link "tenho um convite" no `/login`.
+
+### Fatia 4 — Admin: tela de pessoas (roster)
+- [x] `shared`: `rosterEntrySchema`/`rosterSchema` (por usuário: nome, email, entrou em, onboarding, streak atual, último dia concluído, concluiu hoje?, total).
+- [x] **Teste primeiro** (integração, Postgres real): use-case `computeRoster`; "concluiu hoje?"/"último dia" no **fuso de cada usuário** (`logicalDate`); `now` injetado. Inclui só MEMBER (não lista o admin).
+- [x] Repo Prisma (`getRosterUsers`) + rota admin-only `GET /admin/users`; guard 401/403 testado. **Read-only**.
+- [x] Admin: tabela de pessoas (`PeopleScreen`, item de navegação; paleta/tipografia unificadas).
