@@ -21,8 +21,8 @@ export function Field({ label, htmlFor, hint, error, required, children }: Field
           </span>
         )}
       </label>
-      {children}
       {hint && !error && <span className="field__hint">{hint}</span>}
+      {children}
       {error && (
         <span className="field__error" role="alert">
           {error}
