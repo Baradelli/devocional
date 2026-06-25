@@ -2,21 +2,27 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#3e6b47" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
     <title>Devocional</title>
     <script>
-      // Anti-flash: aplica o tema salvo antes do React montar.
+      // Anti-flash: aplica o tema salvo antes do React montar. Só claro/escuro;
+      // o padrão (claro) é aplicado sempre, para não vazar tema antigo.
       (function () {
+        var t = 'claro';
         try {
-          var t = localStorage.getItem('devo-theme');
-          if (t && ['aconchego', 'sereno', 'claro', 'escuro'].indexOf(t) >= 0) {
-            document.documentElement.setAttribute('data-theme', t);
+          var stored = localStorage.getItem('devo-theme');
+          if (stored === 'claro' || stored === 'escuro') {
+            t = stored;
           }
         } catch (e) {}
+        document.documentElement.setAttribute('data-theme', t);
       })();
     </script>
   </head>

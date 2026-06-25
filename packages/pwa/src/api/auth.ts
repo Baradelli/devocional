@@ -1,4 +1,9 @@
-import { type LoginRequest, type UserPublic, userPublicSchema } from '@devocional/shared';
+import {
+  type LoginRequest,
+  type RegisterRequest,
+  type UserPublic,
+  userPublicSchema,
+} from '@devocional/shared';
 
 import { API_BASE, apiRequest } from './client.js';
 
@@ -6,6 +11,13 @@ export function login(credentials: LoginRequest): Promise<UserPublic> {
   return apiRequest('/auth/login', userPublicSchema, {
     method: 'POST',
     body: JSON.stringify(credentials),
+  });
+}
+
+export function register(input: RegisterRequest): Promise<UserPublic> {
+  return apiRequest('/auth/register', userPublicSchema, {
+    method: 'POST',
+    body: JSON.stringify(input),
   });
 }
 

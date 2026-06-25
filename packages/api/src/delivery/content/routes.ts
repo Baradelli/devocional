@@ -6,6 +6,7 @@ import {
   devotionalViewSchema,
   mediaTypeSchema,
   mediaViewSchema,
+  updateDevotionalSchema,
 } from '@devocional/shared';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
@@ -58,6 +59,19 @@ export const contentRoutes: FastifyPluginAsync<ContentRoutesOptions> = (app, opt
       schema: { params: dateParamsSchema, response: { 200: devotionalViewSchema } },
     },
     (request) => content.getDevotionalForDate(request.params.date),
+  );
+
+  r.put(
+    '/admin/devotionals/:date',
+    {
+      preHandler: requireAdmin,
+      schema: {
+        params: dateParamsSchema,
+        body: updateDevotionalSchema,
+        response: { 200: devotionalSummarySchema },
+      },
+    },
+    (request) => content.updateDevotional(request.params.date, request.body),
   );
 
   r.post(

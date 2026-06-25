@@ -1,0 +1,129 @@
+/*
+ * Tokens do painel admin. A paleta e a tipografia são as MESMAS da PWA
+ * (fonte de verdade: packages/pwa — temas "claro" e "escuro"); aqui os nomes
+ * semânticos do admin (bg/surface/ink/leaf/bark) recebem os valores da PWA
+ * (paper/surface/ink/moss/clay). Os dois apps só têm light (claro) e dark
+ * (escuro). Contraste de texto verificado para AA sobre o fundo.
+ */
+:root {
+  /* Superfícies — três camadas: página, conteúdo, painel/sidebar */
+  --bg: #fbfbf9; /* paper (claro) */
+  --surface: #ffffff;
+  --surface-2: #f0f1ed; /* sidebar/toolbar/recuos */
+  --surface-inset: #ffffff; /* campos de formulário */
+  --surface-hover: #f4f5f1;
+
+  /* Tinta — rampa derivada do ink/ink-soft da PWA, com AA verificado */
+  --ink: #20231f; /* ink (claro) */
+  --ink-2: #56594f; /* secundário ~6.5:1 */
+  --muted: #6b6e64; /* terciário ~4.7:1 (legendas, meta) */
+
+  /* Marca — musgo é a primária; clay (terracota) é o acento terroso */
+  --leaf: #3c6b45; /* moss; texto branco ~5:1 */
+  --leaf-strong: #2c4e34; /* moss-deep — hover/active */
+  --leaf-ink: #2c4e34; /* musgo como texto sobre claro ~7:1 */
+  --leaf-tint: #e9f1e9; /* moss-tint — chip/sucesso */
+  --bark: #b26a45; /* clay — acento terroso */
+  --bark-ink: #985834; /* clay escuro como texto pequeno ~5:1 */
+  --bark-tint: #f2e7dd;
+
+  /* Semântica de status (funcional — a PWA não define) */
+  --danger: #a3431f; /* erro ~5.5:1 */
+  --danger-tint: #f6e6df;
+  --warn-ink: #8a5a12; /* "pendente" (ochre) */
+  --warn-tint: #f3e8d2;
+
+  /* Toast (depende do tema) */
+  --toast-bg: #20231f;
+  --toast-fg: #ffffff;
+
+  /* Estrutura */
+  --border: #e6e7e1; /* line (claro) */
+  --border-strong: #d9dad2;
+  --ring: 0 0 0 3px rgba(60, 107, 69, 0.32); /* moss */
+
+  /* Tipografia — mesmas fontes da PWA (Fraunces display + Mulish body) */
+  --font: 'Mulish Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+  --text-xs: 0.78rem;
+  --text-sm: 0.875rem;
+  --text-base: 0.95rem;
+  --text-md: 1.05rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.6rem;
+  --text-2xl: 2rem;
+
+  /* Espaçamento */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-8: 3rem;
+
+  /* Raio */
+  --r-sm: 8px;
+  --r-md: 11px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-pill: 999px;
+
+  /* Sombra (quente, à base de ink — espelha a PWA) */
+  --shadow-sm: 0 1px 2px rgba(43, 41, 34, 0.05), 0 1px 1px rgba(43, 41, 34, 0.04);
+  --shadow-md: 0 4px 16px rgba(43, 41, 34, 0.08), 0 1px 3px rgba(43, 41, 34, 0.05);
+
+  /* z-index semântico */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-toast: 500;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 130ms;
+  --dur: 190ms;
+
+  color-scheme: light;
+}
+
+/*
+ * Tema escuro — paleta "escuro" da PWA (no escuro o musgo CLAREIA; ver o
+ * override de texto sobre musgo em ui.css). Contraste AA verificado.
+ */
+:root[data-theme='dark'] {
+  --bg: #15181b;
+  --surface: #1e2329;
+  --surface-2: #262c30;
+  --surface-inset: #1b2025;
+  --surface-hover: #2c333a;
+
+  --ink: #ece8dc;
+  --ink-2: #b6bbb2;
+  --muted: #9aa09a;
+
+  --leaf: #6fa06a; /* moss clareia no escuro */
+  --leaf-strong: #84b27d; /* moss-deep — hover clareia */
+  --leaf-ink: #84b27d;
+  --leaf-tint: #233029;
+  --bark: #cd8a5e; /* clay (escuro) */
+  --bark-ink: #dca884;
+  --bark-tint: #2f2820;
+
+  --danger: #e09377;
+  --danger-tint: #382019;
+  --warn-ink: #d6a24e;
+  --warn-tint: #34291a;
+
+  --toast-bg: #262c30;
+  --toast-fg: var(--ink);
+
+  --border: #2f353a; /* line (escuro) */
+  --border-strong: #3c434a;
+  --ring: 0 0 0 3px rgba(111, 160, 106, 0.4);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.42), 0 1px 4px rgba(0, 0, 0, 0.3);
+
+  color-scheme: dark;
+}

@@ -238,6 +238,7 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
             className="topbar__icon"
             onClick={onOpenSettings}
             aria-label="Ajustes"
+            data-onboard="today-settings"
           >
             <SettingsIcon />
           </button>
@@ -253,13 +254,17 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
               <GardenIcon />
               Seu jardim
             </button>
-            <button type="button" className="home__nav-btn" onClick={onOpenLibrary}>
+            <button
+              type="button"
+              className="home__nav-btn"
+              onClick={onOpenLibrary}
+              data-onboard="today-library"
+            >
               <PencilIcon />
               Anotações
             </button>
           </nav>
-
-          <ol className="journey" ref={journeyRef}>
+          <ol className="journey" ref={journeyRef} data-onboard="today-journey">
             {steps.map((step) => {
               const def = stationDefs[step];
               const isDone = done.has(step);
@@ -314,6 +319,7 @@ export function Today({ onOpenGarden, onOpenLibrary, onOpenSettings }: TodayProp
                   className="btn btn--block"
                   onClick={finish}
                   disabled={!allDone}
+                  data-onboard="today-finish"
                 >
                   Concluir o dia
                 </button>

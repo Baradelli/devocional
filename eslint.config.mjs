@@ -17,10 +17,13 @@ export default tseslint.config(
   {
     ignores: [
       '**/dist/',
+      '**/dev-dist/',
       '**/build/',
       '**/coverage/',
       '**/node_modules/',
+      '**/.vite/',
       '**/*.d.ts',
+      'prototypes/',
       'packages/api/src/generated/',
     ],
   },
@@ -60,7 +63,11 @@ export default tseslint.config(
 
   // Frontends (browser) — globals de browser
   {
-    files: ['packages/pwa/**/*.{ts,tsx}', 'packages/admin/**/*.{ts,tsx}'],
+    files: [
+      'packages/pwa/**/*.{ts,tsx}',
+      'packages/admin/**/*.{ts,tsx}',
+      'packages/ui/**/*.{ts,tsx}',
+    ],
     languageOptions: { globals: { ...globals.browser } },
   },
 

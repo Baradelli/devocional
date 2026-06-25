@@ -2,6 +2,7 @@ import type {
   CreateDevotionalRequest,
   DevotionalSummary,
   DevotionalView,
+  UpdateDevotionalRequest,
 } from '@devocional/shared';
 import type { PrismaClient } from '@prisma/client';
 
@@ -16,6 +17,7 @@ import {
 } from '../../application/content/media.js';
 import type { MediaRecord, PassageResolver } from '../../application/content/ports.js';
 import { publishDueDevotionals } from '../../application/content/publishDueDevotionals.js';
+import { updateDevotional } from '../../application/content/updateDevotional.js';
 import { logicalDate } from '../../domain/gamification/logicalDate.js';
 import type { BibleModule } from '../bible/bibleModule.js';
 import { createSystemClock } from '../clock.js';
@@ -30,6 +32,7 @@ export interface ContentModuleConfig {
 
 export interface ContentModule {
   createDevotional(input: CreateDevotionalRequest): Promise<void>;
+  updateDevotional(date: string, input: UpdateDevotionalRequest): Promise<DevotionalSummary>;
   getDevotionalForDate(date: string): Promise<DevotionalView>;
   /** Devocional publicado do dia lógico do usuário (tela "Hoje" do fiel). */
   getTodayDevotional(timezone: string): Promise<DevotionalView>;
@@ -63,6 +66,7 @@ export function createContentModule(
 
   return {
     createDevotional: (input) => createDevotional(repo, input),
+    updateDevotional: (date, input) => updateDevotional(repo, date, input),
     getDevotionalForDate: (date) => getDevotionalForDate({ repo, resolvePassage }, date),
     getTodayDevotional: async (timezone) => {
       const date = logicalDate(clock.now(), timezone);

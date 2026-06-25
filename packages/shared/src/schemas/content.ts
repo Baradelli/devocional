@@ -46,6 +46,13 @@ export const createDevotionalSchema = z.object({
 });
 export type CreateDevotionalRequest = z.infer<typeof createDevotionalSchema>;
 
+/**
+ * Edição de um devocional existente. A `date` identifica o registro (vem na
+ * URL) e é imutável; o corpo carrega só o conteúdo, que substitui os blocos.
+ */
+export const updateDevotionalSchema = createDevotionalSchema.omit({ date: true });
+export type UpdateDevotionalRequest = z.infer<typeof updateDevotionalSchema>;
+
 // --- Visão montada (admin preview e, no M5, a tela do fiel) ---
 
 const baseBlock = { order: z.number().int().nonnegative() };

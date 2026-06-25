@@ -85,6 +85,63 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Logs estruturados; alertas nos jobs críticos (publicação 00h, notificações) e na sessão do WhatsApp.
 - [x] Exclusão de conta + dados (LGPD).
 
-## v2 (depois)
-- Dashboard analítico do admin (cobertura da Bíblia, passagens mais repetidas, rankings, uso) sobre os dados já coletados.
-- Migrar para Node 26 LTS (out/2026) e adotar a Temporal API no cálculo de dia lógico.
+## M11 — Admin moderno: Markdown, dashboards e restyle
+> Decisões nesta milestone vieram de uma sessão de design (grilling). Resumo das regras abaixo.
+>
+> **Markdown**: CommonMark + GFM completo via `react-markdown` + `remark-gfm`. HTML cru DESLIGADO (sem `rehype-raw`). Imagem inline BLOQUEADA (mídia só por upload). Links abrem em nova aba (`rel="noopener noreferrer"`). Componente `<Markdown>` no pacote novo `packages/ui` (React compartilhado pwa↔admin) — NÃO em `shared` (só Zod). "Stories" (um por tela) só na passagem bíblica; devocional é uma tela com scroll.
+>
+> **Cobertura (Grupo A)**: régua = contagem real de versículos da tradução **ACF** no banco. Dedup por (livro, capítulo, versículo), ignora tradução. Período: tudo.
+>
+> **Engajamento (Grupo B)**: tudo agregado, nunca nominal. Ativo = concluiu nos últimos 7 dias. Taxa de conclusão diária = conclusões ÷ todos os usuários cadastrados, com médias móveis de 7 e 30 dias. Retenção = semana-a-semana (concluiu esta semana e a passada). "Devocional mais concluído" via `devotionalId`; conclusões sem id são ignoradas.
+
+### Fatia 0 — `packages/ui` + Markdown
+- [x] Criar pacote `packages/ui` (React + TS strict) no workspace; deps `react-markdown` + `remark-gfm`.
+- [x] **Teste primeiro**: `<Markdown>` renderiza títulos, listas (incl. numeradas), tabelas GFM, citações, código, `---`, negrito/itálico; **não** renderiza imagem inline; links recebem `target="_blank"` + `rel="noopener noreferrer"`; sem HTML cru.
+- [x] Implementar `<Markdown>` (CommonMark + GFM, img off, links seguros).
+- [x] PWA: trocar o renderizador artesanal pelo de `packages/ui` no devocional; aplicar render MD na `PrayerScreen`.
+
+### Fatia L — Limpeza de lint (à parte)
+- [x] Adicionar artefatos gerados/descartáveis ao `ignores` do ESLint (`**/.vite/`, `**/dev-dist/`, `prototypes/`) — `eslint .` voltou a passar limpo (de ~2010 erros para 0).
+
+### Fatia 1 — Restyle admin + preview MD
+- [x] Editor: preview lado-a-lado (fonte → render) nos campos Devocional e Oração, com tipografia de leitura nos tokens existentes.
+- [x] Unificar visual com a PWA: admin adota a paleta `claro`/`escuro` da PWA (musgo + clay sobre papel) e a tipografia (Fraunces display + Mulish body), mantendo a densidade desktop.
+- [x] Reduzir os dois apps a apenas light (`claro`, padrão) e dark (`escuro`); PWA perde `aconchego`/`sereno`.
+
+### Fatia 2 — Dashboard cobertura (Grupo A)
+- [x] `shared`: `coverageStatsSchema` (Zod) da resposta.
+- [x] Domínio puro `canon` (testamento + seção por bookReferenceId) com testes.
+- [x] **Teste primeiro** (integração, Postgres real): use-case `computeCoverageStats` — % coberta (vs versículos ACF), heatmap livro×capítulo, balanço AT×NT, distribuição por seção, top 5 livros/referências, livros nunca usados. Dedup por (livro, capítulo, versículo) e range expandido.
+- [x] Repo Prisma + rota admin-only `GET /admin/stats/coverage`; guard 401/403 testado.
+- [x] Admin: tela de dashboard de cobertura + heatmap (paleta/tipografia unificadas).
+
+### Fatia 3 — Dashboard engajamento (Grupo B)
+- [x] `shared`: `engagementStatsSchema` (Zod) da resposta.
+- [x] Domínio puro `dateWindow` (addDays + lastNDates) com testes.
+- [x] **Teste primeiro** (integração, Postgres real): use-case `computeEngagementStats` — ativos 7d, taxa de conclusão diária (médias 7d/30d), retenção semana-a-semana, devocional mais concluído (ignora `devotionalId` nulo), streak médio/maior. Tudo agregado; `today` injetado para determinismo.
+- [x] Repo Prisma + rota admin-only `GET /admin/stats/engagement`; guard 401/403 testado.
+- [x] Admin: cards de engajamento no dashboard (ativos, conclusão diária, retenção, streaks, mais concluídos).
+
+## M12 — Gestão de convites, cadastro e pessoas
+> Fecha o fluxo de cadastro fechado por convite (UI faltante) e adiciona a tela de pessoas para acompanhamento pastoral. Decisões nesta milestone: ver `@docs/design.md` ADR-009 (roster nominal com sinais leves, estreita "nunca nominal"), ADR-010 (ciclo de vida do convite: link `registerUrl`, e-mail que trava, revogação, quem resgatou) e ADR-011 (PWA ganha react-router). Termos em `@docs/glossary.md`.
+
+### Fatia 1 — Backend: revogação, e-mail que trava, exposição de dados
+- [x] **Teste primeiro** (domínio): `inviteAllowsEmail` (trava no e-mail quando o convite tem e-mail) e `canRevokeInvite` (só `PENDING`); `registerWithInvite` lança `INVITE_EMAIL_MISMATCH` no mismatch.
+- [x] `InviteRepository.findById/revoke` + use-case `revokeInvite` (só `PENDING` → `REVOKED`; erro se `USED`/`REVOKED`). Integração (Postgres real).
+- [x] Default de expiração do convite passa a **1 dia** (`createInviteRequestSchema`); mantém ajustável (1–365).
+- [x] `shared`: `inviteSchema` ganha `registerUrl` e `usedBy` (`{ name, email } | null`); serializer monta `registerUrl` de `APP_URL` e popula `usedBy` via join `usedById`.
+- [x] Rota admin-only `POST /admin/invites/:id/revoke`; guard 401/403 testado.
+
+### Fatia 2 — Admin: tela de convites
+- [x] Tela "Convites": formulário de geração (e-mail opcional, expira em N dias com default 1) + lista com status (Pendente/Expirado/Usado/Revogado), `usedBy` nos usados, botões "copiar link"/"copiar código" e "cancelar" (só em pendentes).
+- [x] Item de navegação no admin; paleta/tipografia unificadas.
+
+### Fatia 3 — PWA: roteador + cadastro
+- [x] Instalar react-router no PWA; rotas públicas `/login` e `/register`, app autenticado no restante (`AuthedApp`); gate de auth no router (ADR-011).
+- [x] Tela `/register`: lê `?code=` (pré-preenche), captura fuso via `Intl.DateTimeFormat().resolvedOptions().timeZone`, RHF + `registerRequestSchema`, mensagens PT-BR mapeadas na apresentação. Link "tenho um convite" no `/login`.
+
+### Fatia 4 — Admin: tela de pessoas (roster)
+- [x] `shared`: `rosterEntrySchema`/`rosterSchema` (por usuário: nome, email, entrou em, onboarding, streak atual, último dia concluído, concluiu hoje?, total).
+- [x] **Teste primeiro** (integração, Postgres real): use-case `computeRoster`; "concluiu hoje?"/"último dia" no **fuso de cada usuário** (`logicalDate`); `now` injetado. Inclui só MEMBER (não lista o admin).
+- [x] Repo Prisma (`getRosterUsers`) + rota admin-only `GET /admin/users`; guard 401/403 testado. **Read-only**.
+- [x] Admin: tabela de pessoas (`PeopleScreen`, item de navegação; paleta/tipografia unificadas).

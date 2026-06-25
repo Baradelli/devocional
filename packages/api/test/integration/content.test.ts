@@ -180,6 +180,104 @@ describe('content authoring', () => {
     expect(body.blocks[4]?.actions).toHaveLength(3);
   });
 
+  it('edits an existing devotional, replacing theme and blocks', async () => {
+    await app.inject({
+      method: 'POST',
+      url: '/admin/devotionals',
+      headers: { cookie },
+      payload: devotionalBody('2026-07-01'),
+    });
+
+    const edited = {
+      theme: 'Esperança',
+      quote: { text: 'Texto novo da frase.' },
+      passage: { reference: johnReference(translationId) },
+      devotional: { text: 'Devocional reescrito.' },
+      prayer: { text: 'Oração reescrita.' },
+      reflection: {
+        questions: ['Q1 nova', 'Q2 nova', 'Q3 nova'],
+        actions: ['A1 nova', 'A2 nova', 'A3 nova'],
+      },
+    };
+
+    const update = await app.inject({
+      method: 'PUT',
+      url: '/admin/devotionals/2026-07-01',
+      headers: { cookie },
+      payload: edited,
+    });
+    expect(update.statusCode).toBe(200);
+    expect(update.json()).toMatchObject({ date: '2026-07-01', theme: 'Esperança' });
+
+    const view = await app.inject({
+      method: 'GET',
+      url: '/admin/devotionals/2026-07-01',
+      headers: { cookie },
+    });
+    const body = view.json<{
+      theme: string | null;
+      blocks: { type: string; text?: string; questions?: string[] }[];
+    }>();
+    expect(body.theme).toBe('Esperança');
+    expect(body.blocks.map((b) => b.type)).toEqual([
+      'QUOTE',
+      'PASSAGE',
+      'DEVOTIONAL',
+      'PRAYER',
+      'REFLECTION',
+    ]);
+    expect(body.blocks[0]?.text).toBe('Texto novo da frase.');
+    expect(body.blocks[2]?.text).toBe('Devocional reescrito.');
+    expect(body.blocks[4]?.questions).toEqual(['Q1 nova', 'Q2 nova', 'Q3 nova']);
+  });
+
+  it('keeps publishedAt unchanged when editing a published devotional', async () => {
+    await app.inject({
+      method: 'POST',
+      url: '/admin/devotionals',
+      headers: { cookie },
+      payload: devotionalBody('2019-01-01'),
+    });
+    await app.inject({ method: 'POST', url: '/admin/devotionals/publish', headers: { cookie } });
+    const before = await prisma.devotional.findUnique({ where: { date: '2019-01-01' } });
+    expect(before?.publishedAt).not.toBeNull();
+
+    const update = await app.inject({
+      method: 'PUT',
+      url: '/admin/devotionals/2019-01-01',
+      headers: { cookie },
+      payload: {
+        theme: 'Já publicado',
+        quote: { text: 'frase' },
+        passage: { reference: johnReference(translationId) },
+        devotional: { text: 'devocional' },
+        prayer: { text: 'oração' },
+        reflection: { questions: ['a', 'b', 'c'], actions: ['d', 'e', 'f'] },
+      },
+    });
+    expect(update.statusCode).toBe(200);
+
+    const after = await prisma.devotional.findUnique({ where: { date: '2019-01-01' } });
+    expect(after?.publishedAt?.toISOString()).toBe(before?.publishedAt?.toISOString());
+  });
+
+  it('404s when editing a date that has no devotional', async () => {
+    const update = await app.inject({
+      method: 'PUT',
+      url: '/admin/devotionals/2031-03-03',
+      headers: { cookie },
+      payload: {
+        quote: { text: 'frase' },
+        passage: { reference: johnReference(translationId) },
+        devotional: { text: 'devocional' },
+        prayer: { text: 'oração' },
+        reflection: { questions: ['a', 'b', 'c'], actions: ['d', 'e', 'f'] },
+      },
+    });
+    expect(update.statusCode).toBe(404);
+    expect(update.json()).toMatchObject({ error: 'DEVOTIONAL_NOT_FOUND' });
+  });
+
   it('refuses a duplicate date with 409', async () => {
     const response = await app.inject({
       method: 'POST',

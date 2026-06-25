@@ -52,7 +52,7 @@ export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 
 export const createInviteRequestSchema = z.object({
   email: emailSchema.optional(),
-  expiresInDays: z.number().int().positive().max(365).default(14),
+  expiresInDays: z.number().int().positive().max(365).default(1),
 });
 export type CreateInviteRequest = z.infer<typeof createInviteRequestSchema>;
 
@@ -67,6 +67,12 @@ export const userPublicSchema = z.object({
 });
 export type UserPublic = z.infer<typeof userPublicSchema>;
 
+export const inviteRedeemerSchema = z.object({
+  name: z.string(),
+  email: z.string(),
+});
+export type InviteRedeemer = z.infer<typeof inviteRedeemerSchema>;
+
 export const inviteSchema = z.object({
   id: z.string(),
   code: z.string(),
@@ -75,5 +81,9 @@ export const inviteSchema = z.object({
   expiresAt: z.string().datetime(),
   createdAt: z.string().datetime(),
   usedAt: z.string().datetime().nullable(),
+  /** Link de cadastro pronto (montado pela API a partir de APP_URL). */
+  registerUrl: z.string().url(),
+  /** Quem resgatou o convite; só presente em convites USED. */
+  usedBy: inviteRedeemerSchema.nullable(),
 });
 export type Invite = z.infer<typeof inviteSchema>;

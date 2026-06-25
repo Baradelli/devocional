@@ -5,10 +5,13 @@ import {
   type PassageReference,
   type Translation,
 } from '@devocional/shared';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { getPassage, listBooks, listChapters, listTranslations } from '../api/bible.js';
 import { ApiError } from '../api/client.js';
+import { Banner } from '../ui/Banner.js';
+import { Input, Select } from '../ui/controls.js';
+import { Field } from '../ui/Field.js';
 
 const TESTAMENT_LABELS: Record<number, string> = {
   1: 'Antigo Testamento',
@@ -22,28 +25,41 @@ function describeError(error: unknown): string {
 /** Seletor encadeado tradução → livro → capítulo → range; emite a referência. */
 export function PassagePicker({
   onChange,
+  initial,
 }: {
   onChange: (reference: PassageReference | null) => void;
+  initial?: PassageReference | null;
 }) {
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [translationId, setTranslationId] = useState('');
-  const [bookRef, setBookRef] = useState('');
-  const [chapter, setChapter] = useState('');
-  const [verseStart, setVerseStart] = useState('1');
-  const [verseEnd, setVerseEnd] = useState('1');
+  const [translationId, setTranslationId] = useState(initial?.translationId ?? '');
+  const [bookRef, setBookRef] = useState(initial ? String(initial.bookReferenceId) : '');
+  const [chapter, setChapter] = useState(initial ? String(initial.chapter) : '');
+  const [verseStart, setVerseStart] = useState(initial ? String(initial.verseStart) : '1');
+  const [verseEnd, setVerseEnd] = useState(initial ? String(initial.verseEnd) : '1');
   const [preview, setPreview] = useState<PassagePreview | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Na edição, os valores iniciais não devem ser zerados pelos efeitos de cascata.
+  const hydratingTranslation = useRef(Boolean(initial));
+  const hydratingBook = useRef(Boolean(initial));
 
   useEffect(() => {
     void listTranslations().then(setTranslations, (e: unknown) => setError(describeError(e)));
   }, []);
 
   useEffect(() => {
-    setBookRef('');
+    if (hydratingTranslation.current) {
+      hydratingTranslation.current = false;
+    } else {
+      setBookRef('');
+      setChapter('');
+    }
+  }, [translationId]);
+
+  useEffect(() => {
     setBooks([]);
-    setChapters([]);
     if (!translationId) {
       return;
     }
@@ -51,7 +67,14 @@ export function PassagePicker({
   }, [translationId]);
 
   useEffect(() => {
-    setChapter('');
+    if (hydratingBook.current) {
+      hydratingBook.current = false;
+    } else {
+      setChapter('');
+    }
+  }, [bookRef]);
+
+  useEffect(() => {
     const book = books.find((b) => String(b.bookReferenceId) === bookRef);
     if (!book) {
       setChapters([]);
@@ -88,21 +111,19 @@ export function PassagePicker({
 
   return (
     <div className="passage-picker">
-      <div className="selector">
-        <label>
-          Tradução
-          <select value={translationId} onChange={(e) => setTranslationId(e.target.value)}>
+      <div className="editor__row">
+        <Field label="Tradução">
+          <Select value={translationId} onChange={(e) => setTranslationId(e.target.value)}>
             <option value="">Escolha…</option>
             {translations.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.code} — {t.name}
               </option>
             ))}
-          </select>
-        </label>
-        <label>
-          Livro
-          <select
+          </Select>
+        </Field>
+        <Field label="Livro">
+          <Select
             value={bookRef}
             onChange={(e) => setBookRef(e.target.value)}
             disabled={books.length === 0}
@@ -117,11 +138,12 @@ export function PassagePicker({
                 ))}
               </optgroup>
             ))}
-          </select>
-        </label>
-        <label>
-          Capítulo
-          <select
+          </Select>
+        </Field>
+      </div>
+      <div className="editor__row">
+        <Field label="Capítulo">
+          <Select
             value={chapter}
             onChange={(e) => setChapter(e.target.value)}
             disabled={chapters.length === 0}
@@ -132,32 +154,30 @@ export function PassagePicker({
                 {c.chapter} ({c.verseCount} v.)
               </option>
             ))}
-          </select>
-        </label>
-        <div className="range">
-          <label>
-            Vers. inicial
-            <input
+          </Select>
+        </Field>
+        <div className="editor__row">
+          <Field label="Vers. inicial">
+            <Input
               type="number"
               min={1}
               value={verseStart}
               onChange={(e) => setVerseStart(e.target.value)}
             />
-          </label>
-          <label>
-            Vers. final
-            <input
+          </Field>
+          <Field label="Vers. final">
+            <Input
               type="number"
               min={1}
               value={verseEnd}
               onChange={(e) => setVerseEnd(e.target.value)}
             />
-          </label>
+          </Field>
         </div>
       </div>
-      {error && <p className="form-error">{error}</p>}
+      {error && <Banner kind="error">{error}</Banner>}
       {preview && (
-        <p className="preview">
+        <p className="passage-preview">
           <strong>{preview.label}</strong> — {preview.text}
         </p>
       )}

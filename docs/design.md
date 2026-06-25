@@ -267,6 +267,31 @@ Regras: streak **zera** ao pular um dia → `treeStage` volta a Semente, mas **A
 - **Decisão:** **A.** Separar a **UI** (frontend admin desktop dedicado), manter **um backend** monolítico modular com rotas `/admin` por papel.
 - **Consequências:** separação de UX sem imposto operacional de dois serviços. As fronteiras de módulo limpas deixam extrair o admin para serviço próprio barato *se* algum dia houver requisito real — que hoje não existe.
 
+### ADR-009: Roster nominal com sinais leves (estreita o "nunca nominal" do M11)
+- **Contexto:** o M11 fixou que **engajamento é sempre agregado, nunca nominal** (proteção de privacidade do fiel no dashboard). Surge a necessidade do admin de **acompanhamento pastoral**: ver quem está cadastrado e, de cada pessoa, se está mantendo o hábito.
+- **Opções:** **A)** manter "nunca nominal" intacto — a tela de usuários é só roster (nome, email, papel, entrada, onboarding), sem nenhum sinal de conclusão por pessoa. **B)** roster **+ sinais leves** por pessoa (streak atual, último dia concluído, concluiu hoje?, total de conclusões), **sem** histórico devocional-a-devocional. **C)** nominal completo — drill-down de quais devocionais cada um concluiu, datas, etc.
+- **Fator decisivo:** o admin é o **pastor/autor único** (não há terceiros vendo o dado) e o objetivo é cuidado pastoral, não vigilância. C exporia detalhe demais (quais textos, quando) sem ganho pastoral proporcional; A não atende ao pedido.
+- **Decisão:** **B.** A tela de usuários é **read-only**: roster + sinais leves agregáveis por pessoa. **Nenhum** histórico por devocional, nenhuma anotação. A regra do M11 segue valendo para o **dashboard de engajamento** (Grupo B continua 100% agregado); o que muda é a existência de uma **tela de pessoas** com sinais de hábito. "Concluiu hoje?" e "último dia" são calculados no **fuso do usuário** (autoridade do servidor, ADR-001).
+- **Consequências:** o dado coletado é o mesmo que já existe (conclusões/streak) — nenhuma coleta nova. Exclusão LGPD continua self-service no PWA (a tela admin não age sobre o usuário). Se um dia houver mais de um admin, esta decisão precisa ser revisitada (o pressuposto "admin = pastor único" deixa de valer).
+
+### ADR-010: Ciclo de vida do convite — link, e-mail que trava, revogação
+- **Contexto:** o backend já cria e lista convites e já modela `PENDING/USED/REVOKED` + `usedById`, mas **não há UI** para o admin gerar/gerenciar, **não há revogação**, e o código é compartilhado fora da app. Faltam decisões de produto para fechar o fluxo.
+- **Opções/decisões:**
+  - **Entrega:** a **API** monta `${APP_URL}/register?code=…` e devolve em `registerUrl` no payload do convite (fonte única da origem do PWA; o admin só copia). Alternativa rejeitada: admin concatena de uma env própria (duplicaria a config da origem em dois apps).
+  - **E-mail:** opcional no convite; quando **preenchido, trava** o cadastro nesse e-mail (o link já vai para a pessoa certa); vazio = convite aberto a qualquer e-mail. Exige regra nova em `registerWithInvite` (erro de domínio quando o e-mail não bate) com teste primeiro.
+  - **Expiração:** default **1 dia**, ajustável pelo admin (1–365, como o schema já permite) — janela curta por padrão reduz a janela de uso indevido de um link vazado.
+  - **Cancelar = revogar:** só convites **`PENDING`** podem ser cancelados → marca `REVOKED` (reusa o que o domínio já avalia). `USED` é intocável (já virou conta), `EXPIRED` já é inerte. Mantém auditoria (não deleta a linha). Novo endpoint admin-only.
+  - **Quem resgatou:** convites `USED` expõem **nome + e-mail** de quem se cadastrou (join `usedById → user`) — exige adicionar `usedBy` ao serializer público do convite.
+- **Fator decisivo:** fechar o fluxo de cadastro fechado por convite (premissa do produto) com o menor toque no domínio existente, preferindo reusar estados/portas já modelados.
+- **Consequências:** `inviteSchema` ganha `registerUrl` e `usedBy`; `InviteRepository` ganha `revoke`; `registerWithInvite` passa a validar e-mail travado. O fluxo passa a ser ergonômico (copiar link) sem depender de e-mail transacional (fora do v1).
+
+### ADR-011: PWA ganha roteador para `/login` e `/register`
+- **Contexto:** o `App.tsx` do PWA é um *state machine* (`useState<View>`) que, sem sessão, renderiza **só** `<Login>`. O link de convite (`/register?code=…`, ADR-010) precisa de uma rota pública alcançável **antes** do login.
+- **Opções:** **A)** ler `?code=` da URL no boot e alternar `<Login>`/`<Register>` na mão, sem router. **B)** instalar **react-router** com `/login`, `/register` e o app autenticado no resto. **C)** só um toggle "tenho um convite" no Login (cola código manual).
+- **Fator decisivo:** o convite é entregue como **URL**; uma rota pública de verdade é o caminho idiomático e evita lógica de URL ad-hoc espalhada no boot. O custo do router é pequeno e pago uma vez.
+- **Decisão:** **B.** Instalar react-router no PWA: rotas públicas `/login` e `/register` (esta lê `?code=`), e o app autenticado sob o restante. O fuso é capturado no cadastro via `Intl.DateTimeFormat().resolvedOptions().timeZone`.
+- **Consequências:** mudança estrutural pontual no shell do PWA (gate de auth passa a viver no router). O admin **não** muda (sem necessidade de rota pública lá). Workbox/offline seguem como estão; as rotas novas são parte do app shell já cacheado.
+
 ## 9. Escalabilidade e evolução
 
 Dada a escala-alvo (centenas, conteúdo idêntico), **não há gargalo real no v1**. O que medir: taxa de entrega das notificações, falhas dos dois jobs críticos, tamanho/banda das mídias de áudio. Primeiro "gargalo" provável não é compute e sim **banda/armazenamento de áudio** se as gravações forem grandes — mitigável com compressão e cache HTTP/CDN, já que o arquivo é o mesmo para todos.

@@ -1,0 +1,135 @@
+/* ---------- Campo de autoria com prévia de Markdown ---------- */
+.md-field {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
+  align-items: stretch;
+}
+.md-field__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-width: 0;
+}
+.md-field__tag {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.md-field__src {
+  flex: 1;
+  min-height: 16rem;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+/* Superfície de leitura — espelha a tela do fiel */
+.md-preview {
+  flex: 1;
+  min-height: 16rem;
+  max-height: 28rem;
+  overflow-y: auto;
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--s-4) var(--s-5);
+  color: var(--ink);
+  font-size: var(--text-base);
+  line-height: 1.7;
+}
+.md-preview--empty {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.md-preview > :first-child {
+  margin-top: 0;
+}
+.md-preview > :last-child {
+  margin-bottom: 0;
+}
+.md-preview h2 {
+  margin: 1.4em 0 0.5em;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--bark-ink);
+}
+.md-preview h3 {
+  margin: 1.2em 0 0.4em;
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--bark-ink);
+}
+.md-preview p {
+  margin: 0 0 0.9em;
+}
+.md-preview ul,
+.md-preview ol {
+  margin: 0 0 0.9em;
+  padding-left: 1.4em;
+}
+.md-preview li {
+  margin: 0.2em 0;
+}
+.md-preview blockquote {
+  margin: 0 0 0.9em;
+  padding: 0.3em 0 0.3em 1em;
+  border-left: 3px solid var(--leaf);
+  color: var(--ink-2);
+  font-style: italic;
+}
+.md-preview a {
+  color: var(--leaf-ink);
+  text-decoration: underline;
+}
+.md-preview code {
+  padding: 0.1em 0.35em;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+}
+.md-preview pre {
+  margin: 0 0 0.9em;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  overflow-x: auto;
+}
+.md-preview pre code {
+  padding: 0;
+  background: none;
+}
+.md-preview hr {
+  margin: 1.4em 0;
+  border: none;
+  border-top: 1px solid var(--border-strong);
+}
+.md-preview table {
+  width: 100%;
+  margin: 0 0 0.9em;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.md-preview th,
+.md-preview td {
+  padding: 0.4em 0.6em;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+.md-preview th {
+  background: var(--surface-2);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .md-field {
+    grid-template-columns: 1fr;
+  }
+}

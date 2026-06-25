@@ -14,6 +14,7 @@ const IDENTITY_ERROR_RESPONSES: Record<IdentityErrorCode, MappedError> = {
   INVITE_EXPIRED: { status: 410, message: 'Este convite expirou.' },
   INVITE_ALREADY_USED: { status: 409, message: 'Este convite já foi usado.' },
   INVITE_REVOKED: { status: 410, message: 'Este convite foi revogado.' },
+  INVITE_EMAIL_MISMATCH: { status: 403, message: 'Este convite é para outro e-mail.' },
   EMAIL_TAKEN: { status: 409, message: 'Já existe uma conta com este e-mail.' },
   INVALID_CREDENTIALS: { status: 401, message: 'E-mail ou senha incorretos.' },
   CANNOT_DELETE_ADMIN: {

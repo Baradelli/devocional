@@ -23,6 +23,8 @@ export interface InviteRecord {
   usedById: string | null;
   usedAt: Date | null;
   createdAt: Date;
+  /** Quem resgatou o convite (preenchido só quando USED). */
+  usedBy: { name: string; email: string } | null;
 }
 
 export interface SessionRecord {
@@ -65,9 +67,11 @@ export interface UserRepository {
 }
 
 export interface InviteRepository {
+  findById(id: string): Promise<InviteRecord | null>;
   findByCode(code: string): Promise<InviteRecord | null>;
   create(input: CreateInviteInput): Promise<InviteRecord>;
   markUsed(id: string, usedById: string, usedAt: Date): Promise<void>;
+  revoke(id: string): Promise<InviteRecord>;
   listByCreator(createdById: string): Promise<InviteRecord[]>;
 }
 

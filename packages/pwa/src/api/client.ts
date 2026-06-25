@@ -1,6 +1,15 @@
 import type { ZodType } from 'zod';
 
-export const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+function defaultApiBase(): string {
+  // Usa o mesmo host de onde o app foi aberto (localhost OU IP da rede local,
+  // para rodar pelo celular) na porta da API. Em produção, defina VITE_API_URL.
+  if (typeof window !== 'undefined' && window.location.hostname) {
+    return `${window.location.protocol}//${window.location.hostname}:3000`;
+  }
+  return 'http://localhost:3000';
+}
+
+export const API_BASE = import.meta.env.VITE_API_URL ?? defaultApiBase();
 
 export class ApiError extends Error {
   readonly status: number;

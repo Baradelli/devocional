@@ -366,4 +366,179 @@ describe('auth + invite flow', () => {
     const me = await app.inject({ method: 'GET', url: '/auth/me', headers: { cookie } });
     expect(me.statusCode).toBe(200);
   });
+
+  it('defaults invite expiry to about one day', async () => {
+    const cookie = await loginAs(ADMIN.email, ADMIN.password);
+    const created = await app.inject({
+      method: 'POST',
+      url: '/admin/invites',
+      headers: { cookie },
+      payload: {},
+    });
+    expect(created.statusCode).toBe(201);
+    const { expiresAt } = created.json<{ expiresAt: string }>();
+    const ms = new Date(expiresAt).getTime() - Date.now();
+    // ~24h, com folga para o tempo de execução do teste.
+    expect(ms).toBeGreaterThan(23 * 60 * 60 * 1000);
+    expect(ms).toBeLessThan(25 * 60 * 60 * 1000);
+  });
+
+  it('exposes registerUrl and the redeemer (usedBy) on listed invites', async () => {
+    const cookie = await loginAs(ADMIN.email, ADMIN.password);
+    const created = await app.inject({
+      method: 'POST',
+      url: '/admin/invites',
+      headers: { cookie },
+      payload: { expiresInDays: 14 },
+    });
+    const code = created.json<{ code: string }>().code;
+    // O link de cadastro é montado pela API a partir de APP_URL.
+    expect(created.json<{ registerUrl: string }>().registerUrl).toBe(
+      `${env.APP_URL}/register?code=${code}`,
+    );
+    // Convite recém-criado ainda não tem quem resgatou.
+    expect(created.json<{ usedBy: unknown }>().usedBy).toBeNull();
+
+    await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: {
+        inviteCode: code,
+        name: 'Resgatador',
+        email: 'resgatador@devocional.test',
+        password: 'member-supersecret',
+        timezone: 'America/Sao_Paulo',
+      },
+    });
+
+    const list = await app.inject({ method: 'GET', url: '/admin/invites', headers: { cookie } });
+    expect(list.statusCode).toBe(200);
+    const found = list
+      .json<{ code: string; usedBy: { name: string; email: string } | null }[]>()
+      .find((i) => i.code === code);
+    expect(found?.usedBy).toEqual({ name: 'Resgatador', email: 'resgatador@devocional.test' });
+  });
+
+  it('binds an invite to an email and rejects a mismatched registration (403)', async () => {
+    const cookie = await loginAs(ADMIN.email, ADMIN.password);
+    const created = await app.inject({
+      method: 'POST',
+      url: '/admin/invites',
+      headers: { cookie },
+      payload: { email: 'bound@devocional.test', expiresInDays: 14 },
+    });
+    const code = created.json<{ code: string }>().code;
+
+    const mismatch = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: {
+        inviteCode: code,
+        name: 'Intruso',
+        email: 'intruso@devocional.test',
+        password: 'member-supersecret',
+        timezone: 'America/Sao_Paulo',
+      },
+    });
+    expect(mismatch.statusCode).toBe(403);
+    expect(mismatch.json()).toMatchObject({ error: 'INVITE_EMAIL_MISMATCH' });
+
+    const ok = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: {
+        inviteCode: code,
+        name: 'Convidado',
+        email: 'bound@devocional.test',
+        password: 'member-supersecret',
+        timezone: 'America/Sao_Paulo',
+      },
+    });
+    expect(ok.statusCode).toBe(201);
+  });
+
+  it('revokes a pending invite and then refuses registration with it (410)', async () => {
+    const cookie = await loginAs(ADMIN.email, ADMIN.password);
+    const created = await app.inject({
+      method: 'POST',
+      url: '/admin/invites',
+      headers: { cookie },
+      payload: { expiresInDays: 14 },
+    });
+    const { id, code } = created.json<{ id: string; code: string }>();
+
+    const revoke = await app.inject({
+      method: 'POST',
+      url: `/admin/invites/${id}/revoke`,
+      headers: { cookie },
+    });
+    expect(revoke.statusCode).toBe(200);
+    expect(revoke.json<{ status: string }>().status).toBe('REVOKED');
+
+    const register = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: {
+        inviteCode: code,
+        name: 'Tarde',
+        email: 'tarde@devocional.test',
+        password: 'member-supersecret',
+        timezone: 'America/Sao_Paulo',
+      },
+    });
+    expect(register.statusCode).toBe(410);
+    expect(register.json()).toMatchObject({ error: 'INVITE_REVOKED' });
+  });
+
+  it('refuses to revoke an already-used invite (409)', async () => {
+    const cookie = await loginAs(ADMIN.email, ADMIN.password);
+    const created = await app.inject({
+      method: 'POST',
+      url: '/admin/invites',
+      headers: { cookie },
+      payload: { expiresInDays: 14 },
+    });
+    const { id, code } = created.json<{ id: string; code: string }>();
+    await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: {
+        inviteCode: code,
+        name: 'Usou',
+        email: 'usou@devocional.test',
+        password: 'member-supersecret',
+        timezone: 'America/Sao_Paulo',
+      },
+    });
+
+    const revoke = await app.inject({
+      method: 'POST',
+      url: `/admin/invites/${id}/revoke`,
+      headers: { cookie },
+    });
+    expect(revoke.statusCode).toBe(409);
+    expect(revoke.json()).toMatchObject({ error: 'INVITE_ALREADY_USED' });
+  });
+
+  it('guards revoke: 401 anonymous, 403 member', async () => {
+    const adminCookie = await loginAs(ADMIN.email, ADMIN.password);
+    const created = await app.inject({
+      method: 'POST',
+      url: '/admin/invites',
+      headers: { cookie: adminCookie },
+      payload: { expiresInDays: 14 },
+    });
+    const id = created.json<{ id: string }>().id;
+
+    const anon = await app.inject({ method: 'POST', url: `/admin/invites/${id}/revoke` });
+    expect(anon.statusCode).toBe(401);
+
+    const memberCookie = await loginAs('maria@devocional.test', 'member-supersecret');
+    const member = await app.inject({
+      method: 'POST',
+      url: `/admin/invites/${id}/revoke`,
+      headers: { cookie: memberCookie },
+    });
+    expect(member.statusCode).toBe(403);
+  });
 });

@@ -5,6 +5,11 @@ import { useForm } from 'react-hook-form';
 
 import { login } from '../api/auth.js';
 import { ApiError } from '../api/client.js';
+import { Banner } from '../ui/Banner.js';
+import { Button } from '../ui/Button.js';
+import { Input } from '../ui/controls.js';
+import { Field } from '../ui/Field.js';
+import { Panel } from '../ui/Panel.js';
 
 export function Login({ onLoggedIn }: { onLoggedIn: (user: UserPublic) => void }) {
   const {
@@ -24,29 +29,42 @@ export function Login({ onLoggedIn }: { onLoggedIn: (user: UserPublic) => void }
   });
 
   return (
-    <div className="card auth-card">
-      <h1>Devocional — Admin</h1>
-      <p className="muted">Entre para montar o devocional.</p>
-      <form
-        onSubmit={(event) => {
-          void submit(event);
-        }}
-      >
-        <label>
-          E-mail
-          <input type="email" autoComplete="username" {...register('email')} />
-          {errors.email && <span className="field-error">Informe um e-mail válido.</span>}
-        </label>
-        <label>
-          Senha
-          <input type="password" autoComplete="current-password" {...register('password')} />
-          {errors.password && <span className="field-error">Informe sua senha.</span>}
-        </label>
-        {serverError && <p className="form-error">{serverError}</p>}
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Entrando…' : 'Entrar'}
-        </button>
-      </form>
+    <div className="full-center">
+      <Panel className="auth">
+        <div className="auth__head">
+          <div className="auth__mark" aria-hidden>
+            ✦
+          </div>
+          <h1>Devocional</h1>
+          <p>Entre para montar o devocional do dia.</p>
+        </div>
+        <form
+          onSubmit={(event) => {
+            void submit(event);
+          }}
+        >
+          <Field label="E-mail" error={errors.email && 'Informe um e-mail válido.'}>
+            <Input
+              type="email"
+              autoComplete="username"
+              invalid={Boolean(errors.email)}
+              {...register('email')}
+            />
+          </Field>
+          <Field label="Senha" error={errors.password && 'Informe sua senha.'}>
+            <Input
+              type="password"
+              autoComplete="current-password"
+              invalid={Boolean(errors.password)}
+              {...register('password')}
+            />
+          </Field>
+          {serverError && <Banner kind="error">{serverError}</Banner>}
+          <Button type="submit" block loading={isSubmitting}>
+            Entrar
+          </Button>
+        </form>
+      </Panel>
     </div>
   );
 }

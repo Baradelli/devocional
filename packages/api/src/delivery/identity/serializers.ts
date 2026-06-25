@@ -14,7 +14,7 @@ export function toUserPublic(user: UserRecord): UserPublic {
   };
 }
 
-export function toInvitePublic(invite: InviteRecord): Invite {
+export function toInvitePublic(invite: InviteRecord, appUrl: string): Invite {
   return {
     id: invite.id,
     code: invite.code,
@@ -23,5 +23,7 @@ export function toInvitePublic(invite: InviteRecord): Invite {
     expiresAt: invite.expiresAt.toISOString(),
     createdAt: invite.createdAt.toISOString(),
     usedAt: invite.usedAt?.toISOString() ?? null,
+    registerUrl: `${appUrl}/register?code=${invite.code}`,
+    usedBy: invite.usedBy,
   };
 }

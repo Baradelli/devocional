@@ -1,7 +1,17 @@
-import './styles.css';
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/mulish';
+import '@fontsource-variable/mulish/wght-italic.css';
+import './styles/tokens.css';
+import './styles/base.css';
+import './styles/layout.css';
+import './ui/ui.css';
+import './styles/screens.css';
+import './styles/markdown.css';
+import './styles/dashboard.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 
 import { App } from './App.js';
 
@@ -12,6 +22,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>,
 );

@@ -24,3 +24,24 @@ export function evaluateInvite(invite: InviteState, now: Date): InviteEvaluation
   }
   return 'USABLE';
 }
+
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+/**
+ * Regra do convite que trava o e-mail: se o convite foi emitido para um e-mail
+ * específico, o cadastro só é aceito naquele e-mail. Convite sem e-mail (`null`)
+ * é aberto a qualquer um. Comparação tolerante a caixa/espaços.
+ */
+export function inviteAllowsEmail(inviteEmail: string | null, candidateEmail: string): boolean {
+  if (inviteEmail === null) {
+    return true;
+  }
+  return normalizeEmail(inviteEmail) === normalizeEmail(candidateEmail);
+}
+
+/** Só convites ainda pendentes podem ser revogados (cancelados) pelo admin. */
+export function canRevokeInvite(status: InviteStatus): boolean {
+  return status === 'PENDING';
+}

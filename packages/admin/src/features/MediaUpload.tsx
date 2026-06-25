@@ -9,11 +9,14 @@ export function MediaUpload({
   label,
   type,
   accept,
+  hasExisting = false,
   onUploaded,
 }: {
   label: string;
   type: MediaType;
   accept: string;
+  /** Edição: já existe um arquivo salvo neste campo. */
+  hasExisting?: boolean;
   onUploaded: (mediaId: string) => void;
 }) {
   const [status, setStatus] = useState<Status>('idle');
@@ -36,12 +39,15 @@ export function MediaUpload({
   };
 
   return (
-    <label className="upload">
-      {label}
-      <input type="file" accept={accept} onChange={handleChange} />
-      {status === 'uploading' && <span className="muted">Enviando…</span>}
-      {status === 'done' && <span className="ok">✓ {name}</span>}
-      {status === 'error' && <span className="field-error">Falha no envio.</span>}
-    </label>
+    <div className="field">
+      <span className="field__label">{label}</span>
+      <div className="upload-row">
+        <input type="file" accept={accept} onChange={handleChange} />
+        {status === 'idle' && hasExisting && <span className="ok">✓ arquivo atual</span>}
+        {status === 'uploading' && <span className="muted">Enviando…</span>}
+        {status === 'done' && <span className="ok">✓ {name}</span>}
+        {status === 'error' && <span className="field__error">Falha no envio.</span>}
+      </div>
+    </div>
   );
 }

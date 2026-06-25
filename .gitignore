@@ -1,5 +1,6 @@
 # dependencies
 node_modules/
+bibles-sql/
 
 # build output
 dist/
@@ -23,3 +24,9 @@ packages/api/src/generated/
 # editor / os
 .DS_Store
 *.local
+
+# impeccable tooling
+.impeccable/
+
+# certificados de HTTPS de dev (gerados localmente por mkcert)
+certs/
