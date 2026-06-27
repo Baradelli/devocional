@@ -24,3 +24,14 @@ Termos de domínio do projeto. Código/identificadores em **inglês** (CLAUDE.md
 | Sinais leves | — | Por pessoa: streak atual, último dia concluído, concluiu hoje?, total de conclusões. **Sem** histórico devocional-a-devocional. |
 | Concluiu hoje? | derivado de `DailyCompletion` + `logicalDate` | "Hoje" no **fuso do usuário** (autoridade do servidor, ADR-001), não no fuso do admin. |
 | Nominal vs agregado | ADR-009 | Dashboard de **engajamento** (Grupo B) segue 100% **agregado**. A tela de **pessoas** é nominal mas limitada a sinais leves. São coisas distintas. |
+
+## Jardim & árvore (animação)
+
+| Termo (negócio) | Identificador (código) | Significado / regra |
+|---|---|---|
+| Estágio da árvore | `treeStage` | Enum discreto do servidor (`SEED`…`FRUITING`) derivado do streak. Usado **só para o texto** (rótulo + dica) na nova árvore animada (ADR-012). |
+| Crescimento | `growth` / `g` | Valor **contínuo** (0→6) que desenha a árvore, calculado de `currentStreak` via `growthFor()`. Fonte da animação de abertura e do "+1" (ADR-012). É derivado no cliente, não persistido. |
+| Animação de abertura | — | Ao entrar no Jardim, a árvore cresce de `g=0` até o `growthFor(currentStreak)`. Respeita `prefers-reduced-motion` (vai direto ao estado final). |
+| Modal de conclusão | — | Abre **só numa conclusão nova** do dia (ação `finish`). A árvore **brota do zero** até o estado de ontem (lead-in) e dá o **passo de hoje** até o novo estado, com celebração; fecha por botão "Continuar" (sem auto-fechar); mantém o fiel em `/today`. |
+| Otimismo de exibição | — | Offline, o modal cresce de forma otimista (`anterior+1`) e reconcilia no sync. É só **exibição** — a autoridade do streak segue no servidor (ADR-001/ADR-012). |
+| Marco no modal | `snapshot.newAchievements` | Insígnia semanal / prêmio mensal só celebram no modal quando o **servidor** os concede; nunca adivinhados pelo cliente. Offline, só o crescimento simples aparece. |

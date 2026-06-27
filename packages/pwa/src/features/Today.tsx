@@ -1,4 +1,5 @@
 import type {
+  AchievementView,
   BlockView,
   DevotionalView,
   ProgressSnapshot,
@@ -18,6 +19,7 @@ import { useScreenStack } from '../navigation/useScreenStack.js';
 import { localStorageDayProgress } from '../offline/dayProgress.js';
 import { localStorageQueue } from '../offline/queue.js';
 import { flushQueue } from '../offline/sync.js';
+import { DayCompleteModal } from './today/DayCompleteModal.js';
 import { DevotionalScreen } from './today/DevotionalScreen.js';
 import { PrayerScreen } from './today/PrayerScreen.js';
 import { ReadingScreen } from './today/ReadingScreen.js';
@@ -69,6 +71,11 @@ export function Today() {
   const [finished, setFinished] = useState(false);
   const [streak, setStreak] = useState<StreakStateView | null>(null);
   const [completedDates, setCompletedDates] = useState<string[]>([]);
+  const [modal, setModal] = useState<{
+    from: number;
+    to: number | null;
+    achievements: AchievementView[];
+  } | null>(null);
   const { top, open, close } = useScreenStack<Step>();
   const journeyRef = useRef<HTMLOListElement>(null);
 
@@ -186,12 +193,25 @@ export function Today() {
   };
 
   const finish = () => {
+    const from = streak?.currentStreak ?? 0;
     queue.enqueue({ idempotencyKey: crypto.randomUUID(), completedAt: new Date().toISOString() });
     setFinished(true);
     dayProgress.clear();
+    // Abre o modal já no estado anterior; o alvo chega do servidor (online) ou
+    // é otimista (+1) quando offline (sync rejeita). Ver ADR-012.
+    setModal({ from, to: null, achievements: [] });
     void flushQueue(queue).then(
-      (s) => s && setSnapshot(s),
-      () => undefined,
+      (s) => {
+        if (s) {
+          setSnapshot(s);
+          setModal((m) =>
+            m ? { ...m, to: s.streak.currentStreak, achievements: s.newAchievements } : m,
+          );
+        } else {
+          setModal((m) => (m ? { ...m, to: from + 1 } : m));
+        }
+      },
+      () => setModal((m) => (m ? { ...m, to: from + 1 } : m)),
     );
   };
 
@@ -410,6 +430,19 @@ export function Today() {
               state: { dateLabel: formatDateline(today) },
             })
           }
+        />
+      )}
+
+      {modal && (
+        <DayCompleteModal
+          from={modal.from}
+          to={modal.to}
+          achievements={modal.achievements}
+          onClose={() => setModal(null)}
+          onGoToGarden={() => {
+            setModal(null);
+            void navigate('/garden');
+          }}
         />
       )}
     </>

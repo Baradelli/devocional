@@ -1,14 +1,59 @@
-import type { ProgressView } from '@devocional/shared';
+import type { ProgressView, StreakStateView } from '@devocional/shared';
 import { useEffect, useState } from 'react';
 import { LuArrowLeft } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 
 import { fetchProgress } from '../api/progress.js';
 import { Herbarium } from '../components/Herbarium.js';
-import { Tree } from '../components/Tree.js';
-import { TREE_ART } from '../gamification/treeArt.js';
+import { TreeCanvas } from '../components/TreeCanvas.js';
+import { growthFor, stageProgress } from '../gamification/treeGrowth.js';
+import { treeView } from '../gamification/treeView.js';
+import { useGrowthAnimation } from '../gamification/useGrowthAnimation.js';
 
 type Status = 'loading' | 'ready' | 'error';
+
+const OPEN_MS = 2550;
+
+/** A árvore do Jardim: cresce do zero até o estágio atual ao abrir a tela (ADR-012). */
+function GardenTree({ streak }: { streak: StreakStateView }) {
+  const { growth, set, animateTo } = useGrowthAnimation(0);
+  const view = treeView(streak.treeStage);
+  const progress = stageProgress(streak.currentStreak);
+
+  useEffect(() => {
+    set(0);
+    animateTo(growthFor(streak.currentStreak), OPEN_MS);
+  }, [streak.currentStreak, set, animateTo]);
+
+  return (
+    <section className="tree-stage">
+      <div className="tree-canvas">
+        <TreeCanvas growth={growth} />
+      </div>
+      <div className="tree-meta">
+        <p className="tree-streak">
+          <b>{streak.currentStreak}</b>
+          <span>{streak.currentStreak === 1 ? 'dia seguido' : 'dias seguidos'}</span>
+        </p>
+        <p className="tree-name display">{view.label}</p>
+        <p className="tree-hint">{view.description}</p>
+      </div>
+      <div className="tree-progress">
+        <div className="tree-progress__bar">
+          <div
+            className="tree-progress__fill"
+            style={{ width: `${String(Math.round(progress.fraction * 100))}%` }}
+          />
+        </div>
+        <p className="tree-progress__text">
+          {progress.isMax || !progress.nextStage
+            ? 'Estágio máximo · árvore plena'
+            : `Faltam ${String(progress.daysToNext)} ${progress.daysToNext === 1 ? 'dia' : 'dias'} para ${treeView(progress.nextStage).label}`}
+        </p>
+      </div>
+    </section>
+  );
+}
 
 /** O jardim: a árvore que cresce com o streak + o herbário de conquistas. */
 export function Garden() {
@@ -48,18 +93,7 @@ export function Garden() {
 
       {status === 'ready' && progress && (
         <main className="garden">
-          <section className="tree-stage">
-            <Tree stage={progress.streak.treeStage} />
-            <div className="tree-meta">
-              <p className="tree-streak">
-                <b>{progress.streak.currentStreak}</b>
-                <span>dias seguidos</span>
-              </p>
-              <p className="tree-name display">{TREE_ART[progress.streak.treeStage].name}</p>
-              <p className="tree-hint">{TREE_ART[progress.streak.treeStage].hint}</p>
-            </div>
-          </section>
-
+          <GardenTree streak={progress.streak} />
           <Herbarium achievements={progress.achievements} />
         </main>
       )}
