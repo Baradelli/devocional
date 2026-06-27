@@ -1,0 +1,448 @@
+/* Árvore animada + celebrações + modal de conclusão (ADR-012).
+   Keyframes portados de docs/arvore-exemplo. */
+
+@keyframes gd-sway {
+  0%,
+  100% {
+    transform: rotate(-1.1deg);
+  }
+  50% {
+    transform: rotate(1.1deg);
+  }
+}
+@keyframes gd-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+@keyframes gd-float {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx, 0), -110px) scale(1);
+    opacity: 0;
+  }
+}
+@keyframes gd-plus {
+  0% {
+    transform: translate(-50%, 8px);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -46px);
+    opacity: 0;
+  }
+}
+@keyframes gd-fall {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate(-50%, var(--fall, 150px)) scale(1);
+  }
+  74% {
+    transform: translate(-50%, calc(var(--fall, 150px) - 16px)) scale(1.06);
+  }
+  88% {
+    transform: translate(-50%, var(--fall, 150px)) scale(0.85);
+  }
+  100% {
+    transform: translate(-50%, var(--fall, 150px)) scale(0.18);
+    opacity: 0;
+  }
+}
+@keyframes gd-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(0.25);
+    opacity: 0;
+  }
+  16% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 0;
+  }
+}
+@keyframes gd-stamp {
+  0% {
+    transform: translate(-50%, -50%) scale(1.95) rotate(-14deg);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  24% {
+    transform: translate(-50%, -50%) scale(1) rotate(0);
+  }
+  72% {
+    transform: translate(-50%, -50%) scale(1) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -62%) scale(0.92);
+    opacity: 0;
+  }
+}
+@keyframes gd-wash {
+  0% {
+    opacity: 0;
+  }
+  28% {
+    opacity: 0.65;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes gd-petal {
+  0% {
+    transform: translateY(-8px) rotate(0);
+    opacity: 0;
+  }
+  16% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(150px) rotate(220deg);
+    opacity: 0;
+  }
+}
+@keyframes gd-mlabel {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  26% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -4px);
+  }
+}
+
+.gd-sway {
+  transform-box: view-box;
+  transform-origin: 160px 300px;
+  animation: gd-sway 6.5s ease-in-out infinite;
+}
+.gd-bob {
+  animation: gd-bob 4.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-sway,
+  .gd-bob {
+    animation: none;
+  }
+}
+
+/* --- palco da árvore animada (Jardim + modal) ----------------- */
+.tree-canvas {
+  position: relative;
+  width: min(80%, 264px);
+  aspect-ratio: 320 / 330;
+}
+.tree-canvas--modal {
+  width: 100%;
+  height: 208px;
+  aspect-ratio: auto;
+}
+
+/* --- camada de efeitos --------------------------------------- */
+.tree-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 4;
+}
+.tree-fx > span,
+.tree-fx > div {
+  position: absolute;
+}
+.tree-fx__plus {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  transform: translate(-50%, 0);
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  color: var(--gold);
+  pointer-events: none;
+  z-index: 6;
+}
+.tree-fx__fruit {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  z-index: 6;
+}
+.tree-fx__fruit-body {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ecd8b0, #c9a24b 66%, #9a7526);
+  box-shadow: 0 2px 7px rgba(120, 90, 30, 0.55);
+}
+.tree-fx__fruit-leaf {
+  position: absolute;
+  top: -5px;
+  left: 10px;
+  width: 8px;
+  height: 5px;
+  background: #3f8560;
+  border-radius: 60% 0 60% 0;
+  transform: rotate(-28deg);
+}
+.tree-fx__wash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 44%, rgba(201, 162, 75, 0.5), transparent 66%);
+}
+.tree-fx__ring {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid #c9a24b;
+}
+.tree-fx__ring--soft {
+  border-width: 1.5px;
+  border-color: #d6ae64;
+}
+.tree-fx__seal {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #ecd8b0, #c9a24b 66%, #9a7526);
+  border: 1px solid #8a6a26;
+  box-shadow:
+    0 5px 14px rgba(120, 90, 30, 0.42),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #234231;
+  z-index: 7;
+}
+.tree-fx__seal--month {
+  width: 66px;
+  height: 66px;
+}
+.tree-fx__mlabel {
+  position: absolute;
+  left: 50%;
+  top: 69%;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 7;
+}
+.tree-fx__mlabel-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--gold);
+}
+.tree-fx__mlabel-sub {
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+.tree-fx__petal {
+  position: absolute;
+  top: 28%;
+  width: 7px;
+  height: 9px;
+  border-radius: 60% 0 60% 0;
+  opacity: 0;
+}
+.tree-fx__spark {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  opacity: 0;
+}
+
+/* --- barra de progresso pro próximo estágio (Jardim) --------- */
+.tree-progress {
+  width: min(78%, 260px);
+  margin: 0.9rem auto 0;
+}
+.tree-progress__bar {
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--line);
+  overflow: hidden;
+}
+.tree-progress__fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--moss);
+  transition: width 600ms var(--grow);
+}
+.tree-progress__text {
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* --- modal de conclusão do dia ------------------------------- */
+.day-complete {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.day-complete__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 24, 18, 0.5);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 320ms var(--ease);
+}
+.day-complete__card {
+  position: relative;
+  width: min(340px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-2);
+  padding: 1.6rem 1.5rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: cardIn 420ms var(--grow);
+}
+.day-complete__eyebrow {
+  align-self: flex-start;
+  font-size: var(--step-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.day-complete__stage {
+  position: relative;
+  width: 100%;
+  height: 208px;
+  margin-top: 0.4rem;
+}
+.day-complete__streak {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+.day-complete__streak b {
+  font-family: var(--font-display);
+  font-size: 2.7rem;
+  font-weight: 500;
+  color: var(--moss-deep);
+  line-height: 0.9;
+}
+.day-complete__streak span {
+  font-size: var(--step-label);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+.day-complete__name {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  margin-top: 0.3rem;
+  color: var(--ink);
+}
+.day-complete__hint {
+  font-size: var(--step-label);
+  line-height: 1.45;
+  color: var(--ink-soft);
+  margin-top: 0.45rem;
+  max-width: 28ch;
+}
+.day-complete__actions {
+  width: 100%;
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 3.4rem;
+  justify-content: center;
+}
+.day-complete__link {
+  background: none;
+  border: none;
+  font: inherit;
+  color: var(--moss);
+  font-size: var(--step-label);
+  cursor: pointer;
+  padding: 0.2rem;
+}
+.day-complete__link:hover {
+  color: var(--moss-deep);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-complete__backdrop,
+  .day-complete__card {
+    animation: none;
+  }
+}

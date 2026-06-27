@@ -30,3 +30,4 @@ packages/api/src/generated/
 
 # certificados de HTTPS de dev (gerados localmente por mkcert)
 certs/
+docs/arvore-exemplo/

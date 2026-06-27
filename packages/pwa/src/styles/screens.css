@@ -1219,21 +1219,6 @@
     linear-gradient(180deg, #fbf7ee, #eee6d4);
   border: 1px solid var(--line);
 }
-.tree-art {
-  width: min(78%, 260px);
-  aspect-ratio: 240 / 300;
-}
-.tree-art svg {
-  width: 100%;
-  height: 100%;
-  transition:
-    opacity 0.6s var(--ease),
-    transform 0.7s var(--grow);
-}
-.tree-art.is-changing svg {
-  opacity: 0;
-  transform: translateY(10px) scale(0.97);
-}
 .tree-meta {
   text-align: center;
   margin-top: 0.5rem;
