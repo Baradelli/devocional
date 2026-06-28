@@ -1,6 +1,7 @@
 import {
   notificationOkSchema,
   notificationSettingsSchema,
+  notificationTestResultSchema,
   pushSubscriptionInputSchema,
   reminderPreferenceInputSchema,
   vapidPublicKeySchema,
@@ -83,6 +84,12 @@ export const notificationsRoutes: FastifyPluginAsync<NotificationsRoutesOptions>
       await notifications.verifyWhatsapp(request.currentUser!.id, request.body.code);
       return ok;
     },
+  );
+
+  r.post(
+    '/notifications/test',
+    { preHandler: requireAuth, schema: { response: { 200: notificationTestResultSchema } } },
+    (request) => notifications.sendTestNotification(request.currentUser!.id),
   );
 
   r.put(

@@ -18,6 +18,7 @@ import {
   getNotificationSettings,
   saveReminderPreference,
 } from '../../application/notifications/reminderSettings.js';
+import { sendTestNotification } from '../../application/notifications/sendTestNotification.js';
 import { registerWhatsapp, verifyWhatsapp } from '../../application/notifications/whatsapp.js';
 import { createSystemClock } from '../clock.js';
 import { type Alerter, createLogAlerter } from '../observability/alerter.js';
@@ -25,7 +26,11 @@ import {
   createNotificationRepositories,
   createNotificationTargetReader,
 } from './prismaNotificationRepositories.js';
-import { createNumericCodeGenerator, createReminderContentProvider } from './reminderContent.js';
+import {
+  createNumericCodeGenerator,
+  createReminderContentProvider,
+  createTestNotificationPayload,
+} from './reminderContent.js';
 import { createWebPushChannel, type Logger, type VapidConfig } from './webPushChannel.js';
 import {
   createStubWhatsappTransport,
@@ -46,6 +51,7 @@ export interface NotificationsModule {
   verifyWhatsapp(userId: string, code: string): Promise<void>;
   saveReminderPreference(userId: string, input: ReminderPreferenceInput): Promise<void>;
   getSettings(userId: string): Promise<NotificationSettings>;
+  sendTestNotification(userId: string): Promise<{ delivered: number }>;
   dispatchReminders(): Promise<DispatchSummary>;
 }
 
@@ -98,6 +104,11 @@ export function createNotificationsModule(
     getSettings: (userId) =>
       getNotificationSettings(
         { reminders: repos.reminders, push: repos.push, whatsapp: repos.whatsapp },
+        userId,
+      ),
+    sendTestNotification: (userId) =>
+      sendTestNotification(
+        { targets, channels, payload: createTestNotificationPayload(config.appUrl) },
         userId,
       ),
     dispatchReminders: () =>
