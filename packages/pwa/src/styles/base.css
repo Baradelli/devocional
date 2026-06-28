@@ -226,6 +226,69 @@ p {
   box-shadow: var(--shadow-1);
 }
 
+/* --- Checkbox (componente padrão) ---------------------------- */
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+}
+.check.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* input nativo escondido, mas focável e acessível */
+.check__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.check__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: #fdfbf4;
+  transition:
+    background 0.18s var(--ease),
+    border-color 0.18s var(--ease);
+}
+.check__tick {
+  width: 15px;
+  height: 15px;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.15s var(--ease),
+    transform 0.18s var(--grow);
+}
+.check:not(.is-disabled):hover .check__box {
+  border-color: var(--moss);
+}
+.check__input:checked + .check__box {
+  background: var(--moss);
+  border-color: var(--moss);
+}
+.check__input:checked + .check__box .check__tick {
+  opacity: 1;
+  transform: scale(1);
+}
+.check__input:focus-visible + .check__box {
+  outline: 2.5px solid var(--moss);
+  outline-offset: 3px;
+}
+
 /* --- Foco visível (quality floor) ---------------------------- */
 :focus-visible {
   outline: 2.5px solid var(--moss);

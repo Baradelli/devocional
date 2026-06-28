@@ -8,6 +8,7 @@ import { fetchToday } from '../api/devotional.js';
 import { fetchLibrary } from '../api/notes.js';
 import { SearchIcon } from '../components/icons.js';
 import { DAY_ABBR, formatDayMonth, formatMonthTitle, parseIsoDate } from '../lib/dates.js';
+import { summarize } from '../lib/notePreview.js';
 import { localStorageNoteQueue } from '../offline/noteQueue.js';
 import { flushNoteQueue } from '../offline/noteSync.js';
 
@@ -16,16 +17,6 @@ type Status = 'loading' | 'ready' | 'error';
 interface TodayRef {
   id: string;
   label: string;
-}
-
-/** Texto e título derivados do corpo HTML da anotação (para o preview). */
-function summarize(html: string): { title: string; preview: string } {
-  const el = document.createElement('div');
-  el.innerHTML = html;
-  const heading = el.querySelector('h2, h3')?.textContent?.trim();
-  const text = (el.textContent ?? '').replace(/\s+/g, ' ').trim();
-  const title = heading && heading.length > 0 ? heading : text.slice(0, 40) || 'Anotação';
-  return { title, preview: text };
 }
 
 interface MonthGroup {

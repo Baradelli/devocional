@@ -16,6 +16,10 @@ App devocional (estilo Glorify) para uma igreja/grupo. PWA mobile-first/offline-
 - **Testes**: Vitest (unit) + Testcontainers/Postgres efêmero (integração).
 - **Lint/format**: ESLint 9 (flat config) + Prettier, com separação estrita de papéis — Prettier formata, ESLint lint. `eslint-config-prettier` desliga regras de estilo do ESLint (NÃO usar `eslint-plugin-prettier`). Import sort via `eslint-plugin-simple-import-sort` (auto-fix). **fix-on-save** ligado via `.vscode/settings.json` versionado no repo.
 
+## Versionamento do app
+- **Versão exibida ao fiel** mora numa constante manual em `packages/pwa/src/version.ts` (`APP_VERSION`) — não no `package.json`.
+- **SemVer** `MAJOR.MINOR.PATCH`, bump **manual** a cada release: **MINOR** a cada milestone/feature visível ao fiel, **PATCH** em correções, **MAJOR** só em reescrita grande.
+
 ## Topologia (INEGOCIÁVEL)
 - **Um backend, um banco.** Dois frontends (pwa-fiel, web-admin). NÃO criar segundo backend.
 - Monólito modular. Módulos conversam por interfaces, não pelos internos uns dos outros.

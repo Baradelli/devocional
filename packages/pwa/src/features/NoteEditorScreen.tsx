@@ -1,186 +1,218 @@
-import { useEffect, useRef, useState } from 'react';
+import { type Editor, EditorContent, useEditor } from '@tiptap/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { LuCheck, LuCloudOff, LuTrash2 } from 'react-icons/lu';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { ApiError } from '../api/client.js';
 import { fetchNote } from '../api/notes.js';
-import { localStorageNoteQueue } from '../offline/noteQueue.js';
-import { flushNoteQueue } from '../offline/noteSync.js';
+import { ConfirmModal } from '../components/ConfirmModal.js';
+import type { SaveStatus } from './note/autosaveController.js';
+import { noteEditorExtensions } from './note/editorExtensions.js';
+import { NoteBubbleMenu } from './note/NoteBubbleMenu.js';
+import { NoteToolbar } from './note/NoteToolbar.js';
+import { readNoteToolbarEnabled } from './note/noteToolbarPreference.js';
+import { useNoteAutosave } from './note/useNoteAutosave.js';
 
-type ExecCommand = 'bold' | 'italic' | 'h2' | 'h3' | 'quote' | 'list' | 'highlight';
+const PLACEHOLDER = 'Escreva o que tocou seu coração hoje…';
 
-/** Alterna <mark> sobre a seleção atual (destaque). */
-function toggleHighlight(): void {
-  const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
-    return;
-  }
-  const range = sel.getRangeAt(0);
-  const existing = (range.commonAncestorContainer.parentElement ?? null)?.closest('mark');
-  if (existing?.parentNode) {
-    const parent = existing.parentNode;
-    while (existing.firstChild) {
-      parent.insertBefore(existing.firstChild, existing);
-    }
-    parent.removeChild(existing);
-    return;
-  }
-  const mark = document.createElement('mark');
-  try {
-    range.surroundContents(mark);
-  } catch {
-    mark.appendChild(range.extractContents());
-    range.insertNode(mark);
-  }
-  sel.removeAllRanges();
+// Estável entre renders: o useEditor v3 reconfigura (e entra em loop) se as
+// options mudarem de referência a cada render.
+const EDITOR_PROPS = { attributes: { 'aria-label': 'Corpo da anotação' } };
+
+function readMarkdown(editor: Editor): string {
+  const storage = (
+    editor.storage as unknown as Record<string, { getMarkdown?: () => string } | undefined>
+  ).markdown;
+  return storage?.getMarkdown?.() ?? '';
 }
 
+function StatusChip({ status }: { status: SaveStatus }) {
+  switch (status) {
+    case 'saving':
+      return <span className="note__status">Salvando…</span>;
+    case 'saved':
+      return (
+        <span className="note__status">
+          <LuCheck aria-hidden="true" /> Salvo
+        </span>
+      );
+    case 'offline':
+      return (
+        <span className="note__status">
+          <LuCloudOff aria-hidden="true" /> Salvo · offline
+        </span>
+      );
+    case 'error':
+      return <span className="note__status note__status--err">Erro ao salvar</span>;
+    default:
+      return <span className="note__status" aria-hidden="true" />;
+  }
+}
+
+function NoteHeader({
+  dateLabel,
+  onClose,
+  status,
+  onDelete,
+}: {
+  dateLabel: string;
+  onClose: () => void;
+  status: SaveStatus;
+  onDelete?: () => void;
+}) {
+  return (
+    <header className="screen__bar screen__bar--note">
+      <button type="button" className="iconbtn" onClick={onClose} aria-label="Fechar anotação">
+        ×
+      </button>
+      <span className="eyebrow">Anotação · {dateLabel}</span>
+      <div className="note__bar-right">
+        <StatusChip status={status} />
+        {onDelete && (
+          <button
+            type="button"
+            className="iconbtn note__delete"
+            onClick={onDelete}
+            aria-label="Excluir anotação"
+          >
+            <LuTrash2 />
+          </button>
+        )}
+      </div>
+    </header>
+  );
+}
+
+function NoteEditor({
+  devotionalId,
+  dateLabel,
+  existed,
+  initialMarkdown,
+  onClose,
+}: {
+  devotionalId: string;
+  dateLabel: string;
+  existed: boolean;
+  initialMarkdown: string;
+  onClose: () => void;
+}) {
+  // Nota nova abre já titulada com a data e é criada na hora (aparece na
+  // biblioteca, fica claro que criou); a existente carrega o próprio conteúdo.
+  const isNew = !existed && initialMarkdown.trim() === '';
+  const seededContent = isNew ? `# ${dateLabel}\n\n` : initialMarkdown;
+  const baseline = isNew ? '' : initialMarkdown;
+  const { status, notifyChange, removeNote } = useNoteAutosave(devotionalId, existed, baseline);
+  const [confirming, setConfirming] = useState(false);
+  // Lida uma vez: a preferência só muda nas Configurações (rota separada).
+  const showToolbar = useMemo(() => readNoteToolbarEnabled(), []);
+  const extensions = useMemo(() => noteEditorExtensions(PLACEHOLDER), []);
+  const editor = useEditor({
+    extensions,
+    content: seededContent,
+    autofocus: isNew ? 'end' : false,
+    editorProps: EDITOR_PROPS,
+    onCreate: ({ editor }) => {
+      if (isNew) {
+        notifyChange(readMarkdown(editor));
+      }
+    },
+    onUpdate: ({ editor }) => notifyChange(readMarkdown(editor)),
+  });
+
+  const confirmDelete = () => {
+    removeNote();
+    onClose();
+  };
+
+  return (
+    <section className="screen screen--overlay screen--note" aria-label="Anotação">
+      <div className="note-topbar">
+        <NoteHeader
+          dateLabel={dateLabel}
+          onClose={onClose}
+          status={status}
+          onDelete={() => setConfirming(true)}
+        />
+        {showToolbar && editor && <NoteToolbar editor={editor} />}
+      </div>
+      <div className="note">
+        {editor && <NoteBubbleMenu editor={editor} />}
+        <EditorContent editor={editor} className="note__body" />
+      </div>
+      {confirming && (
+        <ConfirmModal
+          title="Excluir esta anotação?"
+          message="Esta ação não pode ser desfeita."
+          confirmLabel="Excluir"
+          danger
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirming(false)}
+        />
+      )}
+    </section>
+  );
+}
+
+type LoadState =
+  | { phase: 'loading' }
+  | { phase: 'ready'; existed: boolean; markdown: string }
+  | { phase: 'error' };
+
 /**
- * Editor de anotação rich-text (estilo Notion/Obsidian) como overlay. Escrita
- * otimista e offline: salvar enfileira uma operação idempotente e sincroniza.
- * O corpo é HTML guardado no campo `text` da anotação.
+ * Editor de anotação (estilo Notion/Obsidian) como overlay. O conteúdo é
+ * Markdown guardado no campo `text`; o autosave enfileira operações idempotentes
+ * e sincroniza. Erro de rede ao abrir NÃO vira nota vazia (evita sobrescrever).
  */
 export function NoteEditorScreen() {
   const { id: devotionalId = '' } = useParams<{ id: string }>();
   const location = useLocation();
   const navigate = useNavigate();
   const dateLabel = (location.state as { dateLabel?: string } | null)?.dateLabel ?? 'Anotação';
-  const close = () => void navigate(-1);
-  const queue = useRef(localStorageNoteQueue()).current;
-  const bodyRef = useRef<HTMLDivElement>(null);
-  const [loaded, setLoaded] = useState(false);
-  const [active, setActive] = useState<{ bold: boolean; italic: boolean }>({
-    bold: false,
-    italic: false,
-  });
+  const close = useCallback(() => void navigate(-1), [navigate]);
+  const [state, setState] = useState<LoadState>({ phase: 'loading' });
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setState({ phase: 'loading' });
     void fetchNote(devotionalId).then(
-      (note) => {
-        if (bodyRef.current) {
-          bodyRef.current.innerHTML = note.text;
-        }
-        setLoaded(true);
-      },
+      (note) => setState({ phase: 'ready', existed: true, markdown: note.text }),
       (error: unknown) => {
-        if (!(error instanceof ApiError) || error.status === 404) {
-          setLoaded(true);
+        if (error instanceof ApiError && error.status === 404) {
+          setState({ phase: 'ready', existed: false, markdown: '' });
+        } else {
+          setState({ phase: 'error' });
         }
       },
     );
   }, [devotionalId]);
 
-  useEffect(() => {
-    const onSelection = () => {
-      setActive({
-        bold: document.queryCommandState('bold'),
-        italic: document.queryCommandState('italic'),
-      });
-    };
-    document.addEventListener('selectionchange', onSelection);
-    return () => document.removeEventListener('selectionchange', onSelection);
-  }, []);
+  useEffect(load, [load]);
 
-  const exec = (cmd: ExecCommand) => {
-    bodyRef.current?.focus();
-    switch (cmd) {
-      case 'bold':
-        document.execCommand('bold');
-        break;
-      case 'italic':
-        document.execCommand('italic');
-        break;
-      case 'h2':
-        document.execCommand('formatBlock', false, 'h2');
-        break;
-      case 'h3':
-        document.execCommand('formatBlock', false, 'h3');
-        break;
-      case 'quote':
-        document.execCommand('formatBlock', false, 'blockquote');
-        break;
-      case 'list':
-        document.execCommand('insertUnorderedList');
-        break;
-      case 'highlight':
-        toggleHighlight();
-        break;
-    }
-  };
-
-  const save = () => {
-    const text = bodyRef.current?.innerHTML ?? '';
-    queue.enqueue({
-      devotionalId,
-      idempotencyKey: crypto.randomUUID(),
-      editedAt: new Date().toISOString(),
-      text,
-      deleted: false,
-    });
-    void flushNoteQueue(queue).finally(close);
-  };
+  if (state.phase === 'ready') {
+    return (
+      <NoteEditor
+        devotionalId={devotionalId}
+        dateLabel={dateLabel}
+        existed={state.existed}
+        initialMarkdown={state.markdown}
+        onClose={close}
+      />
+    );
+  }
 
   return (
     <section className="screen screen--overlay screen--note" aria-label="Anotação">
-      <header className="screen__bar screen__bar--note">
-        <button type="button" className="iconbtn" onClick={close} aria-label="Fechar sem salvar">
-          ×
-        </button>
-        <span className="eyebrow">Anotação · {dateLabel}</span>
-        <button type="button" className="note__save" onClick={save} disabled={!loaded}>
-          Salvar
-        </button>
-      </header>
+      <NoteHeader dateLabel={dateLabel} onClose={close} status="idle" />
       <div className="note">
-        <div className="note__toolbar" role="toolbar" aria-label="Formatação">
-          <button type="button" onClick={() => exec('h2')} title="Título">
-            H1
-          </button>
-          <button type="button" onClick={() => exec('h3')} title="Subtítulo">
-            H2
-          </button>
-          <span className="note__sep" />
-          <button
-            type="button"
-            className={active.bold ? 'is-active' : undefined}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => exec('bold')}
-            title="Negrito"
-          >
-            <strong>B</strong>
-          </button>
-          <button
-            type="button"
-            className={active.italic ? 'is-active' : undefined}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => exec('italic')}
-            title="Itálico"
-          >
-            <em>i</em>
-          </button>
-          <button
-            type="button"
-            className="note__hl"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => exec('highlight')}
-            title="Destaque"
-          >
-            A
-          </button>
-          <span className="note__sep" />
-          <button type="button" onClick={() => exec('quote')} title="Citação">
-            &ldquo;
-          </button>
-          <button type="button" onClick={() => exec('list')} title="Lista">
-            •
-          </button>
-        </div>
-        <div
-          className="note__body"
-          ref={bodyRef}
-          contentEditable={loaded}
-          suppressContentEditableWarning
-          data-placeholder="Escreva o que tocou seu coração hoje…"
-        />
+        {state.phase === 'loading' ? (
+          <p className="muted center">Carregando sua anotação…</p>
+        ) : (
+          <div className="center empty">
+            <p>Não foi possível abrir agora.</p>
+            <button type="button" className="btn btn--ghost" onClick={load}>
+              Tentar novamente
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 import type { UserPublic } from '@devocional/shared';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 
 import { logout } from '../api/auth.js';
@@ -8,10 +8,14 @@ import { localOnboardingSeen } from '../onboarding/onboardingSeen.js';
 import { ContextualOnboarding } from './ContextualOnboarding.js';
 import { Garden } from './Garden.js';
 import { Library } from './Library.js';
-import { NoteEditorScreen } from './NoteEditorScreen.js';
 import { Settings } from './Settings.js';
 import { Today } from './Today.js';
 import { CalendarScreen } from './today/CalendarScreen.js';
+
+// O editor carrega o TipTap (pesado): fica num chunk separado, fora do bundle inicial.
+const NoteEditorScreen = lazy(() =>
+  import('./NoteEditorScreen.js').then((m) => ({ default: m.NoteEditorScreen })),
+);
 
 const onboardingSeen = localOnboardingSeen();
 
@@ -58,6 +62,8 @@ export function AuthedApp({
           path="/settings"
           element={
             <Settings
+              user={user}
+              initialTab={showTour ? 'lembretes' : 'perfil'}
               onReviewOnboarding={reviewTour}
               onAccountDeleted={() => onUserChange(null)}
               onLogout={() => {
@@ -67,7 +73,14 @@ export function AuthedApp({
           }
         />
         <Route path="/calendar" element={<CalendarScreen />} />
-        <Route path="/notes/:id/edit" element={<NoteEditorScreen />} />
+        <Route
+          path="/notes/:id/edit"
+          element={
+            <Suspense fallback={<section className="screen screen--overlay screen--note" />}>
+              <NoteEditorScreen />
+            </Suspense>
+          }
+        />
         <Route path="*" element={<Navigate to="/today" replace />} />
       </Routes>
       {showTour && <ContextualOnboarding onFinish={finishTour} />}
