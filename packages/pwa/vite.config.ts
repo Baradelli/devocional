@@ -38,16 +38,20 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // Em produção a API vive sob /api (nginx). O SW da PWA controla o escopo
+        // '/', então excluímos /admin e /api do fallback de navegação (SPA) para
+        // não sequestrar o painel admin nem as chamadas de API.
+        navigateFallbackDenylist: [/^\/admin/, /^\/api/],
         // Handlers de Web Push (push + notificationclick) anexados ao SW gerado.
         importScripts: ['push-handler.js'],
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.pathname === '/devotionals/today',
+            urlPattern: ({ url }) => url.pathname === '/api/devotionals/today',
             handler: 'NetworkFirst',
             options: { cacheName: 'today', networkTimeoutSeconds: 5 },
           },
           {
-            urlPattern: ({ url }) => url.pathname.startsWith('/media/'),
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/media/'),
             handler: 'CacheFirst',
             options: {
               cacheName: 'media',

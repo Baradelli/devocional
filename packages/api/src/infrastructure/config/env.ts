@@ -4,6 +4,9 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.string().url(),
   PORT: z.coerce.number().int().positive().default(3000),
+  // Interface de bind. Em produção use 127.0.0.1 (só o proxy reverso alcança);
+  // 0.0.0.0 em dev permite abrir pelo celular via IP da rede local.
+  HOST: z.string().min(1).default('0.0.0.0'),
   COOKIE_NAME: z.string().min(1).default('devocional_session'),
   MEDIA_DIR: z.string().min(1).default('media-storage'),
   SERVER_TIMEZONE: z.string().min(1).default('America/Sao_Paulo'),

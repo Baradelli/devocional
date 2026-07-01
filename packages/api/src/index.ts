@@ -80,7 +80,7 @@ const reminderJob = cron.schedule('* * * * *', () => void dispatchReminders());
 async function start(): Promise<void> {
   await prisma.$connect();
   await publishDue(); // publica pendências ao subir
-  await app.listen({ port: env.PORT, host: '0.0.0.0' });
+  await app.listen({ port: env.PORT, host: env.HOST });
 }
 
 async function shutdown(): Promise<void> {

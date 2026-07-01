@@ -4,6 +4,9 @@ import { defineConfig } from 'vite';
 
 // Painel do admin (Vitor): desktop-only, online, sem PWA/offline.
 export default defineConfig({
+  // Servido sob /admin/ em produção (nginx). Sem isto os assets apontam para
+  // a raiz e colidem com a PWA.
+  base: '/admin/',
   plugins: [react()],
   server: { port: 5174 },
   test: {

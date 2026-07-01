@@ -39,6 +39,7 @@ beforeAll(async () => {
     NODE_ENV: 'test',
     DATABASE_URL: databaseUrl,
     PORT: 3000,
+    HOST: '127.0.0.1',
     COOKIE_NAME: 'devocional_session',
     MEDIA_DIR: 'media-storage-test',
     SERVER_TIMEZONE: 'America/Sao_Paulo',
