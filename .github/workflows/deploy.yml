@@ -1,0 +1,64 @@
+name: Deploy produção
+
+# Deploy MANUAL: rode pelo botão "Run workflow" na aba Actions do GitHub.
+# Publique sempre a partir do branch main.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-producao
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Build dos front-ends
+        env:
+          VITE_API_URL: https://devocional.vitorbaradelli.com/api
+        run: |
+          pnpm --filter @devocional/pwa build
+          pnpm --filter @devocional/admin build
+
+      - name: Configurar SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Publicar front-ends (rsync)
+        run: |
+          RSH="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes"
+          rsync -az --delete -e "$RSH" packages/pwa/dist/ \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/vitor/devocional-web/pwa/"
+          rsync -az --delete -e "$RSH" packages/admin/dist/ \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/vitor/devocional-web/admin/"
+
+      - name: Atualizar e reiniciar a API
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" 'bash -se' <<'REMOTE'
+          export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; nvm use 24 >/dev/null
+          cd /var/www/vitor/devocional
+          git fetch origin main
+          git reset --hard origin/main
+          pnpm install --frozen-lockfile
+          pnpm --filter @devocional/api db:generate
+          pnpm --filter @devocional/api db:deploy
+          pm2 restart devocional-api --update-env
+          REMOTE

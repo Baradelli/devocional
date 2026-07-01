@@ -1,0 +1,26 @@
+# Postgres de PRODUÇÃO (servidor). Diferenças vs docker-compose.yml (dev):
+# senha vem de variável de ambiente (nunca no arquivo), porta presa no loopback
+# (127.0.0.1) para não expor o banco na internet, e nome/volume próprios.
+#
+# Subir:  POSTGRES_PASSWORD='...' docker compose -f docker-compose.prod.yml up -d
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: devocional_db_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: devocional
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD}
+      POSTGRES_DB: devocional
+    ports:
+      - '127.0.0.1:5433:5432'
+    volumes:
+      - devocional_pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U devocional -d devocional']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  devocional_pgdata_prod:

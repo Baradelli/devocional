@@ -9,6 +9,7 @@ const env: Env = {
   NODE_ENV: 'test',
   DATABASE_URL: 'postgresql://localhost:5432/devocional_test',
   PORT: 3000,
+  HOST: '127.0.0.1',
   COOKIE_NAME: 'devocional_session',
   MEDIA_DIR: 'media-storage-test',
   SERVER_TIMEZONE: 'America/Sao_Paulo',
