@@ -30,10 +30,15 @@ export async function apiRequest<T>(
   schema: ZodType<T>,
   init?: RequestInit,
 ): Promise<T> {
+  // Só declara JSON quando há corpo: Fastify rejeita content-type application/json
+  // com body vazio ("Body cannot be empty..."), o que quebra POSTs sem payload.
   const response = await fetch(`${API_BASE}${path}`, {
     credentials: 'include',
     ...init,
-    headers: { 'content-type': 'application/json', ...init?.headers },
+    headers: {
+      ...(init?.body == null ? {} : { 'content-type': 'application/json' }),
+      ...init?.headers,
+    },
   });
 
   const raw = await response.text();
