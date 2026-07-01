@@ -23,8 +23,18 @@ import { createPrismaClient } from '../infrastructure/prisma/client.js';
  */
 
 const SERVER_TZ = 'America/Sao_Paulo';
-const ADMIN = { name: 'Vitor', email: 'vitor@devocional.app', password: 'admin-supersecret' };
-const MEMBER = { name: 'Maria', email: 'maria@devocional.app', password: 'member-supersecret' };
+// Credenciais só de desenvolvimento. Sobrescreva por env se quiser; o guard em
+// main() impede este seed de rodar contra produção.
+const ADMIN = {
+  name: process.env.SEED_ADMIN_NAME ?? 'Vitor',
+  email: process.env.SEED_ADMIN_EMAIL ?? 'vitor@dev.local',
+  password: process.env.SEED_ADMIN_PASSWORD ?? 'dev-admin-password',
+};
+const MEMBER = {
+  name: process.env.SEED_MEMBER_NAME ?? 'Maria',
+  email: process.env.SEED_MEMBER_EMAIL ?? 'maria@dev.local',
+  password: process.env.SEED_MEMBER_PASSWORD ?? 'dev-member-password',
+};
 
 const sampleTranslation = fileURLToPath(
   new URL('../../prisma/seed-data/sample-translation.json', import.meta.url),
@@ -32,6 +42,11 @@ const sampleTranslation = fileURLToPath(
 
 async function main(): Promise<void> {
   const env = loadEnv();
+  // Trava de segurança: este seed cria dados de demonstração e NUNCA deve tocar
+  // produção (ver incidente: rodou em prod e criou admin com senha do repo).
+  if (env.NODE_ENV === 'production') {
+    throw new Error('Seed é apenas para desenvolvimento — recusando NODE_ENV=production.');
+  }
   const prisma = createPrismaClient(env.DATABASE_URL);
   const identity = createIdentityModule(prisma);
   const bible = createBibleModule(prisma);
