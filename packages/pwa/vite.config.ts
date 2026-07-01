@@ -11,6 +11,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
+      // Sem isto o service worker (logo: instalar + push) não roda em `vite dev`.
+      // Em dev, ainda exige contexto seguro no device: https ou localhost
+      // (ex.: chrome://inspect com port-forwarding) — IP da rede via http não serve.
+      devOptions: { enabled: true, type: 'module' },
       manifest: {
         name: 'Devocional',
         short_name: 'Devocional',

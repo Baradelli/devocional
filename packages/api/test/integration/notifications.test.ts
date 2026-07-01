@@ -11,6 +11,7 @@ import type {
   ChannelTargets,
   NotificationChannel,
 } from '../../src/application/notifications/ports.js';
+import { sendTestNotification } from '../../src/application/notifications/sendTestNotification.js';
 import { buildServer } from '../../src/delivery/server.js';
 import type { Env } from '../../src/infrastructure/config/env.js';
 import { createScryptPasswordHasher } from '../../src/infrastructure/identity/passwordHasher.js';
@@ -180,6 +181,79 @@ describe('notifications: settings, push subscription and WhatsApp verification',
     expect(body.pushDevices).toBe(1);
     expect(body.whatsapp.status).toBe('VERIFIED');
     expect(body.whatsapp.phone).toBe('+5511999998888');
+  });
+});
+
+describe('notifications: test notification (prova ponta a ponta do push)', () => {
+  const TEST_PAYLOAD = { title: 'Tudo certo! 🌱', body: 'funcionando', url: '/' };
+
+  it('delivers a test push to the user devices via Web Push only', async () => {
+    const userId = await createMember('test-push@devocional.test');
+    const cookie = await loginAs('test-push@devocional.test');
+
+    await app.inject({
+      method: 'POST',
+      url: '/notifications/push',
+      headers: { cookie },
+      payload: { ...subscription, endpoint: 'https://push.example.com/test-push' },
+    });
+
+    const targets = createNotificationTargetReader(prisma);
+    const push = recordingChannel('WEB_PUSH');
+    const whatsapp = recordingChannel('WHATSAPP');
+
+    const result = await sendTestNotification(
+      { targets, channels: [push.channel, whatsapp.channel], payload: TEST_PAYLOAD },
+      userId,
+    );
+
+    expect(result.delivered).toBe(1);
+    expect(push.calls).toHaveLength(1);
+    expect(push.calls[0]?.pushSubscriptions.length).toBe(1);
+    // O teste é só de push: o canal WhatsApp nunca é acionado.
+    expect(whatsapp.calls).toHaveLength(0);
+  });
+
+  it('delivers to zero devices when the user has no subscription', async () => {
+    const userId = await createMember('test-push-empty@devocional.test');
+
+    const targets = createNotificationTargetReader(prisma);
+    const push = recordingChannel('WEB_PUSH');
+
+    const result = await sendTestNotification(
+      { targets, channels: [push.channel], payload: TEST_PAYLOAD },
+      userId,
+    );
+
+    expect(result.delivered).toBe(0);
+    expect(push.calls[0]?.pushSubscriptions.length).toBe(0);
+  });
+
+  it('exposes POST /notifications/test (no-op delivery without VAPID keys configured)', async () => {
+    await createMember('test-route@devocional.test');
+    const cookie = await loginAs('test-route@devocional.test');
+
+    await app.inject({
+      method: 'POST',
+      url: '/notifications/push',
+      headers: { cookie },
+      payload: { ...subscription, endpoint: 'https://push.example.com/test-route' },
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/notifications/test',
+      headers: { cookie },
+    });
+
+    expect(response.statusCode).toBe(200);
+    // Sem chaves VAPID no ambiente de teste, o canal Web Push é no-op → 0 entregue.
+    expect(response.json<{ delivered: number }>().delivered).toBe(0);
+  });
+
+  it('rejects an unauthenticated test request', async () => {
+    const response = await app.inject({ method: 'POST', url: '/notifications/test' });
+    expect(response.statusCode).toBe(401);
   });
 });
 

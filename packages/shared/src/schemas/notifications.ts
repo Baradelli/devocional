@@ -62,3 +62,9 @@ export const vapidPublicKeySchema = z.object({ publicKey: z.string() });
 export type VapidPublicKey = z.infer<typeof vapidPublicKeySchema>;
 
 export const notificationOkSchema = z.object({ ok: z.boolean() });
+
+/** Resultado de uma notificação de teste: quantos aparelhos receberam. */
+export const notificationTestResultSchema = z.object({
+  delivered: z.number().int().nonnegative(),
+});
+export type NotificationTestResult = z.infer<typeof notificationTestResultSchema>;

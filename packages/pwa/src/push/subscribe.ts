@@ -11,6 +11,52 @@ export function isPushSupported(): boolean {
   return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 }
 
+/**
+ * Estado real do push neste aparelho, combinando a permissão do navegador com a
+ * existência de uma subscription ativa. É o que a tela mostra para dar certeza
+ * ao fiel de que o lembrete vai (ou não) chegar.
+ */
+export type PushStatus =
+  | 'unsupported'
+  | 'default'
+  | 'granted-subscribed'
+  | 'granted-unsubscribed'
+  | 'denied';
+
+export async function getPushStatus(): Promise<PushStatus> {
+  if (!isPushSupported()) {
+    return 'unsupported';
+  }
+  if (Notification.permission === 'denied') {
+    return 'denied';
+  }
+  if (Notification.permission === 'default') {
+    return 'default';
+  }
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.getSubscription();
+  return subscription ? 'granted-subscribed' : 'granted-unsubscribed';
+}
+
+/**
+ * Notificação de teste local (sem servidor): prova que a permissão e o service
+ * worker funcionam neste aparelho. Não prova a cadeia do servidor — para isso,
+ * ver o teste real via `/notifications/test`.
+ */
+export async function showLocalTestNotification(): Promise<boolean> {
+  if (!isPushSupported() || Notification.permission !== 'granted') {
+    return false;
+  }
+  const registration = await navigator.serviceWorker.ready;
+  await registration.showNotification('Tudo certo! 🌱', {
+    body: 'Esta é uma notificação de teste neste aparelho.',
+    icon: '/icon.svg',
+    badge: '/icon.svg',
+    data: { url: '/' },
+  });
+  return true;
+}
+
 /** Converte a chave VAPID (base64url) para o formato esperado pelo PushManager. */
 function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
   const padding = '='.repeat((4 - (base64.length % 4)) % 4);

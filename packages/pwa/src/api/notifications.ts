@@ -2,6 +2,8 @@ import {
   notificationOkSchema,
   type NotificationSettings,
   notificationSettingsSchema,
+  type NotificationTestResult,
+  notificationTestResultSchema,
   type PushSubscriptionInput,
   type ReminderPreferenceInput,
   type VapidPublicKey,
@@ -53,4 +55,8 @@ export function saveReminderPreference(input: ReminderPreferenceInput): Promise<
     method: 'PUT',
     body: JSON.stringify(input),
   });
+}
+
+export function sendTestNotification(): Promise<NotificationTestResult> {
+  return apiRequest('/notifications/test', notificationTestResultSchema, { method: 'POST' });
 }

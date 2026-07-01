@@ -4,6 +4,7 @@ bibles-sql/
 
 # build output
 dist/
+dev-dist/
 build/
 *.tsbuildinfo
 

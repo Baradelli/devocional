@@ -8,6 +8,12 @@ export type QueuedNoteOperation = NoteOperation;
 export interface NoteQueue {
   list(): QueuedNoteOperation[];
   enqueue(operation: QueuedNoteOperation): void;
+  /**
+   * Mantém no máximo uma operação pendente por devocional, substituindo a
+   * anterior no lugar. Usado pelo autosave: cada edição traz `idempotencyKey` e
+   * `editedAt` novos, então o servidor aplica por last-write-wins sem duplicar.
+   */
+  upsertByDevotional(operation: QueuedNoteOperation): void;
   remove(idempotencyKeys: string[]): void;
   clear(): void;
 }
@@ -43,6 +49,16 @@ export function createNoteQueue(storage: QueueStorage): NoteQueue {
         return;
       }
       items.push(operation);
+      save(items);
+    },
+    upsertByDevotional(operation) {
+      const items = load();
+      const index = items.findIndex((item) => item.devotionalId === operation.devotionalId);
+      if (index >= 0) {
+        items[index] = operation;
+      } else {
+        items.push(operation);
+      }
       save(items);
     },
     remove(idempotencyKeys) {
