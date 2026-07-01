@@ -15,9 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Sem 'version' aqui: o pnpm/action-setup lê o campo packageManager do package.json
+      # (pnpm@11.7.0). Definir os dois causa ERR_PNPM_BAD_PM_VERSION.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11
 
       - uses: actions/setup-node@v4
         with:
