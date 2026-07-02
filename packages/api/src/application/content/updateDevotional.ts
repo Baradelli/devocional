@@ -16,6 +16,5 @@ export async function updateDevotional(
   return {
     date: updated.date,
     theme: updated.theme,
-    publishedAt: updated.publishedAt?.toISOString() ?? null,
   };
 }

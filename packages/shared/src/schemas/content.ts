@@ -123,7 +123,6 @@ export const devotionalViewSchema = z.object({
   id: z.string(),
   date: z.string(),
   theme: z.string().nullable(),
-  publishedAt: z.string().datetime().nullable(),
   blocks: z.array(blockViewSchema),
 });
 export type DevotionalView = z.infer<typeof devotionalViewSchema>;
@@ -131,6 +130,5 @@ export type DevotionalView = z.infer<typeof devotionalViewSchema>;
 export const devotionalSummarySchema = z.object({
   date: z.string(),
   theme: z.string().nullable(),
-  publishedAt: z.string().datetime().nullable(),
 });
 export type DevotionalSummary = z.infer<typeof devotionalSummarySchema>;

@@ -72,10 +72,7 @@ export function buildServer({ prisma, env, logger = true }: BuildServerOptions):
   );
   const bible = createBibleModule(prisma);
   const stats = createStatsModule(prisma, { serverTimezone: env.SERVER_TIMEZONE });
-  const content = createContentModule(prisma, bible, {
-    mediaDir: env.MEDIA_DIR,
-    serverTimezone: env.SERVER_TIMEZONE,
-  });
+  const content = createContentModule(prisma, bible, { mediaDir: env.MEDIA_DIR });
 
   // Contexto de autenticação compartilhado por todas as rotas: resolve o
   // usuário atual a partir do cookie de sessão (autoridade do servidor).

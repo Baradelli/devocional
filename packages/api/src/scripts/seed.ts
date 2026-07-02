@@ -50,10 +50,7 @@ async function main(): Promise<void> {
   const prisma = createPrismaClient(env.DATABASE_URL);
   const identity = createIdentityModule(prisma);
   const bible = createBibleModule(prisma);
-  const content = createContentModule(prisma, bible, {
-    mediaDir: env.MEDIA_DIR,
-    serverTimezone: SERVER_TZ,
-  });
+  const content = createContentModule(prisma, bible, { mediaDir: env.MEDIA_DIR });
 
   await prisma.$connect();
   try {
@@ -128,12 +125,11 @@ async function main(): Promise<void> {
       update: {},
     });
 
-    // 5) Devocional de HOJE, publicado.
+    // 5) Devocional de HOJE (fica disponível pela data).
     if (!(await prisma.devotional.findUnique({ where: { date: today } }))) {
       await content.createDevotional(devotionalForToday(today, translation.id));
-      await content.publishDue();
     }
-    log(`Devocional publicado para ${today}.`);
+    log(`Devocional criado para ${today}.`);
 
     // 6) Convite PENDING extra para testar o cadastro na UI (reaproveita o
     // existente para não acumular convites a cada reseed).

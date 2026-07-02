@@ -25,7 +25,7 @@ export const contentRoutes: FastifyPluginAsync<ContentRoutesOptions> = (app, opt
   const { content } = opts;
   const r = app.withTypeProvider<ZodTypeProvider>();
 
-  // Tela "Hoje" do fiel: devocional publicado do dia lógico do usuário.
+  // Tela "Hoje" do fiel: devocional do dia lógico do usuário.
   r.get(
     '/devotionals/today',
     { preHandler: requireAuth, schema: { response: { 200: devotionalViewSchema } } },
@@ -40,9 +40,7 @@ export const contentRoutes: FastifyPluginAsync<ContentRoutesOptions> = (app, opt
     },
     async (request, reply) => {
       await content.createDevotional(request.body);
-      return reply
-        .status(201)
-        .send({ date: request.body.date, theme: request.body.theme ?? null, publishedAt: null });
+      return reply.status(201).send({ date: request.body.date, theme: request.body.theme ?? null });
     },
   );
 
@@ -72,15 +70,6 @@ export const contentRoutes: FastifyPluginAsync<ContentRoutesOptions> = (app, opt
       },
     },
     (request) => content.updateDevotional(request.params.date, request.body),
-  );
-
-  r.post(
-    '/admin/devotionals/publish',
-    {
-      preHandler: requireAdmin,
-      schema: { response: { 200: z.object({ published: z.number().int() }) } },
-    },
-    async () => ({ published: await content.publishDue() }),
   );
 
   r.post(

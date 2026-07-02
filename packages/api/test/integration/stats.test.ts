@@ -42,7 +42,7 @@ async function seedPassage(
     verseEnd: number;
   },
 ): Promise<void> {
-  const devotional = await prisma.devotional.create({ data: { date, publishedAt: null } });
+  const devotional = await prisma.devotional.create({ data: { date } });
   await prisma.devotionalBlock.create({
     data: {
       devotionalId: devotional.id,
@@ -221,10 +221,10 @@ describe('engagement stats (admin)', () => {
     const [uA, uB, uC, uD] = members;
 
     const devoX = await prisma.devotional.create({
-      data: { date: '2026-03-10', theme: 'Graça', publishedAt: new Date('2026-03-10T00:00:00Z') },
+      data: { date: '2026-03-10', theme: 'Graça' },
     });
     const devoY = await prisma.devotional.create({
-      data: { date: '2026-03-11', publishedAt: new Date('2026-03-11T00:00:00Z') },
+      data: { date: '2026-03-11' },
     });
 
     const completion = (userId: string, logicalDate: string, devotionalId: string) =>

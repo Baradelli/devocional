@@ -28,7 +28,7 @@ A premissa de UX, herdada do Glorify, é **simplicidade radical**: o app é basi
 3. **Oração** com ambiente imersivo: gif/animação de fundo + som tranquilo em loop.
 4. **Anotações** por dia, com uma **biblioteca pessoal** das próprias anotações (rastreio dos próprios dias).
 5. **Gamificação completa**: streak diário (zera ao perder um dia), **árvore que cresce** por estágios, **insígnia semanal**, **prêmio mensal**, com coleção permanente de conquistas.
-6. **Painel de admin** (só Vitor) para subir o conteúdo diário (textos + áudios via upload + gif/som da oração), agendado para publicar às 00h.
+6. **Painel de admin** (só Vitor) para subir o conteúdo diário (textos + áudios via upload + gif/som da oração); o conteúdo fica disponível às 00h da sua data.
 7. **Base bíblica estruturada** (importada via SQL, suportando várias traduções), com um **seletor Livro → Capítulo → range de versículos** no admin para escolher a passagem; o devocional guarda a *referência canônica*, não o texto — isso prepara o terreno para as métricas da v2 sem exigir o dashboard agora.
 8. **Notificação de lembrete** com horário configurável por cada usuário, em **canais à escolha do usuário**: Web Push, WhatsApp, ou ambos.
 9. **WhatsApp como canal de notificação opcional**, com fluxo de **validação do número** antes de ativar.
@@ -99,11 +99,11 @@ Organizados pelos fluxos principais. Corte de v1 salvo indicação contrária.
 |---|---|---|
 | Performance / latência | Abertura da tela "Hoje" instantânea mesmo offline; áudio inicia em < 1s quando em cache. | Devocional do dia pré-cacheado pelo service worker; mídia cacheável. |
 | Escala / carga | Centenas de usuários, 1 devocional/dia idêntico para todos, leitura-pesada. Pico = janela da manhã/noite. | Conteúdo é o mesmo para todos → **altamente cacheável** (CDN/cache HTTP). Carga trivial; qualquer VPS aguenta. Sem necessidade de escala horizontal no v1. |
-| Disponibilidade | Downtime de algumas horas é tolerável; sem SLA formal. Offline-first reduz dependência de uptime. | Não precisa de HA/multi-instância. Mas o **job de publicação 00h e o de notificações** não podem falhar silenciosamente. |
+| Disponibilidade | Downtime de algumas horas é tolerável; sem SLA formal. Offline-first reduz dependência de uptime. | Não precisa de HA/multi-instância. Mas o **job de notificações** não pode falhar silenciosamente. |
 | Consistência / integridade | **Streak não pode ser burlável nem quebrar injustamente.** Anotações não podem ser perdidas. | **Servidor autoritativo** para dia lógico e streak (ADR-001). Anotações com escrita offline + sync idempotente. |
 | Segurança | Cadastro fechado por convite; cada usuário só vê/edita os próprios dados; admin só Vitor. | Auth por convite; autorização por papel (fiel/admin); rotas de admin protegidas. |
 | Privacidade / LGPD | PII mínima (e-mail/nome, anotações pessoais — possivelmente sensíveis por serem religiosas). Direito a exclusão de conta. | Coletar o mínimo; permitir apagar conta+dados; anotações privadas por padrão (não há comunidade). |
-| Observabilidade | Saber quando o job das 00h ou o de notificações falhou. | Logs estruturados + alerta nos jobs críticos (não bolted-on). |
+| Observabilidade | Saber quando o job de notificações falhou. | Logs estruturados + alerta nos jobs críticos (não bolted-on). |
 | Manutenibilidade / testes | Solo dev, vida longa. **TDD desde o início** como abordagem de desenvolvimento. | Boring tech, monólito modular, **testes unitários (domínio/use-cases, sem I/O) + integração contra Postgres real**; cobertura forte na lógica de streak/dia lógico/idempotência. Ver §12. |
 | Custo | Infra baixa e de custo fixo. | VPS Ubuntu único + PM2; storage em disco no v1. |
 | Deploy / operação | Auto-gerenciado, terreno conhecido do autor. | PM2 no Ubuntu; deploy simples; rollback por versão. |
@@ -115,7 +115,7 @@ Organizados pelos fluxos principais. Corte de v1 salvo indicação contrária.
 **Módulos (bounded contexts) e responsabilidades:**
 
 - **Identidade & Convites** — login simples, convites, papéis (fiel/admin).
-- **Conteúdo** — devocionais por data, blocos, mídias (áudio/gif/som), publicação agendada. É o contexto que o admin alimenta. A passagem bíblica de um bloco é uma **referência** à Bíblia, não texto solto.
+- **Conteúdo** — devocionais por data, blocos, mídias (áudio/gif/som); cada devocional fica disponível às 00h da sua data (por comparação de data, sem job de publicação). É o contexto que o admin alimenta. A passagem bíblica de um bloco é uma **referência** à Bíblia, não texto solto.
 - **Bíblia** — base estruturada (book/verse) multi-tradução, importada via SQL; expõe o seletor (livro/capítulo/range) e a montagem de texto de uma referência. Leitura pesada e imutável após importação → fortemente cacheável.
 - **Analytics (admin, somente-leitura) — v2.** Agregará referências bíblicas + conclusões para o dashboard (cobertura, repetições, rankings, uso). Fora do v1; sem pipeline próprio, lerá dos outros contextos. O v1 só garante que os dados existam no formato certo.
 - **Progresso & Gamificação** — conclusão diária, streak, árvore, insígnias, prêmios. **Dono da regra de dia lógico e da autoridade do streak.**
@@ -126,8 +126,7 @@ Organizados pelos fluxos principais. Corte de v1 salvo indicação contrária.
 **Comunicação:** chamadas in-process entre módulos via interfaces (delivery → application → domain; infra implementa as portas). Nada de broker entre módulos no v1.
 
 **Trabalho assíncrono / agendado (in-process no v1):**
-- **Job "virada do dia / publicação 00h":** torna o conteúdo da data disponível.
-- **Job "lembretes":** a cada poucos minutos, dispara os pushes cujos horários (no fuso de cada usuário) chegaram.
+- **Job "lembretes":** a cada poucos minutos, dispara os pushes cujos horários (no fuso de cada usuário) chegaram. (A disponibilidade do conteúdo não precisa de job: é decidida por comparação de data na leitura.)
 
 Começa como jobs in-process no mesmo processo Node (ou um processo PM2 dedicado). Vira fila com infra (Redis) só se volume/durabilidade exigirem — não exigem no v1.
 
@@ -152,7 +151,7 @@ Começa como jobs in-process no mesmo processo Node (ou um processo PM2 dedicado
         |                                                        |
         +--> [Anotações]                                         +--> streak/árvore/insígnia/prêmio
         |
-[Worker de jobs] --00h--> publica conteúdo ; --periódico--> dispara Web Push por horário
+[Worker de jobs] --periódico--> dispara Web Push por horário
 ```
 
 ## 6. Modelo de dados (esboço)
@@ -164,7 +163,7 @@ Entidades centrais (Postgres). Foco nas partes que importam, não no schema comp
 - **PushSubscription** — id, userId, endpoint + chaves (Web Push), device/label, criadoEm. (1 user : N devices.)
 - **WhatsappContact** — id, userId, número (E.164), **status** (`pendente`|`verificado`), códigoVerificação?, expiraEm, verificadoEm?. Número só recebe mensagem se `verificado`.
 - **ReminderPreference** — userId, horárioLocal (ex.: 07:00), **canais ativos** (push: bool, whatsapp: bool). Disparo calculado no fuso do user; cada canal ativável de forma independente.
-- **Devotional** — id, **date** (única; a data de publicação), tema (opcional), publishedAt. Histórico todo fica guardado (mesmo que a UI do v1 só mostre o de hoje).
+- **Devotional** — id, **date** (única; a data de publicação), tema (opcional). Fica disponível às 00h da `date` (decidido por comparação de data na leitura). Histórico todo fica guardado (mesmo que a UI do v1 só mostre o de hoje).
 - **DevotionalBlock** — id, devotionalId, tipo (`frase`|`passagem`|`devocional`|`oracao`|`reflexao`), ordem, texto?, **audioMediaId?**. Para `passagem`, o conteúdo é uma ou mais **PassageReference** (v1: uma) em vez de texto solto. Para `reflexao`, carrega as **3 perguntas + 3 ações**.
 - **Translation** — id, código (ex.: `ARA`, `NVI`), nome. Cada SQL importado popula uma tradução.
 - **Book** — id, translationId, book_reference_id (ordem canônica), testament_reference_id, name. (Espelha a tabela importada; chave canônica `book_reference_id` permite cruzar livros entre traduções.)
@@ -324,7 +323,7 @@ Começar pelo fluxo de **maior risco**, que é a espinha offline + autoridade de
 1. **Fundação:** monorepo, Fastify + Prisma + Postgres, modelo de dados, auth por convite, **setup de testes (Vitest + Testcontainers) e CI rodando a suíte desde o primeiro commit**.
 2. **Fluxo de maior risco primeiro:** conclusão do dia offline → fila local → sync idempotente → servidor valida dia lógico e atualiza streak/árvore. Testar fuso, virada de dia e dupla submissão.
 3. **Base bíblica:** importação dos SQLs (multi-tradução), modelo book/verse, e o **seletor livro→capítulo→range** com preview no admin.
-4. **Conteúdo + admin:** painel para montar o devocional (passagem via referência) + subir áudios + mídia da oração; job de publicação 00h.
+4. **Conteúdo + admin:** painel para montar o devocional (passagem via referência) + subir áudios + mídia da oração; disponibilidade às 00h da data (por comparação de data).
 5. **Tela "Hoje" (PWA):** blocos, ler/escutar com texto acompanhando, oração com gif + som; service worker cacheando o dia (texto da passagem já montado) para offline.
 6. **Gamificação visual:** árvore por estágios, insígnia semanal, prêmio mensal, coleção permanente.
 7. **Anotações + biblioteca pessoal.**

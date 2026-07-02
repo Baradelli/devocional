@@ -48,8 +48,8 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Bloco `reflection` carrega 3 perguntas + 3 ações.
 - [x] Upload de mídia (áudio por bloco; gif + som da oração) → storage em disco atrás de interface.
 - [x] Admin: formulário de montagem do devocional (RHF + Zod).
-- [x] Job de publicação 00h (in-process, ex. node-cron) torna o conteúdo da data disponível; log + alerta em falha.
-- [x] Testes: integração da criação de devocional e da publicação agendada.
+- [x] Disponibilidade do conteúdo por comparação de data (disponível às 00h da `date`, no fuso do usuário) — sem job de publicação nem flag `publishedAt`.
+- [x] Testes: integração da criação de devocional e da disponibilidade por data.
 
 ## M5 — Tela "Hoje" (PWA do fiel)
 - [x] Service worker (Workbox): cacheia app shell + devocional do dia (texto da passagem já montado) + mídias.
@@ -82,7 +82,7 @@ Tarefas pequenas e verificáveis, em ordem. Comece pela espinha de maior risco (
 - [x] Flag `onboardingCompletedAt`; permitir rever.
 
 ## M10 — Observabilidade & LGPD
-- [x] Logs estruturados; alertas nos jobs críticos (publicação 00h, notificações) e na sessão do WhatsApp.
+- [x] Logs estruturados; alertas nos jobs críticos (notificações) e na sessão do WhatsApp.
 - [x] Exclusão de conta + dados (LGPD).
 
 ## M11 — Admin moderno: Markdown, dashboards e restyle

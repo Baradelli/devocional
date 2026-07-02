@@ -153,9 +153,6 @@
 .cal__cell .badge__dot[data-status='scheduled'] {
   background: var(--bark);
 }
-.cal__cell .badge__dot[data-status='pending'] {
-  background: var(--warn-ink);
-}
 .cal__add {
   position: absolute;
   inset: 0;

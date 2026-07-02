@@ -174,7 +174,7 @@ function CalendarView({
               </div>
             );
           }
-          const status = summary ? deriveStatus(summary.publishedAt, summary.date, today) : null;
+          const status = summary ? deriveStatus(summary.date, today) : null;
           return (
             <button
               key={cell.iso}
@@ -204,7 +204,6 @@ function CalendarView({
       <div className="cal__legend">
         <StatusBadge status="published" />
         <StatusBadge status="scheduled" />
-        <StatusBadge status="pending" />
       </div>
     </Panel>
   );
@@ -251,7 +250,7 @@ function ListView({
               <td className="dev-row__weekday">{weekdayShort(s.date)}</td>
               <td className="dev-row__theme">{s.theme ?? '—'}</td>
               <td>
-                <StatusBadge status={deriveStatus(s.publishedAt, s.date, today)} />
+                <StatusBadge status={deriveStatus(s.date, today)} />
               </td>
             </tr>
           ))}

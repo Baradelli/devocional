@@ -7,7 +7,6 @@ import type {
 import type { PrismaClient } from '@prisma/client';
 
 import { createDevotional } from '../../application/content/createDevotional.js';
-import { ContentError } from '../../application/content/errors.js';
 import { getDevotionalForDate } from '../../application/content/getDevotional.js';
 import {
   type ResolvedMedia,
@@ -16,7 +15,6 @@ import {
   type UploadMediaInput,
 } from '../../application/content/media.js';
 import type { MediaRecord, PassageResolver } from '../../application/content/ports.js';
-import { publishDueDevotionals } from '../../application/content/publishDueDevotionals.js';
 import { updateDevotional } from '../../application/content/updateDevotional.js';
 import { logicalDate } from '../../domain/gamification/logicalDate.js';
 import type { BibleModule } from '../bible/bibleModule.js';
@@ -27,17 +25,15 @@ import { createMediaRepository } from './prismaMediaRepository.js';
 
 export interface ContentModuleConfig {
   mediaDir: string;
-  serverTimezone: string;
 }
 
 export interface ContentModule {
   createDevotional(input: CreateDevotionalRequest): Promise<void>;
   updateDevotional(date: string, input: UpdateDevotionalRequest): Promise<DevotionalSummary>;
   getDevotionalForDate(date: string): Promise<DevotionalView>;
-  /** Devocional publicado do dia lógico do usuário (tela "Hoje" do fiel). */
+  /** Devocional do dia lógico do usuário (tela "Hoje" do fiel). */
   getTodayDevotional(timezone: string): Promise<DevotionalView>;
   listDevotionals(): Promise<DevotionalSummary[]>;
-  publishDue(): Promise<number>;
   uploadMedia(input: UploadMediaInput): Promise<MediaRecord>;
   resolveMediaForServe(mediaId: string): Promise<ResolvedMedia>;
 }
@@ -68,23 +64,11 @@ export function createContentModule(
     createDevotional: (input) => createDevotional(repo, input),
     updateDevotional: (date, input) => updateDevotional(repo, date, input),
     getDevotionalForDate: (date) => getDevotionalForDate({ repo, resolvePassage }, date),
-    getTodayDevotional: async (timezone) => {
-      const date = logicalDate(clock.now(), timezone);
-      const record = await repo.findByDate(date);
-      if (!record || !record.publishedAt) {
-        throw new ContentError('DEVOTIONAL_NOT_FOUND');
-      }
-      return getDevotionalForDate({ repo, resolvePassage }, date);
-    },
-    listDevotionals: async () => {
-      const summaries = await repo.listSummaries();
-      return summaries.map((s) => ({
-        date: s.date,
-        theme: s.theme,
-        publishedAt: s.publishedAt?.toISOString() ?? null,
-      }));
-    },
-    publishDue: () => publishDueDevotionals({ repo, clock, serverTimezone: config.serverTimezone }),
+    // A disponibilidade é puramente por data: o devocional do dia lógico do
+    // usuário já está no ar. getDevotionalForDate lança 404 se não existir.
+    getTodayDevotional: (timezone) =>
+      getDevotionalForDate({ repo, resolvePassage }, logicalDate(clock.now(), timezone)),
+    listDevotionals: () => repo.listSummaries(),
     uploadMedia: (input) => uploadMedia(mediaDeps, input),
     resolveMediaForServe: (mediaId) => resolveMediaForServe(mediaDeps, mediaId),
   };
