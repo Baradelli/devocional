@@ -47,26 +47,22 @@ export interface DevotionalRecord {
   id: string;
   date: string;
   theme: string | null;
-  publishedAt: Date | null;
   blocks: BlockRecord[];
 }
 
 export interface DevotionalSummaryRecord {
   date: string;
   theme: string | null;
-  publishedAt: Date | null;
 }
 
 export interface DevotionalRepository {
   /** Cria o devocional e seus blocos atomicamente. Lança ContentError se a data já existe. */
   create(data: CreateDevotionalData): Promise<void>;
-  /** Substitui tema e blocos de um devocional existente, preservando publishedAt.
+  /** Substitui tema e blocos de um devocional existente.
    * Lança ContentError('DEVOTIONAL_NOT_FOUND') se a data não existe. */
   update(date: string, data: UpdateDevotionalData): Promise<DevotionalSummaryRecord>;
   findByDate(date: string): Promise<DevotionalRecord | null>;
   listSummaries(): Promise<DevotionalSummaryRecord[]>;
-  /** Publica os devocionais com data <= hoje ainda não publicados. Retorna quantos. */
-  publishDue(today: string, publishedAt: Date): Promise<number>;
 }
 
 export interface MediaRecord {
@@ -99,7 +95,3 @@ export interface MediaRepository {
 export type PassageResolver = (
   reference: PassageRefData,
 ) => Promise<{ label: string; text: string; verses: { verse: number; text: string }[] } | null>;
-
-export interface Clock {
-  now(): Date;
-}

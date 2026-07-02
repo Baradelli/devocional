@@ -157,7 +157,6 @@ describe('content authoring', () => {
     });
     expect(view.statusCode).toBe(200);
     const body = view.json<{
-      publishedAt: string | null;
       blocks: {
         type: string;
         text?: string;
@@ -167,7 +166,6 @@ describe('content authoring', () => {
       }[];
     }>();
 
-    expect(body.publishedAt).toBeNull();
     expect(body.blocks.map((b) => b.type)).toEqual([
       'QUOTE',
       'PASSAGE',
@@ -232,36 +230,6 @@ describe('content authoring', () => {
     expect(body.blocks[4]?.questions).toEqual(['Q1 nova', 'Q2 nova', 'Q3 nova']);
   });
 
-  it('keeps publishedAt unchanged when editing a published devotional', async () => {
-    await app.inject({
-      method: 'POST',
-      url: '/admin/devotionals',
-      headers: { cookie },
-      payload: devotionalBody('2019-01-01'),
-    });
-    await app.inject({ method: 'POST', url: '/admin/devotionals/publish', headers: { cookie } });
-    const before = await prisma.devotional.findUnique({ where: { date: '2019-01-01' } });
-    expect(before?.publishedAt).not.toBeNull();
-
-    const update = await app.inject({
-      method: 'PUT',
-      url: '/admin/devotionals/2019-01-01',
-      headers: { cookie },
-      payload: {
-        theme: 'Já publicado',
-        quote: { text: 'frase' },
-        passage: { reference: johnReference(translationId) },
-        devotional: { text: 'devocional' },
-        prayer: { text: 'oração' },
-        reflection: { questions: ['a', 'b', 'c'], actions: ['d', 'e', 'f'] },
-      },
-    });
-    expect(update.statusCode).toBe(200);
-
-    const after = await prisma.devotional.findUnique({ where: { date: '2019-01-01' } });
-    expect(after?.publishedAt?.toISOString()).toBe(before?.publishedAt?.toISOString());
-  });
-
   it('404s when editing a date that has no devotional', async () => {
     const update = await app.inject({
       method: 'PUT',
@@ -289,34 +257,6 @@ describe('content authoring', () => {
     expect(response.statusCode).toBe(409);
     expect(response.json()).toMatchObject({ error: 'DEVOTIONAL_EXISTS' });
   });
-
-  it('publishes only devotionals whose date has arrived', async () => {
-    await app.inject({
-      method: 'POST',
-      url: '/admin/devotionals',
-      headers: { cookie },
-      payload: devotionalBody('2020-01-01'),
-    });
-    await app.inject({
-      method: 'POST',
-      url: '/admin/devotionals',
-      headers: { cookie },
-      payload: devotionalBody('2999-12-31'),
-    });
-
-    const publish = await app.inject({
-      method: 'POST',
-      url: '/admin/devotionals/publish',
-      headers: { cookie },
-    });
-    expect(publish.statusCode).toBe(200);
-    expect(publish.json<{ published: number }>().published).toBeGreaterThanOrEqual(1);
-
-    const past = await prisma.devotional.findUnique({ where: { date: '2020-01-01' } });
-    const future = await prisma.devotional.findUnique({ where: { date: '2999-12-31' } });
-    expect(past?.publishedAt).not.toBeNull();
-    expect(future?.publishedAt).toBeNull();
-  });
 });
 
 describe('today (fiel)', () => {
@@ -342,14 +282,13 @@ describe('today (fiel)', () => {
     return `${c!.name}=${c!.value}`;
   }
 
-  it('returns the published devotional for the member logical day', async () => {
+  it('returns the devotional for the member logical day', async () => {
     await app.inject({
       method: 'POST',
       url: '/admin/devotionals',
       headers: { cookie },
       payload: devotionalBody(today),
     });
-    await app.inject({ method: 'POST', url: '/admin/devotionals/publish', headers: { cookie } });
 
     const member = await memberCookie('fiel-today@content.test');
     const response = await app.inject({
@@ -363,8 +302,8 @@ describe('today (fiel)', () => {
     expect(body.blocks).toHaveLength(5);
   });
 
-  it('404s when the day has no published devotional', async () => {
-    // Apaga o devocional de hoje para simular ausência de conteúdo publicado.
+  it('404s when the day has no devotional', async () => {
+    // Apaga o devocional de hoje para simular ausência de conteúdo.
     await prisma.devotional.deleteMany({ where: { date: today } });
     const member = await memberCookie('fiel-empty@content.test');
     const response = await app.inject({

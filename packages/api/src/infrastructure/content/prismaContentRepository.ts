@@ -76,8 +76,8 @@ export function createContentRepository(prisma: PrismaClient): DevotionalReposit
     },
 
     update(date, data) {
-      // Reescreve o conjunto inteiro de blocos atomicamente; publishedAt e a
-      // data não são tocados. Apagar os blocos remove as passagens em cascata.
+      // Reescreve o conjunto inteiro de blocos atomicamente; a data não é
+      // tocada. Apagar os blocos remove as passagens em cascata.
       return prisma.$transaction(async (tx) => {
         const existing = await tx.devotional.findUnique({
           where: { date },
@@ -93,7 +93,7 @@ export function createContentRepository(prisma: PrismaClient): DevotionalReposit
             theme: data.theme,
             blocks: { create: data.blocks.map(toBlockCreateInput) },
           },
-          select: { date: true, theme: true, publishedAt: true },
+          select: { date: true, theme: true },
         });
         return updated;
       });
@@ -111,7 +111,6 @@ export function createContentRepository(prisma: PrismaClient): DevotionalReposit
         id: devotional.id,
         date: devotional.date,
         theme: devotional.theme,
-        publishedAt: devotional.publishedAt,
         blocks: devotional.blocks.map(toBlockRecord),
       };
     },
@@ -119,15 +118,7 @@ export function createContentRepository(prisma: PrismaClient): DevotionalReposit
     listSummaries: () =>
       prisma.devotional.findMany({
         orderBy: { date: 'desc' },
-        select: { date: true, theme: true, publishedAt: true },
+        select: { date: true, theme: true },
       }),
-
-    async publishDue(today, publishedAt) {
-      const result = await prisma.devotional.updateMany({
-        where: { publishedAt: null, date: { lte: today } },
-        data: { publishedAt },
-      });
-      return result.count;
-    },
   };
 }

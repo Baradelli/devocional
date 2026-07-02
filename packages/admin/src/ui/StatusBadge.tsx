@@ -1,26 +1,17 @@
-export type DevotionalStatus = 'published' | 'scheduled' | 'pending';
+export type DevotionalStatus = 'published' | 'scheduled';
 
 const LABELS: Record<DevotionalStatus, string> = {
   published: 'Publicado',
   scheduled: 'Agendado',
-  pending: 'Pendente',
 };
 
 /**
- * Deriva o status de exibição a partir da data e de publishedAt.
- * - publicado: já saiu (publishedAt preenchido);
- * - pendente: a data chegou mas o job ainda não publicou;
+ * Deriva o status de exibição a partir da data. A disponibilidade é por data:
+ * - publicado: a data já chegou (date <= hoje);
  * - agendado: data futura, aguardando o dia.
  */
-export function deriveStatus(
-  publishedAt: string | null,
-  date: string,
-  today: string,
-): DevotionalStatus {
-  if (publishedAt) {
-    return 'published';
-  }
-  return date <= today ? 'pending' : 'scheduled';
+export function deriveStatus(date: string, today: string): DevotionalStatus {
+  return date <= today ? 'published' : 'scheduled';
 }
 
 export function StatusBadge({ status }: { status: DevotionalStatus }) {

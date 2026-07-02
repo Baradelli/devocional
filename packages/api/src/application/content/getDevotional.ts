@@ -79,7 +79,6 @@ export async function getDevotionalForDate(
     id: devotional.id,
     date: devotional.date,
     theme: devotional.theme,
-    publishedAt: devotional.publishedAt?.toISOString() ?? null,
     blocks,
   };
 }

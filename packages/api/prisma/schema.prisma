@@ -185,14 +185,14 @@ model Verse {
 }
 
 // Conteúdo diário. Histórico completo persistido; a UI do v1 só mostra "hoje"
-// (ADR-004). Disponível às 00h da `date` — `publishedAt` registra a publicação.
+// (ADR-004). Fica disponível às 00h da `date` (fuso do usuário) — a
+// disponibilidade é puramente por data, sem flag de publicação.
 model Devotional {
-  id          String    @id @default(cuid())
-  date        String    @unique // YYYY-MM-DD da publicação
-  theme       String?
-  publishedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  date      String   @unique // YYYY-MM-DD da publicação
+  theme     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blocks DevotionalBlock[]
   notes  Note[]

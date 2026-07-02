@@ -12,9 +12,9 @@ describe('createLogAlerter', () => {
     const cause = new Error('boom');
 
     createLogAlerter(log).alert({
-      event: 'PUBLISH_JOB_FAILED',
+      event: 'REMINDER_JOB_FAILED',
       severity: 'critical',
-      message: 'devotional publication job failed',
+      message: 'reminder dispatch job failed',
       context: { date: '2026-06-17' },
       cause,
     });
@@ -24,12 +24,12 @@ describe('createLogAlerter', () => {
     const call = log.error.mock.calls[0] as [Record<string, unknown>, string];
     expect(call[0]).toMatchObject({
       alert: true,
-      event: 'PUBLISH_JOB_FAILED',
+      event: 'REMINDER_JOB_FAILED',
       severity: 'critical',
       date: '2026-06-17',
       err: cause,
     });
-    expect(call[1]).toBe('devotional publication job failed');
+    expect(call[1]).toBe('reminder dispatch job failed');
   });
 
   it('emits a warning alert at warn level', () => {

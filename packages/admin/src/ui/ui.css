@@ -217,13 +217,6 @@ select.control {
 .badge--scheduled .badge__dot {
   background: var(--bark);
 }
-.badge--pending {
-  background: var(--warn-tint);
-  color: var(--warn-ink);
-}
-.badge--pending .badge__dot {
-  background: var(--warn-ink);
-}
 
 /* ---------- Modal ---------- */
 .modal {

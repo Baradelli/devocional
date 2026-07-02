@@ -41,7 +41,7 @@ interface MediaIds {
 type LoadState =
   | { kind: 'loading' }
   | { kind: 'error' }
-  | { kind: 'ready'; publishedAt: string | null; passage: PassageReference | null };
+  | { kind: 'ready'; passage: PassageReference | null };
 
 function block<T extends BlockView['type']>(
   view: DevotionalView,
@@ -54,14 +54,11 @@ function mediaIdFromUrl(url: string | null): string | undefined {
   return url ? (url.split('/').pop() ?? undefined) : undefined;
 }
 
-function scheduleText(date: string, publishedAt: string | null, today: string): string {
-  if (publishedAt) {
-    return `Publicado em ${formatLong(date, true)}.`;
-  }
+function scheduleText(date: string, today: string): string {
   if (date > today) {
     return `Será publicado automaticamente em ${formatLong(date, true)}.`;
   }
-  return 'A data já chegou — será publicado no próximo ciclo.';
+  return `Publicado em ${formatLong(date, true)}.`;
 }
 
 export function DevotionalEditor() {
@@ -74,7 +71,7 @@ export function DevotionalEditor() {
 
   const [date, setDate] = useState(routeDate ?? searchParams.get('date') ?? '');
   const [load, setLoad] = useState<LoadState>(
-    isEdit ? { kind: 'loading' } : { kind: 'ready', publishedAt: null, passage: null },
+    isEdit ? { kind: 'loading' } : { kind: 'ready', passage: null },
   );
   const [passage, setPassage] = useState<PassageReference | null>(null);
   const [media, setMedia] = useState<MediaIds>({});
@@ -132,7 +129,6 @@ export function DevotionalEditor() {
 
         setLoad({
           kind: 'ready',
-          publishedAt: view.publishedAt,
           passage: passageBlock?.reference ?? null,
         });
       },
@@ -225,7 +221,7 @@ export function DevotionalEditor() {
           <h1 className="page-head__title">{isEdit ? 'Editar devocional' : 'Novo devocional'}</h1>
           <p className="page-head__sub">
             {isEdit && routeDate
-              ? scheduleText(routeDate, load.publishedAt, today)
+              ? scheduleText(routeDate, today)
               : 'Monte o conteúdo do dia. A data define quando ele é publicado.'}
           </p>
         </div>
@@ -374,10 +370,10 @@ export function DevotionalEditor() {
         <div className="editor__footer">
           <span className="editor__schedule">
             {!isEdit && /^\d{4}-\d{2}-\d{2}$/.test(date)
-              ? scheduleText(date, null, today)
+              ? scheduleText(date, today)
               : !isEdit
                 ? 'Escolha uma data para ver quando será publicado.'
-                : scheduleText(routeDate!, load.publishedAt, today)}
+                : scheduleText(routeDate!, today)}
           </span>
           <Button type="submit" loading={isSubmitting}>
             {isEdit ? 'Salvar alterações' : 'Criar devocional'}

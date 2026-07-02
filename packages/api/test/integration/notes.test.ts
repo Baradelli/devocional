@@ -86,7 +86,7 @@ async function loginAs(email: string): Promise<string> {
 }
 
 async function createDevotional(date: string): Promise<string> {
-  const row = await prisma.devotional.create({ data: { date, publishedAt: new Date() } });
+  const row = await prisma.devotional.create({ data: { date } });
   return row.id;
 }
 
